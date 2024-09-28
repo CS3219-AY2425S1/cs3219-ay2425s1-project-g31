@@ -8,6 +8,8 @@ import { PasswordReset } from './PasswordReset'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
+import { loginRequest } from '@/services/user-service-api'
+import { IUserDto, Proficiency, Role } from '@repo/user-types'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
@@ -34,23 +36,21 @@ export default function Login() {
         setFormErrors(errors)
 
         if (isValid) {
-            toast.success('Logged in successfully')
+            const requestBody: IUserDto = {
+                ...formValues,
+                proficiency: Proficiency.BEGINNER,
+                role: Role.USER,
+                id: '',
+            }
+            try {
+                await loginRequest(requestBody)
+                toast.success('Logged in successfully')
+            } catch (error) {
+                if (error instanceof Error) {
+                    toast.error(error.message)
+                }
+            }
         }
-
-        // try {
-        //     const body = JSON.stringify({ email, password })
-        //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body,
-        //     })
-        //     await res.json()
-        //     toast.success('Logged in successfully')
-        // } catch {
-        //     toast.error('Failed to login')
-        // }
     }
 
     return (

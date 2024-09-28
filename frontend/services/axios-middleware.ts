@@ -22,17 +22,18 @@ api.interceptors.request.use(
 // Response interceptor for all axios calls
 api.interceptors.response.use(
     (response) => {
+        // Intercept token here and store it in localStorage
         return response.data
     },
     (error) => {
         if (error.response) {
-            switch (error.response.status) {
-                case 401:
-                    console.error('Unauthorized! Please log in again.')
-                    break
-                default:
-                    console.error('An error occurred:', error.response.data)
-            }
+            // switch (error.response.status) {
+            //     case 401:
+            //         console.error('Unauthorized! Please log in again.')
+            //         break
+            //     default:
+            //         console.error('An error occurred:', error.response.data)
+            // }
         }
         return Promise.reject(error)
     }

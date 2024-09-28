@@ -27,11 +27,11 @@ export async function handleCreateUser(request: ITypedBodyRequest<CreateUserDto>
 
     const duplicate = await findUsersByUsernameAndEmail(createDto.username, createDto.email)
     if (duplicate.find((user: IUser) => user.username === createDto.username)) {
-        response.status(409).json(['DUPLICATE_USERNAME']).send()
+        response.status(409).json('DUPLICATE_USERNAME')
         return
     }
     if (duplicate.find((user: IUser) => user.email === createDto.email)) {
-        response.status(409).json('DUPLICATE_EMAIL').send()
+        response.status(409).json('DUPLICATE_EMAIL')
         return
     }
 

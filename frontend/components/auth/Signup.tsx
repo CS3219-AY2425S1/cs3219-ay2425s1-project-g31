@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 import { signUpRequest } from '@/services/user-service-api'
-import { ISignUp } from '@/types/api'
+import { IUserDto, Proficiency, Role } from '@repo/user-types'
 
 export default function Signup() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
@@ -36,17 +36,20 @@ export default function Signup() {
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)
         if (isValid) {
-            const requestBody: ISignUp = {
+            const requestBody: IUserDto = {
                 ...formValues,
-                proficiency: 'BEGINNER',
-                role: 'USER',
+                proficiency: Proficiency.BEGINNER,
+                role: Role.USER,
+                id: '',
             }
             try {
                 setIsLoading(true)
                 await signUpRequest(requestBody)
-                toast.success('Signed Up successfully')
+                toast.success('Signed up successfully!')
             } catch (error) {
-                if (error) toast.error('Failed to sign up, please try again!')
+                if (error instanceof Error) {
+                    toast.error(error.message)
+                }
             } finally {
                 setIsLoading(false)
             }
