@@ -9,10 +9,12 @@
         "test": "jest",
         "lint": "eslint . --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown .",
         "start": "npm run build && node dist/server.js",
-        "dev": "nodemon src/server.ts"
+        "dev": "nodemon src/server.ts",
+        "startall": "concurrently \"npm run start\" \"cd ../../frontend/ && npm run dev\""
     },
     "license": "MIT",
     "dependencies": {
+        "axios": "^1.7.7",
         "bcrypt": "^5.1.1",
         "class-validator": "^0.14.1",
         "cors": "^2.8.5",
@@ -47,6 +49,7 @@
         "@types/passport-jwt": "^4.0.1",
         "@types/passport-local": "^1.0.38",
         "@types/supertest": "^6.0.2",
+        "concurrently": "^9.0.1",
         "globals": "^15.9.0",
         "jest": "^29.7.0",
         "nodemon": "^3.1.4",

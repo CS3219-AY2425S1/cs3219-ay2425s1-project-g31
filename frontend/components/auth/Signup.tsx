@@ -5,12 +5,16 @@ import validateInput, { initialFormValues } from '@/util/input-validation'
 import { Button } from '../ui/button'
 import { InputField } from '../customs/custom-input'
 import { toast } from 'sonner'
+import { Loader2 } from 'lucide-react'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
+import { signUpRequest } from '@/services/user-service-api'
+import { ISignUp } from '@/types/api'
 
 export default function Signup() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [isLoading, setIsLoading] = useState(false)
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 
@@ -19,7 +23,7 @@ export default function Signup() {
         setFormValues({ ...formValues, [id]: value })
     }
 
-    const onSignup = () => {
+    const onSignup = async () => {
         const isTest = {
             username: true,
             email: true,
@@ -32,22 +36,20 @@ export default function Signup() {
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)
         if (isValid) {
-            // Add API calls here
-            // try {
-            //     const body = JSON.stringify({ email, name, password: password })
-            //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/signup`, {
-            //         method: 'POST',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //         },
-            //         body,
-            //     })
-            //     await res.json()
-            //     toast.success('Logged in successfully')
-            // } catch {
-            //     toast.success('Failed to login')
-            // }
-            toast.success('Signed Up successfully')
+            const requestBody: ISignUp = {
+                ...formValues,
+                proficiency: 'BEGINNER',
+                role: 'USER',
+            }
+            try {
+                setIsLoading(true)
+                await signUpRequest(requestBody)
+                toast.success('Signed Up successfully')
+            } catch (error) {
+                if (error) toast.error('Failed to sign up, please try again!')
+            } finally {
+                setIsLoading(false)
+            }
         }
     }
 
@@ -97,9 +99,16 @@ export default function Signup() {
                 page="auth"
             />
 
-            <Button onClick={onSignup} variant="primary" className="w-full text-md mt-5 h-[42px]">
-                Sign Up
-            </Button>
+            {isLoading ? (
+                <Button disabled variant="primary" className="w-full text-md mt-5 h-[42px]">
+                    <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                </Button>
+            ) : (
+                <Button onClick={onSignup} variant="primary" className="w-full text-md mt-5 h-[42px]">
+                    Sign Up
+                </Button>
+            )}
+
             <p className="text-sm text-center text-gray-500 mt-2 px-6">
                 By clicking Sign up, you agree to our Terms of Service and Privacy Policy
             </p>
