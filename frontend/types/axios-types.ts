@@ -13,11 +13,14 @@ export interface ILoginUserRequest {
     password: string
 }
 
-export interface ILoginUserResponse {
+export interface IUserInfo {
     id: string
     username: string
     email: string
     role: Role
     proficiency: Proficiency
+}
+
+export interface ILoginUserResponse extends IUserInfo {
     accessToken: string
 }

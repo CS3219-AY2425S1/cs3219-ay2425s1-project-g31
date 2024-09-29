@@ -9,7 +9,7 @@ import { Loader2 } from 'lucide-react'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 import { signUpRequest } from '@/services/user-service-api'
-import { IUserDto, Proficiency, Role } from '@repo/user-types'
+import { Proficiency, Role } from '@repo/user-types'
 import { ICreateUser } from '@/types/axios-types'
 
 export default function Signup() {

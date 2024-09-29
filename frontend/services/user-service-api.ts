@@ -1,7 +1,7 @@
 import axiosInstance from './axios-middleware'
 import axios from 'axios'
 import { IUserDto } from '@repo/user-types'
-import { ICreateUser, ILoginUserRequest, ILoginUserResponse } from '@/types/axios-types'
+import { ICreateUser, ILoginUserRequest, ILoginUserResponse, IUserInfo } from '@/types/axios-types'
 
 // POST /users
 export const signUpRequest = async (userData: ICreateUser): Promise<IUserDto | undefined> => {
@@ -36,7 +36,7 @@ export const signUpRequest = async (userData: ICreateUser): Promise<IUserDto | u
     }
 }
 
-// Incomplete
+// POST /auth/login
 export const loginRequest = async (userData: ILoginUserRequest): Promise<ILoginUserResponse | undefined> => {
     try {
         const response: ILoginUserResponse = await axiosInstance.post('/auth/login', userData)
@@ -54,6 +54,27 @@ export const loginRequest = async (userData: ILoginUserRequest): Promise<ILoginU
                     throw new Error('No such user, please try again!')
                 case 500:
                     throw new Error('Failed to connect to server, please try again!')
+            }
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
+    }
+}
+
+// GET /users/:id
+export const getUserProfile = async (id: string): Promise<IUserInfo | undefined> => {
+    try {
+        const response: ILoginUserResponse = await axiosInstance.get(`/users/${id}`)
+        return response
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+
+            switch (statusCode) {
+                case 404:
+                    throw new Error('Error getting profile: No such user!')
+                default:
+                    throw new Error('An unexpected error occurred' + error.message)
             }
         } else {
             throw new Error('An unexpected error occurred')

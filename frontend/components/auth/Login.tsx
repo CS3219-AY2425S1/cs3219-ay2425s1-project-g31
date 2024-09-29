@@ -9,12 +9,16 @@ import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 import { loginRequest } from '@/services/user-service-api'
-import { IUserDto, Proficiency, Role } from '@repo/user-types'
+import { useRecoilState } from 'recoil'
+import { userState } from '@/atoms/auth'
+import { useRouter } from 'next/router'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
+    const [isAuth, setIsAuth] = useRecoilState(userState)
+    const router = useRouter()
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { id, value } = e.target
@@ -42,6 +46,8 @@ export default function Login() {
             }
             try {
                 await loginRequest(requestBody)
+                setIsAuth(true)
+                router.push('/')
                 toast.success('Logged in successfully')
             } catch (error) {
                 if (error instanceof Error) {
