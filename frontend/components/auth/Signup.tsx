@@ -15,7 +15,7 @@ import React from 'react'
 
 export default function Signup() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
-    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [isLoading, setIsLoading] = useState(false)
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()

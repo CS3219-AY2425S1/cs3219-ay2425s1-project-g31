@@ -13,11 +13,10 @@ import { useSetRecoilState } from 'recoil'
 import { tokenState, userState } from '@/atoms/auth'
 import { useRouter } from 'next/router'
 import React from 'react'
-import { ILoginUserResponse } from '@/types/axios-types'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
-    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const setIsAuth = useSetRecoilState(userState)
     const setIsValid = useSetRecoilState(tokenState)

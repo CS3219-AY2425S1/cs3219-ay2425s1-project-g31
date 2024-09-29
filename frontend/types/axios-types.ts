@@ -8,8 +8,11 @@ export interface ICreateUser {
     proficiency: Proficiency
 }
 
-export interface ILoginUserRequest {
+export interface ILoginUserRequest extends IUserPassword {
     usernameOrEmail: string
+}
+
+export interface IUserPassword {
     password: string
 }
 
@@ -23,4 +26,9 @@ export interface IUserInfo {
 
 export interface ILoginUserResponse extends IUserInfo {
     accessToken: string
+}
+
+export interface IUserProfile {
+    username: string
+    proficiency: Proficiency
 }

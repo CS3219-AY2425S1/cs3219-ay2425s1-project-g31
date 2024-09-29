@@ -1,21 +1,19 @@
-import { IValidateFormInput, IValidateFormInputBoolean } from '@/types/forms'
+import { IErrorFormInput, IValidateFormInput, IValidateFormInputBoolean } from '@/types/forms'
+import { Proficiency } from '@repo/user-types'
 
 export const initialFormValues: IValidateFormInput = {
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    proficiency: '',
+    proficiency: Proficiency.BEGINNER,
     loginPassword: '',
     otp: '',
 }
 
-const validateInput = (
-    test: IValidateFormInputBoolean,
-    testValue: IValidateFormInput
-): [IValidateFormInput, boolean] => {
+const validateInput = (test: IValidateFormInputBoolean, testValue: IValidateFormInput): [IErrorFormInput, boolean] => {
     let isValid = true
-    const errors: IValidateFormInput = { ...initialFormValues }
+    const errors: IErrorFormInput = { ...initialFormValues, proficiency: '' }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i
     const passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
@@ -62,7 +60,7 @@ const validateInput = (
     }
 
     if (test.proficiency) {
-        if (!testValue.proficiency) {
+        if (!Object.values(Proficiency).includes(testValue.proficiency)) {
             errors.proficiency = 'Please choose a proficiency level!'
             isValid = false
         }

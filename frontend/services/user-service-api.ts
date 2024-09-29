@@ -1,4 +1,11 @@
-import { ICreateUser, ILoginUserRequest, ILoginUserResponse, IUserInfo } from '@/types/axios-types'
+import {
+    ICreateUser,
+    ILoginUserRequest,
+    ILoginUserResponse,
+    IUserInfo,
+    IUserPassword,
+    IUserProfile,
+} from '@/types/axios-types'
 import { IEmailVerificationDto } from '@repo/user-types'
 import { IUserDto } from '@repo/user-types'
 import axios from 'axios'
@@ -97,6 +104,56 @@ export const updateUserProfile = async (id: string): Promise<IUserInfo | undefin
                 default:
                     throw new Error('An unexpected error occurred' + error.message)
             }
+        }
+    }
+}
+
+// PUT /:id/password
+export const updatePasswordRequest = async (password: IUserPassword, id: string): Promise<IUserInfo | undefined> => {
+    try {
+        const response: IUserInfo = await axiosInstance.put(`/users/${id}/password`, password)
+        return response
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+            switch (statusCode) {
+                case 400:
+                    throw new Error('Did not meet password requirements')
+                case 401:
+                    throw new Error('Invalid login credentials, please check your input!')
+                case 404:
+                    throw new Error('No such user, please try again!')
+                case 500:
+                    throw new Error('Failed to connect to server, please try again!')
+            }
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
+    }
+}
+
+// PUT /:id/
+export const updateProfile = async (id: string, userData: Partial<IUserProfile>): Promise<IUserInfo | undefined> => {
+    try {
+        const response: ILoginUserResponse = await axiosInstance.put(`/users/${id}`, userData)
+        return response
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+            switch (statusCode) {
+                case 400:
+                    throw new Error('Bad Request...')
+                case 401:
+                    throw new Error('Invalid login credentials, please check your input!')
+                case 404:
+                    throw new Error('No such user, please try again!')
+                case 409:
+                    throw new Error('The username is taken already, please try again with a different username')
+                case 500:
+                    throw new Error('Failed to connect to server, please try again!')
+            }
+        } else {
+            throw new Error('An unexpected error occurred')
         }
     }
 }

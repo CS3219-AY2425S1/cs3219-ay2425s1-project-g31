@@ -1,6 +1,5 @@
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from '../ui/input-otp'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-
 import { ErrorIconToast } from '@/assets/icons/error-icon'
 
 interface InputFieldProps {

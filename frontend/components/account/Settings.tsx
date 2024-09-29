@@ -4,15 +4,28 @@ import CustomDialogWithButton from '../customs/custom-dialog'
 import { InputField } from '../customs/custom-input'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { updatePasswordRequest } from '@/services/user-service-api'
+import React from 'react'
 
 function Setting() {
-    const defaultEmail = sessionStorage.getItem('email')
+    const defaultEmail: string = useMemo(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem('email') ?? ''
+        }
+        return ''
+    }, [])
+    const userId: string = useMemo(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem('id') ?? ''
+        }
+        return ''
+    }, [])
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 
     const [formValues, setFormValues] = useState({ ...initialFormValues, email: defaultEmail })
-    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [isDeleteDialogOpen, toggleDeleteDialogOpen] = useState(false)
     const [isUpdateDialogOpen, toggleUpdateDialogOpen] = useState(false)
     const [isFormSubmit, setIsFormSubmit] = useState(false)
@@ -23,11 +36,18 @@ function Setting() {
     }
 
     // Submit handler
-    const handleFormSubmit = () => {
-        setIsFormSubmit(true)
-        toggleUpdateDialogOpen(false)
-        toast.success('Profile has been updated successfully.')
-        setFormValues({ ...initialFormValues, email: defaultEmail })
+    const handleFormSubmit = async () => {
+        try {
+            await updatePasswordRequest({ password: formValues.password }, userId)
+            setIsFormSubmit(true)
+            toggleUpdateDialogOpen(false)
+            toast.success('Profile has been updated successfully.')
+            setFormValues({ ...initialFormValues, email: defaultEmail })
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error(error.message)
+            }
+        }
     }
 
     const handleUpdateClick = (): void => {

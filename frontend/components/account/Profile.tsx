@@ -4,6 +4,9 @@ import validateInput, { initialFormValues } from '@/util/input-validation'
 import CustomDialogWithButton from '../customs/custom-dialog'
 import { toast } from 'sonner'
 import { useMemo, useState } from 'react'
+import { updateProfile } from '@/services/user-service-api'
+import { Proficiency } from '@repo/user-types'
+import React from 'react'
 
 function Profile() {
     const defaultUsername: string = useMemo(() => {
@@ -13,7 +16,7 @@ function Profile() {
         return ''
     }, [])
     const [formValues, setFormValues] = useState({ ...initialFormValues, username: defaultUsername })
-    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [isDialogOpen, toggleDialogOpen] = useState(false)
     const [isFormSubmit, setIsFormSubmit] = useState(false)
 
@@ -23,14 +26,33 @@ function Profile() {
     }
 
     const handleProficiencyChange = (e: string): void => {
-        setFormValues({ ...formValues, proficiency: e })
+        setFormValues({ ...formValues, proficiency: e.toUpperCase() as Proficiency })
     }
 
-    const handleFormSubmit = (): void => {
+    const handleFormSubmit = async () => {
         setIsFormSubmit(true)
         toggleDialogOpen(false)
-        toast.success('Profile has been updated successfully.')
-        setFormValues({ ...initialFormValues, username: defaultUsername })
+        const userData = { username: formValues.username, proficiency: formValues.proficiency }
+        try {
+            const response = await updateProfile(sessionStorage.getItem('id') ?? '', userData)
+            if (response) {
+                const proficiency = Object.values(Proficiency).includes(response.proficiency as Proficiency)
+                    ? response.proficiency
+                    : Proficiency.BEGINNER
+
+                sessionStorage.setItem('username', response.username ?? '')
+                setFormValues({
+                    ...formValues,
+                    username: response.username ?? '',
+                    proficiency: proficiency,
+                })
+                toast.success('Profile has been updated successfully.')
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error(error.message)
+            }
+        }
     }
 
     const handleUpdateClick = (): void => {
@@ -73,7 +95,7 @@ function Profile() {
                     <OptionsField
                         id="proficiency"
                         label="Proficiency"
-                        value={formValues.proficiency}
+                        value={formValues.proficiency.toString().toLowerCase()}
                         onChange={handleProficiencyChange}
                         error={formErrors.proficiency}
                     />

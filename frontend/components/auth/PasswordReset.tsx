@@ -23,7 +23,7 @@ export function PasswordReset() {
     const [open, setOpen] = useState(false)
     const [formStep, setFormStep] = useState<ResetPasswordSteps>(ResetPasswordSteps.Step1)
     const [formValues, setFormValues] = useState({ ...initialFormValues })
-    const [formErrors, setFormErrors] = useState({ ...initialFormValues })
+    const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 

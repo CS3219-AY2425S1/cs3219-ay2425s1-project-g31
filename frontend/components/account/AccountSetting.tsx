@@ -2,6 +2,7 @@ import Profile from './Profile'
 import Setting from './Settings'
 import CustomTabs from '../customs/custom-tabs'
 import { useState } from 'react'
+import React from 'react'
 
 const AccountSetting = () => {
     const accountTabs = ['Profile', 'Setting']

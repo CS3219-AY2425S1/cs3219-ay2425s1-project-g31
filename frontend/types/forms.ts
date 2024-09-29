@@ -1,11 +1,17 @@
+import { Proficiency } from '@repo/user-types'
+
 export interface IValidateFormInput {
     username: string
     email: string
     password: string
     confirmPassword: string
-    proficiency: string
+    proficiency: Proficiency
     loginPassword: string
     otp: string
+}
+
+export interface IErrorFormInput extends Omit<IValidateFormInput, 'proficiency'> {
+    proficiency: string
 }
 
 export interface IValidateFormInputBoolean {
