@@ -1,11 +1,15 @@
 import { IAuthenticatedRequest, ITypedBodyRequest } from '@repo/request-types'
-import { ValidationError } from 'class-validator'
-import { Response } from 'express'
-import { generateOTP, sendMail } from '../common/mail.util'
-import { getHTMLTemplate } from '../common/template.util'
-import { generateAccessToken } from '../common/token.util'
 import { findOneUserByEmail, updateUser } from '../models/user.repository'
+import { generateOTP, sendMail } from '../common/mail.util'
+
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
+import { Response } from 'express'
+import { UpdatePasswordDto } from '../types/UpdatePasswordDto'
+import { UserDto } from '../types/UserDto'
+import { ValidationError } from 'class-validator'
+import { generateAccessToken } from '../common/token.util'
+import { getHTMLTemplate } from '../common/template.util'
+import { hashPassword } from '../common/password.util'
 
 export async function handleLogin({ user }: IAuthenticatedRequest, response: Response): Promise<void> {
     const accessToken = await generateAccessToken(user)
@@ -74,8 +78,38 @@ export async function handleVerify(
         return
     }
 
-    createDto.verificationToken = '0'
     await updateUser(user.id, createDto)
 
     response.status(200).send()
+}
+
+export async function handleUpdate(request: ITypedBodyRequest<UpdatePasswordDto>, response: Response): Promise<void> {
+    const createDto = UpdatePasswordDto.fromRequest(request)
+    const errors = await createDto.validate()
+    if (errors.length) {
+        const errorMessages = errors.map((error: ValidationError) => `INVALID_${error.property.toUpperCase()}`)
+        response.status(400).json(errorMessages).send()
+        return
+    }
+
+    createDto.password = await hashPassword(createDto.password)
+
+    const user = await findOneUserByEmail(createDto.email)
+
+    if (!user) {
+        response.status(404).json('USER_NOT_FOUND').send()
+        return
+    }
+
+    if (user.verificationToken == '0' || user.verificationToken !== createDto.verificationToken) {
+        response.status(400).json('INVALID_OTP').send()
+        return
+    }
+
+    createDto.verificationToken = '0'
+    const dto = UserDto.fromModel(user)
+
+    await updateUser(user.id, createDto)
+
+    response.status(200).json(dto).send()
 }

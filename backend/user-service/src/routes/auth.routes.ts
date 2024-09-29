@@ -1,7 +1,8 @@
+import { handleLogin, handleReset, handleUpdate, handleVerify } from '../controllers/auth.controller'
+
 import { Router } from 'express'
-import passport from 'passport'
-import { handleLogin, handleReset, handleVerify } from '../controllers/auth.controller'
 import { handleValidateToken } from '../controllers/user.controller'
+import passport from 'passport'
 
 const router = Router()
 
@@ -12,5 +13,6 @@ router.use(passport.authenticate('jwt', { session: false }))
 router.get('/token', handleValidateToken)
 router.post('/reset', handleReset)
 router.post('/verify', handleVerify)
+router.post('/update', handleUpdate)
 
 export default router
