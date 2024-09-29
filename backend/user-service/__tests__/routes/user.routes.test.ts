@@ -164,16 +164,14 @@ describe('User Routes', () => {
                     })
                 )
             })
-            it('should return 404 for non-existent ids', async () => {
+            it('should return 403 for non-existent ids', async () => {
                 const testID = '000000000000000000000000' // MongoDB ID is 24 char
                 const response = await authenticatedTestAgent.get(`/users/${testID}`).send()
-                expect(response.status).toBe(404)
-                expect(response.body).toMatchObject({})
+                expect(response.status).toBe(403)
             })
-            it('should return 400 for non-existent/invalid ids', async () => {
+            it('should return 403 for non-existent/invalid ids', async () => {
                 const response = await authenticatedTestAgent.get('/users/123').send()
-                expect(response.status).toBe(400)
-                expect(response.body).toContain('INVALID_ID')
+                expect(response.status).toBe(403)
             })
         })
 

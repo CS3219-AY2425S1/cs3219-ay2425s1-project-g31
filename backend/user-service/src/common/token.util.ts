@@ -10,7 +10,7 @@ export async function generateAccessToken(user: IUserDto): Promise<string> {
     const options: SignOptions = {
         subject: user.email,
         algorithm: 'RS256', // Assymetric Algorithm
-        expiresIn: '15s',
+        expiresIn: '1h',
         issuer: 'user-service',
         audience: 'frontend',
     }

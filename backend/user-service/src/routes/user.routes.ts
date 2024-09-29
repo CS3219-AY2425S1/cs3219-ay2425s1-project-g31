@@ -16,7 +16,7 @@ router.post('/', handleCreateUser)
 router.use(passport.authenticate('jwt', { session: false }))
 
 router.put('/:id', handleOwnershipAccessControl, handleUpdateProfile)
-router.get('/:id', handleGetCurrentProfile)
+router.get('/:id', handleOwnershipAccessControl, handleGetCurrentProfile)
 router.delete('/:id', handleOwnershipAccessControl, handleDeleteUser)
 router.put('/:id/password', handleOwnershipAccessControl, handleUpdatePassword)
 

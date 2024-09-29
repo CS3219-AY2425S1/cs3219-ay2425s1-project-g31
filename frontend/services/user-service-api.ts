@@ -64,7 +64,28 @@ export const loginRequest = async (userData: ILoginUserRequest): Promise<ILoginU
 // GET /users/:id
 export const getUserProfile = async (id: string): Promise<IUserInfo | undefined> => {
     try {
-        const response: ILoginUserResponse = await axiosInstance.get(`/users/${id}`)
+        const response: IUserInfo = await axiosInstance.get(`/users/${id}`)
+        return response
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+
+            switch (statusCode) {
+                case 404:
+                    throw new Error('Error getting profile: No such user!')
+                default:
+                    throw new Error('An unexpected error occurred' + error.message)
+            }
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
+    }
+}
+
+// PUT /users/:id
+export const updateUserProfile = async (id: string): Promise<IUserInfo | undefined> => {
+    try {
+        const response: IUserInfo = await axiosInstance.get(`/users/${id}`)
         return response
     } catch (error) {
         if (axios.isAxiosError(error)) {

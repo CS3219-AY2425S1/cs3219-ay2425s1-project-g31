@@ -1,6 +1,6 @@
 import { ITypedBodyRequest } from '@repo/request-types'
 import { ValidationError } from 'class-validator'
-import { Response } from 'express'
+import { Request, Response } from 'express'
 import { hashPassword } from '../common/password.util'
 import {
     createUser,
@@ -114,4 +114,8 @@ export async function handleUpdatePassword(
     }
     const dto = UserDto.fromModel(updatedUser)
     response.status(200).json(dto).send()
+}
+
+export async function handleValidateToken(request: Request, response: Response): Promise<void> {
+    response.status(204).send()
 }

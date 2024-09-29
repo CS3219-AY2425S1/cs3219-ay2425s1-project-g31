@@ -11,6 +11,8 @@ api.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`
         }
+        console.log(config)
+
         return config
     },
     (error) => {
@@ -32,15 +34,9 @@ api.interceptors.response.use(
     (error) => {
         if (error.response) {
             switch (error.response.status) {
-                case 401:
-                    console.error('Token is invalid or expired. Redirecting to login...')
-                    localStorage.removeItem('accessToken')
-                    break
                 case 403: // Forbidden
                     console.error('Access denied. You do not have permission to access this resource.')
                     break
-                default:
-                    console.error('An error occurred:', error.response.data)
             }
         }
         return Promise.reject(error)

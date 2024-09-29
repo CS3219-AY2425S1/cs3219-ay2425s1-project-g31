@@ -1,7 +1,6 @@
 import { userState } from '@/atoms/auth'
 import { NavBar } from '@/components/layout/navbar'
 import { inter } from '@/styles/fonts'
-import { usePathname } from 'next/navigation'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { useRecoilState } from 'recoil'
@@ -16,24 +15,27 @@ export default function RootLayout({
     const router = useRouter()
     const { pathname } = router
 
-    // One time initialisation
+    const validateToken = () => {}
+
+    // Initialises on startup/refresh
     useEffect(() => {
-        const token = localStorage.getItem('accessToken')
-        if (token) {
-            setIsAuth(true)
+        const checkToken = async () => {
+            const token = localStorage.getItem('accessToken')
+            if (token) {
+                const isTokenValid = await validateToken()
+                setIsAuth(!!isTokenValid)
+            } else {
+                setIsAuth(false)
+            }
+            setIsInit(true)
         }
-        setIsInit(true)
+
+        checkToken()
     }, [setIsAuth])
 
     useEffect(() => {
-        setIsInit(false)
-        if (isAuth) {
-        }
-    }, [isAuth])
-
-    useEffect(() => {
         if (!isAuth && pathname !== '/auth') {
-            router.push('/auth') // Redirect to /auth if not authenticated
+            router.push('/auth')
         }
     }, [isAuth, pathname, router])
 
@@ -45,12 +47,12 @@ export default function RootLayout({
     return (
         <>
             {isAuth ? (
+                children
+            ) : (
                 <>
                     <NavBar />
-                    <div className={`mx-10 my-6`}>{children}</div>
+                    <div className={`${inter.className} mx-10 my-6`}>{children}</div>
                 </>
-            ) : (
-                <>{children}</>
             )}
         </>
     )
