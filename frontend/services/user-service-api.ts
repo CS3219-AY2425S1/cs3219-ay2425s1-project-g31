@@ -104,9 +104,9 @@ export const loginRequest = async (userData: ILoginUserRequest): Promise<ILoginU
 }
 
 // POST /auth/reset
-export const sendResetPasswordEmail = async (userData: IEmailVerificationDto): Promise<number | undefined> => {
+export const sendResetPasswordEmail = async (userData: Partial<IEmailVerificationDto>): Promise<number | undefined> => {
     try {
-        const response = await axiosInstance.post<IEmailVerificationDto>('/auth/reset', userData)
+        const response = await axiosInstance.post<Partial<IEmailVerificationDto>>('/auth/reset', userData)
         return response.status
     } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -116,6 +116,26 @@ export const sendResetPasswordEmail = async (userData: IEmailVerificationDto): P
                     throw new Error('Account not found. Please sign up and try again.')
                 case 400:
                     return statusCode
+            }
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
+    }
+}
+
+// POST /auth/verify
+export const verifyEmail = async (userData: IEmailVerificationDto): Promise<number | undefined> => {
+    try {
+        const response = await axiosInstance.post<IEmailVerificationDto>('/auth/verify', userData)
+        return response.status
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+            switch (statusCode) {
+                case 404:
+                    throw new Error('Account not found. Please sign up and try again.')
+                case 400:
+                    throw new Error('Invalid OTP. Please try again.')
             }
         } else {
             throw new Error('An unexpected error occurred')
