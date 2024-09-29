@@ -1,6 +1,7 @@
 import { TickIcon, ExclamationIcon } from '@/assets/icons'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import { Difficulty, FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
+import { Category } from '@repo/user-types'
 
 const columns: IDatatableColumn[] = [
     {
@@ -10,13 +11,15 @@ const columns: IDatatableColumn[] = [
     {
         key: 'title',
         width: '20%',
+        offAutoCapitalize: true,
     },
     {
-        key: 'category',
+        key: 'categories',
     },
     {
         key: 'description',
         width: '35%',
+        offAutoCapitalize: true,
         formatter: (value) => {
             return (
                 <div
@@ -48,10 +51,10 @@ const columns: IDatatableColumn[] = [
         },
     },
     {
-        key: 'difficulty',
+        key: 'complexity',
         isSortable: true,
         formatter: (value) => {
-            return <DifficultyLabel difficulty={value} />
+            return <DifficultyLabel complexity={value} />
         },
     },
     {
@@ -71,15 +74,15 @@ const formFields: IFormFields[] = [
         required: true,
     },
     {
-        label: 'Category',
-        accessKey: 'category',
+        label: 'Categories',
+        accessKey: 'categories',
         formType: FormType.MULTISELECT,
         required: true,
-        selectOptions: ['Algorithm', 'String', 'Hashtable', 'Dynamic Programming'], // Todo: retrieve set from BE
+        selectOptions: Object.values(Category), // Todo: retrieve set from BE
     },
     {
-        label: 'Difficulty',
-        accessKey: 'difficulty',
+        label: 'Complexity',
+        accessKey: 'complexity',
         formType: FormType.SELECT,
         required: true,
         selectOptions: Object.values(Difficulty),
@@ -91,10 +94,17 @@ const formFields: IFormFields[] = [
         placeholder: 'Enter description',
         required: true,
     },
+    {
+        label: 'Link',
+        accessKey: 'link',
+        formType: FormType.TEXT,
+        placeholder: 'Enter link',
+        required: true,
+    },
 ]
 
 export { columns, formFields }
 
 export default function None() {
-    ;<></>
+    return null
 }

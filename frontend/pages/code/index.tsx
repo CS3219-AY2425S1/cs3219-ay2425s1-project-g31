@@ -20,6 +20,7 @@ import { mockChatData, mockCollaboratorData, mockQuestionData, mockTestCaseData,
 import { IQuestion, ITestcase } from '@/types'
 import TestcasesTab from './testcase-tab'
 import { useRouter } from 'next/router'
+import React from 'react'
 
 interface ICollaborator {
     name: string
@@ -135,9 +136,9 @@ export default function Code() {
                 >
                     <h3 className="text-lg font-medium">{questionData.title}</h3>
                     <div className="flex gap-3 my-2 text-sm">
-                        <DifficultyLabel difficulty={questionData.difficulty} />
+                        <DifficultyLabel complexity={questionData.complexity} />
                         <CustomLabel
-                            title={formatQuestionCategories(questionData.category)}
+                            title={formatQuestionCategories(questionData.categories)}
                             textColor="text-theme"
                             bgColor="bg-theme-100"
                         />

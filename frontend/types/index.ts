@@ -1,6 +1,6 @@
 import { Difficulty } from './difficulty'
 import { LanguageMode } from './language-mode'
-import { IQuestion, QuestionStatus } from './question'
+import { IQuestion, QuestionStatus, IQuestionsApi } from './question'
 import { ITestcase } from './test-case'
 import {
     IDatatableColumn,
@@ -13,6 +13,7 @@ import {
 } from './datatable'
 import { IFormFields, FormType } from './form'
 import { ISession } from './session'
+import { IGetQuestions, IGetQuestionsDto } from './questions-api'
 
 export { Difficulty, LanguageMode, SortDirection, QuestionStatus, FormType, Modification }
 export type {
@@ -25,4 +26,7 @@ export type {
     ISortBy,
     IFormFields,
     ISession,
+    IQuestionsApi,
+    IGetQuestions,
+    IGetQuestionsDto,
 }

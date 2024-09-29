@@ -79,12 +79,14 @@ export default function CustomForm({ fields, data, submitHandler }: CustomFormPr
                             <CustomSelect
                                 options={field.selectOptions}
                                 onSelectChange={(val) => handleSelectChange(val, field.accessKey)}
+                                defaultValue={data[field.accessKey]}
                                 className="hover:border-gray-400"
                             />
                         )}
                         {field.formType === FormType.MULTISELECT && field.selectOptions && (
                             <Multiselect
                                 options={field.selectOptions}
+                                defaultValues={data[field.accessKey]}
                                 onSelectChange={(vals) => handleMultiSelectChange(vals, field.accessKey)}
                             />
                         )}

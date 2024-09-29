@@ -152,8 +152,7 @@ export default function Datatable({
                         <LeftIcon color="#9ca3af" />
                     </Button>
                     <span>
-                        {' '}
-                        {pagination.currentPage} of {pagination.totalPages}{' '}
+                        {pagination.currentPage} of {pagination.totalPages}
                     </span>
                     <Button
                         variant="icon"

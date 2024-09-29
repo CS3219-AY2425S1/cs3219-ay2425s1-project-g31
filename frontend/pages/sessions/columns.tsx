@@ -40,10 +40,10 @@ export const columns: IDatatableColumn[] = [
         },
     },
     {
-        key: 'difficulty',
+        key: 'complexity',
         isSortable: true,
         formatter: (value) => {
-            return <DifficultyLabel difficulty={value} />
+            return <DifficultyLabel complexity={value} />
         },
     },
     {
@@ -56,5 +56,5 @@ export const columns: IDatatableColumn[] = [
 ]
 
 export default function None() {
-    ;<></>
+    return null
 }

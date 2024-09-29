@@ -5,7 +5,7 @@ interface ISession {
     question: string
     description: string
     status: string
-    difficulty: string
+    complexity: string
     time: number
 }
 

@@ -3,31 +3,33 @@
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 import Datatable from '@/components/customs/datatable'
-import { Difficulty, IPagination, IQuestion, ISortBy, Modification, QuestionStatus, SortDirection } from '@/types'
+import {
+    Difficulty,
+    IGetQuestions,
+    IPagination,
+    IQuestion,
+    ISortBy,
+    Modification,
+    QuestionStatus,
+    SortDirection,
+} from '@/types'
 import { columns, formFields } from './props'
-import { mockQuestionsData } from '@/mock-data'
 import CustomModal from '@/components/customs/custom-modal'
 import CustomForm from '@/components/customs/custom-form'
 import ConfirmDialog from '@/components/customs/confirm-dialog'
 import { capitalizeFirst } from '@/util/string-modification'
-import { IQuestionsApi } from '@/types/question'
-
-async function getDataFromApi(): Promise<IQuestionsApi> {
-    return {
-        questions: mockQuestionsData,
-        pagination: {
-            totalPages: 10,
-            currentPage: 1,
-            totalItems: 96,
-            limit: 10,
-        },
-    }
-}
+import {
+    createQuestionRequest,
+    deleteQuestionById,
+    getQuestionbyIDRequest,
+    getQuestionsRequest,
+    updateQuestionRequest,
+} from '@/services/question-service-api'
+import { toast } from 'sonner'
 
 export default function Questions() {
     const [data, setData] = useState<IQuestion[]>([])
     const [isLoading, setLoading] = useState<boolean>(false)
-    const [refreshKey, setRefreshKey] = useState<number>(0)
     const [pagination, setPagination] = useState<IPagination>({
         totalPages: 1,
         currentPage: 1,
@@ -36,7 +38,7 @@ export default function Questions() {
     })
 
     const [sortBy, setSortBy] = useState({
-        sortKey: 'id',
+        sortKey: 'complexity',
         direction: SortDirection.NONE,
     })
 
@@ -44,7 +46,6 @@ export default function Questions() {
         title: '',
         content: '',
         isOpen: false,
-        type: Modification.CREATE,
     })
 
     const [dialogData, setDialogData] = useState({
@@ -53,31 +54,72 @@ export default function Questions() {
         isOpen: false,
     })
 
+    const [modificationType, setModificationType] = useState<Modification>(Modification.CREATE)
+
     const [questionData, setQuestionData] = useState<IQuestion>({
-        id: '1',
+        id: '',
         title: '',
         description: '',
-        category: [],
-        difficulty: Difficulty.Easy,
+        categories: [],
+        complexity: Difficulty.Easy,
         status: QuestionStatus.NOT_ATTEMPTED,
+        link: '',
     })
 
-    useEffect(() => {
-        const loadData = async () => {
-            setLoading(true)
-            const res = await getDataFromApi()
-            setData(res.questions)
-            setPagination(res.pagination)
-            setLoading(false)
+    const load = async (body: IGetQuestions) => {
+        try {
+            const res = await getQuestionsRequest(body)
+            if (res) {
+                setData(res.questions)
+                if (res.pagination.currentPage > res.pagination.totalPages) {
+                    body.page = res.pagination.totalPages
+                    load(body)
+                }
+                setPagination(res.pagination)
+            }
+        } catch (error) {
+            toast.error('Failed to fetch questions' + error)
         }
-        loadData()
-    }, [refreshKey])
+    }
+
+    const loadData = async () => {
+        setLoading(true)
+        const body: IGetQuestions = {
+            page: pagination.currentPage,
+            limit: pagination.limit,
+            sortBy: sortBy,
+        }
+        await load(body)
+        setLoading(false)
+    }
+
+    const [isInit, setIsInit] = useState(false)
+
+    useEffect(() => {
+        if (!isInit) {
+            loadData()
+        }
+        setIsInit(true)
+    }, [isInit])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
+        const body: IGetQuestions = {
+            page: pagination.currentPage,
+            limit: pagination.limit,
+            sortBy: sortBy,
+        }
+        load(body)
     }
 
-    const paginationHandler = (page?: number, limit?: number) => {}
+    const paginationHandler = async (page: number, limit: number) => {
+        const body: IGetQuestions = {
+            page: page,
+            limit: limit,
+            sortBy: sortBy,
+        }
+        load(body)
+    }
 
     const handleCloseModal = () => {
         clearFormData()
@@ -87,21 +129,51 @@ export default function Questions() {
         })
     }
 
-    const handleSubmitQuestionData = () => {
-        const modicationType = modalData.type
-        const title = capitalizeFirst(`${modicationType} question`)
+    const handleSubmitButton = (data: any) => {
+        const title = capitalizeFirst(`${modificationType} question`)
         setDialogData({
             title: title,
-            content: `Are you sure you want to ${modicationType} this question?`,
+            content: `Are you sure you want to ${modificationType} this question?`,
             isOpen: true,
         })
     }
 
-    const handleConfirmDialog = () => {
-        if (modalData.type === Modification.CREATE) {
-            // call post api
-        } else if (modalData.type === Modification.UPDATE) {
+    const handleConfirmDialog = async () => {
+        if (modificationType === Modification.CREATE) {
+            try {
+                const res = await createQuestionRequest(questionData)
+                if (res) {
+                    toast.success('Question created successfully')
+                    handleCloseModal()
+                }
+            } catch (error) {
+                toast.error('Failed to create question' + error)
+                return
+            }
+        } else if (modificationType === Modification.UPDATE) {
             // call put api
+            try {
+                const res = await updateQuestionRequest(questionData)
+                if (res) {
+                    toast.success('Question updated successfully')
+                    handleCloseModal()
+                }
+            } catch (error) {
+                toast.error('Failed to update question' + error)
+                return
+            }
+        } else if (modificationType === Modification.DELETE) {
+            // call delete api
+            if (!questionData.id) return
+            try {
+                const res = await deleteQuestionById(questionData.id)
+                if (res) {
+                    toast.success('Question deleted successfully')
+                }
+            } catch (error) {
+                toast.error('Failed to delete question' + error)
+                return
+            }
         }
         refreshTable()
         setDialogData({
@@ -115,25 +187,38 @@ export default function Questions() {
             ...questionData,
             title: '',
             description: '',
-            category: [],
-            difficulty: Difficulty.Easy,
+            categories: [],
+            complexity: Difficulty.Easy,
             status: QuestionStatus.NOT_ATTEMPTED,
+            link: '',
         })
     }
 
     const actionsHandler = async (modicationType: Modification, elemId?: string) => {
         if (!elemId) return
+        setModificationType(modicationType)
         if (modicationType === Modification.UPDATE) {
-            // get question data from api with elemId
-            // questionData = await getQuestion()
-            setQuestionData(questionData)
-            setModalData({
-                ...modalData,
-                isOpen: true,
-                title: 'Update question',
-                type: Modification.UPDATE,
-            })
+            try {
+                const res = await getQuestionbyIDRequest(elemId)
+                if (res) {
+                    console.log('res', res)
+                    setQuestionData(res)
+                    setModalData({
+                        ...modalData,
+                        isOpen: true,
+                        title: 'Update question',
+                    })
+                    setModificationType(Modification.UPDATE)
+                }
+            } catch (error) {
+                toast.error('Failed to fetch question' + error)
+                return
+            }
         } else if (modicationType === Modification.DELETE) {
+            setQuestionData({
+                ...questionData,
+                id: elemId,
+            })
             setDialogData({
                 title: 'Delete question',
                 content: 'Are you sure you want to delete this question?',
@@ -143,7 +228,7 @@ export default function Questions() {
     }
 
     const refreshTable = () => {
-        setRefreshKey(refreshKey + 1)
+        loadData()
     }
 
     return (
@@ -152,14 +237,14 @@ export default function Questions() {
                 <h2 className="text-xl font-bold">Questions</h2>
                 <Button
                     variant={'primary'}
-                    onClick={() =>
+                    onClick={() => {
                         setModalData({
                             ...modalData,
                             title: 'Create new question',
                             isOpen: true,
-                            type: Modification.CREATE,
                         })
-                    }
+                        setModificationType(Modification.CREATE)
+                    }}
                 >
                     Create
                 </Button>
@@ -175,7 +260,7 @@ export default function Questions() {
             />
             {modalData.isOpen && (
                 <CustomModal title={modalData.title} className="h-3/4 w-3/4" closeHandler={handleCloseModal}>
-                    <CustomForm fields={formFields} data={questionData} submitHandler={handleSubmitQuestionData} />
+                    <CustomForm fields={formFields} data={questionData} submitHandler={handleSubmitButton} />
                 </CustomModal>
             )}
             <ConfirmDialog

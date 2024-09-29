@@ -10,9 +10,10 @@ export interface IQuestion {
     id?: string
     title: string
     description: string
-    difficulty: Difficulty
-    category: string[]
+    complexity: Difficulty
+    categories: string[]
     status?: QuestionStatus
+    link?: string
 }
 
 export interface IQuestionsApi {

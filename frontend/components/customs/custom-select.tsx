@@ -23,13 +23,13 @@ const CustomSelect = ({ options, defaultValue, onSelectChange, className }: ISel
             <Select defaultValue={selectDefault} value={displayValue.toString()} onValueChange={handleValueChange}>
                 <SelectTrigger className="hover:border-gray-400">
                     <SelectValue>
-                        <div className="flex items-center gap-2 capitalize">{displayValue}</div>
+                        <div className="flex items-center gap-2 uppercase">{displayValue}</div>
                     </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                     {selectOptions.map((option) => (
                         <SelectItem key={option} value={option}>
-                            <span className="capitalize">{option}</span>
+                            <span className="uppercase">{option}</span>
                         </SelectItem>
                     ))}
                 </SelectContent>

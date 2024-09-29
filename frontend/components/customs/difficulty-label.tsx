@@ -4,13 +4,13 @@ import { Difficulty } from '@/types/difficulty'
 import { FC } from 'react'
 
 interface DifficultyLabelProps {
-    difficulty: Difficulty
+    complexity: Difficulty
 }
 
-export const DifficultyLabel: FC<DifficultyLabelProps> = ({ difficulty }) => {
+export const DifficultyLabel: FC<DifficultyLabelProps> = ({ complexity }) => {
     let textColor = ''
     let bgColor = ''
-    switch (difficulty) {
+    switch (complexity.toLowerCase()) {
         case Difficulty.Easy:
             textColor = 'text-green'
             bgColor = 'bg-green-light'
@@ -28,5 +28,5 @@ export const DifficultyLabel: FC<DifficultyLabelProps> = ({ difficulty }) => {
             bgColor = 'bg-theme-100'
     }
 
-    return <CustomLabel title={difficulty} textColor={textColor} bgColor={bgColor} />
+    return <CustomLabel title={complexity} textColor={textColor} bgColor={bgColor} />
 }
