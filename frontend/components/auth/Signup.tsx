@@ -10,6 +10,7 @@ import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 import { signUpRequest } from '@/services/user-service-api'
 import { IUserDto, Proficiency, Role } from '@repo/user-types'
+import { ICreateUser } from '@/types/axios-types'
 
 export default function Signup() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
@@ -36,11 +37,10 @@ export default function Signup() {
         const [errors, isValid] = validateInput(isTest, formValues)
         setFormErrors(errors)
         if (isValid) {
-            const requestBody: IUserDto = {
+            const requestBody: ICreateUser = {
                 ...formValues,
                 proficiency: Proficiency.BEGINNER,
                 role: Role.USER,
-                id: '',
             }
             try {
                 setIsLoading(true)

@@ -1,14 +1,13 @@
 import axios from 'axios'
 
-// Create an instance of Axios
 const api = axios.create({
     baseURL: 'http://localhost:3002',
 })
 
-// Rrequest interceptor for all axios calls
+// Request interceptor for all axios calls
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('jwtToken')
+        const token = localStorage.getItem('accessToken')
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`
         }
@@ -22,18 +21,27 @@ api.interceptors.request.use(
 // Response interceptor for all axios calls
 api.interceptors.response.use(
     (response) => {
-        // Intercept token here and store it in localStorage
+        const token = response.data?.accessToken
+
+        if (token) {
+            localStorage.setItem('accessToken', token)
+        }
+
         return response.data
     },
     (error) => {
         if (error.response) {
-            // switch (error.response.status) {
-            //     case 401:
-            //         console.error('Unauthorized! Please log in again.')
-            //         break
-            //     default:
-            //         console.error('An error occurred:', error.response.data)
-            // }
+            switch (error.response.status) {
+                case 401:
+                    console.error('Token is invalid or expired. Redirecting to login...')
+                    localStorage.removeItem('accessToken')
+                    break
+                case 403: // Forbidden
+                    console.error('Access denied. You do not have permission to access this resource.')
+                    break
+                default:
+                    console.error('An error occurred:', error.response.data)
+            }
         }
         return Promise.reject(error)
     }

@@ -36,11 +36,9 @@ export default function Login() {
         setFormErrors(errors)
 
         if (isValid) {
-            const requestBody: IUserDto = {
-                ...formValues,
-                proficiency: Proficiency.BEGINNER,
-                role: Role.USER,
-                id: '',
+            const requestBody = {
+                usernameOrEmail: formValues.email,
+                password: formValues.loginPassword,
             }
             try {
                 await loginRequest(requestBody)

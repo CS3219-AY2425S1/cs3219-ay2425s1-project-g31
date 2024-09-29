@@ -1,12 +1,13 @@
 import axiosInstance from './axios-middleware'
 import axios from 'axios'
 import { IUserDto } from '@repo/user-types'
+import { ICreateUser, ILoginUserRequest, ILoginUserResponse } from '@/types/axios-types'
 
 // POST /users
-export const signUpRequest = async (userData: IUserDto): Promise<IUserDto | undefined> => {
+export const signUpRequest = async (userData: ICreateUser): Promise<IUserDto | undefined> => {
     try {
-        const response = await axiosInstance.post<IUserDto>('/users', userData)
-        return response.data
+        const response: IUserDto = await axiosInstance.post('/users', userData)
+        return response
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
@@ -36,17 +37,23 @@ export const signUpRequest = async (userData: IUserDto): Promise<IUserDto | unde
 }
 
 // Incomplete
-export const loginRequest = async (userData: IUserDto): Promise<IUserDto | undefined> => {
+export const loginRequest = async (userData: ILoginUserRequest): Promise<ILoginUserResponse | undefined> => {
     try {
-        const response = await axiosInstance.post<IUserDto>('/login', userData)
-        return response.data
+        const response: ILoginUserResponse = await axiosInstance.post('/auth/login', userData)
+        return response
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
 
             switch (statusCode) {
+                case 400:
+                    throw new Error('Bad Request...')
+                case 401:
+                    throw new Error('Invalid login credentials, please check your input!')
                 case 404:
                     throw new Error('No such user, please try again!')
+                case 500:
+                    throw new Error('Failed to connect to server, please try again!')
             }
         } else {
             throw new Error('An unexpected error occurred')
