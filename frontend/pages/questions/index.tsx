@@ -10,17 +10,27 @@ import CustomModal from '@/components/customs/custom-modal'
 import CustomForm from '@/components/customs/custom-form'
 import ConfirmDialog from '@/components/customs/confirm-dialog'
 import { capitalizeFirst } from '@/util/string-modification'
+import { IQuestionsApi } from '@/types/question'
 
-async function getData(): Promise<IQuestion[]> {
-    return mockQuestionsData
+async function getDataFromApi(): Promise<IQuestionsApi> {
+    return {
+        questions: mockQuestionsData,
+        pagination: {
+            totalPages: 10,
+            currentPage: 1,
+            totalItems: 96,
+            limit: 10,
+        },
+    }
 }
 
 export default function Questions() {
     const [data, setData] = useState<IQuestion[]>([])
+    const [isLoading, setLoading] = useState<boolean>(false)
     const [pagination, setPagination] = useState<IPagination>({
-        totalPages: 10,
+        totalPages: 1,
         currentPage: 1,
-        totalItems: 96,
+        totalItems: 0,
         limit: 10,
     })
 
@@ -50,6 +60,17 @@ export default function Questions() {
         difficulty: Difficulty.Easy,
         status: QuestionStatus.NOT_ATTEMPTED,
     })
+
+    useEffect(() => {
+        const loadData = async () => {
+            setLoading(true)
+            const res = await getDataFromApi()
+            setData(res.questions)
+            setPagination(res.pagination)
+            setLoading(false)
+        }
+        loadData()
+    }, [])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
@@ -118,14 +139,6 @@ export default function Questions() {
             })
         }
     }
-
-    useEffect(() => {
-        async function fetchData() {
-            const result = await getData()
-            setData(result)
-        }
-        fetchData()
-    }, [])
 
     return (
         <div className="m-8">

@@ -1,3 +1,4 @@
+import { IPagination } from './datatable'
 import { Difficulty } from './difficulty'
 
 export enum QuestionStatus {
@@ -12,4 +13,9 @@ export interface IQuestion {
     difficulty: Difficulty
     category: string[]
     status?: QuestionStatus
+}
+
+export interface IQuestionsApi {
+    pagination: IPagination
+    questions: IQuestion[]
 }
