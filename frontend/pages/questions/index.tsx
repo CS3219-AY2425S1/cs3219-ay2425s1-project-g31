@@ -27,6 +27,7 @@ async function getDataFromApi(): Promise<IQuestionsApi> {
 export default function Questions() {
     const [data, setData] = useState<IQuestion[]>([])
     const [isLoading, setLoading] = useState<boolean>(false)
+    const [refreshKey, setRefreshKey] = useState<number>(0)
     const [pagination, setPagination] = useState<IPagination>({
         totalPages: 1,
         currentPage: 1,
@@ -70,7 +71,7 @@ export default function Questions() {
             setLoading(false)
         }
         loadData()
-    }, [])
+    }, [refreshKey])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
@@ -102,6 +103,7 @@ export default function Questions() {
         } else if (modalData.type === Modification.UPDATE) {
             // call put api
         }
+        refreshTable()
         setDialogData({
             ...dialogData,
             isOpen: false,
@@ -138,6 +140,10 @@ export default function Questions() {
                 isOpen: true,
             })
         }
+    }
+
+    const refreshTable = () => {
+        setRefreshKey(refreshKey + 1)
     }
 
     return (
