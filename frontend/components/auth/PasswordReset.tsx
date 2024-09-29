@@ -10,6 +10,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { InputField, OTPField } from '../customs/custom-input'
+import { sendResetPasswordEmail, verifyEmail } from '@/services/user-service-api'
 import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import { Button } from '@/components/ui/button'
@@ -46,8 +47,20 @@ export function PasswordReset() {
         setFormErrors(errors)
 
         if (isValid) {
-            toast.success('Email sent successfully')
-            setFormStep(ResetPasswordSteps.Step2)
+            try {
+                const requestBody = { email: formValues.email }
+                const status = await sendResetPasswordEmail(requestBody)
+                if (status === 400) {
+                    toast.success('Email has been sent already. Please check your email.')
+                } else {
+                    toast.success('Email sent successfully!')
+                }
+                setFormStep(ResetPasswordSteps.Step2)
+            } catch (error) {
+                if (error instanceof Error) {
+                    toast.error(error.message)
+                }
+            }
         }
     }
 
@@ -66,8 +79,16 @@ export function PasswordReset() {
         setFormErrors(errors)
 
         if (isValid) {
-            toast.success('OTP verified successfully')
-            setFormStep(ResetPasswordSteps.Step3)
+            try {
+                const requestBody = { email: formValues.email, verificationToken: formValues.otp }
+                await verifyEmail(requestBody)
+                toast.success('OTP verified successfully!')
+                setFormStep(ResetPasswordSteps.Step3)
+            } catch (error) {
+                if (error instanceof Error) {
+                    toast.error(error.message)
+                }
+            }
         }
     }
 
