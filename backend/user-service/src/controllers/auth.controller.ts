@@ -5,7 +5,6 @@ import { generateOTP, sendMail } from '../common/mail.util'
 import { EmailVerificationDto } from '../types/EmailVerificationDto'
 import { Response } from 'express'
 import { UpdatePasswordDto } from '../types/UpdatePasswordDto'
-import { UserDto } from '../types/UserDto'
 import { ValidationError } from 'class-validator'
 import { generateAccessToken } from '../common/token.util'
 import { getHTMLTemplate } from '../common/template.util'
@@ -107,9 +106,7 @@ export async function handleUpdate(request: ITypedBodyRequest<UpdatePasswordDto>
     }
 
     createDto.verificationToken = '0'
-    const dto = UserDto.fromModel(user)
-
     await updateUser(user.id, createDto)
 
-    response.status(200).json(dto).send()
+    response.status(200).send()
 }
