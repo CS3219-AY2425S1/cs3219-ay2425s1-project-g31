@@ -47,8 +47,8 @@ export enum SortDirection {
 
 enum Modification {
     CREATE = 'create',
-    UPDATE = 'updated',
-    DELETE = 'deleted',
+    UPDATE = 'update',
+    DELETE = 'delete',
 }
 
 export type { IRowData, IDatatableColumn, IDatatableProps, IPagination, ISortBy }

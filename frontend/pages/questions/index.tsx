@@ -8,6 +8,8 @@ import { columns, formFields } from './props'
 import { mockQuestionsData } from '@/mock-data'
 import CustomModal from '@/components/customs/custom-modal'
 import CustomForm from '@/components/customs/custom-form'
+import ConfirmDialog from '@/components/customs/confirm-dialog'
+import { capitalizeFirst } from '@/util/string-modification'
 
 async function getData(): Promise<IQuestion[]> {
     return mockQuestionsData
@@ -21,15 +23,23 @@ export default function Questions() {
         totalItems: 96,
         limit: 10,
     })
+
     const [sortBy, setSortBy] = useState({
         sortKey: 'id',
         direction: SortDirection.NONE,
     })
+
     const [modalData, setModalData] = useState({
         title: '',
         content: '',
         isOpen: false,
         type: Modification.CREATE,
+    })
+
+    const [dialogData, setDialogData] = useState({
+        title: '',
+        content: '',
+        isOpen: false,
     })
 
     const [questionData, setQuestionData] = useState<IQuestion>({
@@ -56,10 +66,25 @@ export default function Questions() {
     }
 
     const handleSubmitQuestionData = () => {
-        // change to switch statement
+        const modicationType = modalData.type
+        const title = capitalizeFirst(`${modicationType} question`)
+        setDialogData({
+            title: title,
+            content: `Are you sure you want to ${modicationType} this question?`,
+            isOpen: true,
+        })
+    }
+
+    const handleConfirmDialog = () => {
         if (modalData.type === Modification.CREATE) {
             // call post api
+        } else if (modalData.type === Modification.UPDATE) {
+            // call put api
         }
+        setDialogData({
+            ...dialogData,
+            isOpen: false,
+        })
     }
 
     const clearFormData = () => {
@@ -77,12 +102,19 @@ export default function Questions() {
         if (!elemId) return
         if (modicationType === Modification.UPDATE) {
             // get question data from api with elemId
-            // const questionData = await getQuestion()
-            // set question data
+            // questionData = await getQuestion()
+            setQuestionData(questionData)
             setModalData({
                 ...modalData,
                 isOpen: true,
                 title: 'Update question',
+                type: Modification.UPDATE,
+            })
+        } else if (modicationType === Modification.DELETE) {
+            setDialogData({
+                title: 'Delete question',
+                content: 'Are you sure you want to delete this question?',
+                isOpen: true,
             })
         }
     }
@@ -127,6 +159,11 @@ export default function Questions() {
                     <CustomForm fields={formFields} data={questionData} submitHandler={handleSubmitQuestionData} />
                 </CustomModal>
             )}
+            <ConfirmDialog
+                dialogData={dialogData}
+                closeHandler={() => setDialogData({ ...dialogData, isOpen: false })}
+                confirmHandler={handleConfirmDialog}
+            />
         </div>
     )
 }
