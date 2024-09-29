@@ -143,7 +143,7 @@ export const verifyEmail = async (userData: Partial<IEmailVerificationDto>): Pro
     }
 }
 
-// POST /users/update
+// POST /auth/update
 export const updatePassword = async (userData: IEmailVerificationDto): Promise<number | undefined> => {
     try {
         const response = await axiosInstance.post<IEmailVerificationDto>('/auth/update', userData)
