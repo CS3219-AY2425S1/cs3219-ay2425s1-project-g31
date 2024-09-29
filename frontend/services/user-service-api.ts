@@ -1,9 +1,32 @@
 import { ICreateUser, ILoginUserRequest, ILoginUserResponse, IUserInfo } from '@/types/axios-types'
-
 import { IEmailVerificationDto } from '@repo/user-types'
 import { IUserDto } from '@repo/user-types'
 import axios from 'axios'
 import axiosInstance from './axios-middleware'
+
+// GET /validate
+export const validateToken = async (): Promise<boolean | undefined> => {
+    try {
+        const response = await axiosInstance.get('/auth/token')
+        if (response?.status === 204) {
+            return true
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+
+            switch (statusCode) {
+                case 401:
+                case 404:
+                    console.log('token invalid')
+                    return false
+
+                default:
+                    console.log('Error checking validity of token')
+            }
+        }
+    }
+}
 
 // POST /users
 export const signUpRequest = async (userData: ICreateUser): Promise<IUserDto | undefined> => {

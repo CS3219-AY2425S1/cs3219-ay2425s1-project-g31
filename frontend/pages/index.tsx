@@ -1,6 +1,9 @@
+'use client'
+
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
     const progressData = [
@@ -27,9 +30,15 @@ export default function Home() {
         },
     ]
 
+    const [username, setUsername] = useState('')
+
+    useEffect(() => {
+        setUsername(sessionStorage.getItem('username') ?? '')
+    }, [])
+
     return (
         <div className="my-4">
-            <h2 className="text-xl font-bold my-6">Welcome Back, Lynn</h2>
+            <h2 className="text-xl font-bold my-6">Welcome Back, {username}</h2>
             <div className="flex flex-row justify-evenly -mx-2">
                 {progressData.map(({ difficulty, score, progress, indicatorColor, backgroundColor }, index) => (
                     <ProgressCard

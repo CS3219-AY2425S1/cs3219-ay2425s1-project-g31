@@ -7,12 +7,10 @@ const api = axios.create({
 // Request interceptor for all axios calls
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('accessToken')
+        const token = sessionStorage.getItem('accessToken')
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`
         }
-        console.log(config)
-
         return config
     },
     (error) => {
@@ -26,7 +24,7 @@ api.interceptors.response.use(
         const token = response.data?.accessToken
 
         if (token) {
-            localStorage.setItem('accessToken', token)
+            sessionStorage.setItem('accessToken', token)
         }
 
         return response.data

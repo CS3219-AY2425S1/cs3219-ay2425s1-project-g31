@@ -7,10 +7,11 @@ import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 
 function Setting() {
+    const defaultEmail = sessionStorage.getItem('email')
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
     const [confirmPasswordInputType, confirmPasswordToggleIcon] = usePasswordToggle()
 
-    const [formValues, setFormValues] = useState({ ...initialFormValues })
+    const [formValues, setFormValues] = useState({ ...initialFormValues, email: defaultEmail })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [isDeleteDialogOpen, toggleDeleteDialogOpen] = useState(false)
     const [isUpdateDialogOpen, toggleUpdateDialogOpen] = useState(false)
@@ -26,7 +27,7 @@ function Setting() {
         setIsFormSubmit(true)
         toggleUpdateDialogOpen(false)
         toast.success('Profile has been updated successfully.')
-        setFormValues({ ...initialFormValues })
+        setFormValues({ ...initialFormValues, email: defaultEmail })
     }
 
     const handleUpdateClick = (): void => {

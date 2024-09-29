@@ -3,10 +3,16 @@ import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import CustomDialogWithButton from '../customs/custom-dialog'
 import { toast } from 'sonner'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 function Profile() {
-    const [formValues, setFormValues] = useState({ ...initialFormValues })
+    const defaultUsername: string = useMemo(() => {
+        if (typeof window !== 'undefined') {
+            return sessionStorage.getItem('username') ?? ''
+        }
+        return ''
+    }, [])
+    const [formValues, setFormValues] = useState({ ...initialFormValues, username: defaultUsername })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [isDialogOpen, toggleDialogOpen] = useState(false)
     const [isFormSubmit, setIsFormSubmit] = useState(false)
@@ -24,7 +30,7 @@ function Profile() {
         setIsFormSubmit(true)
         toggleDialogOpen(false)
         toast.success('Profile has been updated successfully.')
-        setFormValues({ ...initialFormValues })
+        setFormValues({ ...initialFormValues, username: defaultUsername })
     }
 
     const handleUpdateClick = (): void => {

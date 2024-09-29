@@ -9,15 +9,19 @@ import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useState } from 'react'
 import { loginRequest } from '@/services/user-service-api'
-import { useRecoilState } from 'recoil'
-import { userState } from '@/atoms/auth'
+import { useSetRecoilState } from 'recoil'
+import { tokenState, userState } from '@/atoms/auth'
 import { useRouter } from 'next/router'
+import React from 'react'
+import { ILoginUserResponse } from '@/types/axios-types'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
-    const [isAuth, setIsAuth] = useRecoilState(userState)
+    const setIsAuth = useSetRecoilState(userState)
+    const setIsValid = useSetRecoilState(tokenState)
+
     const router = useRouter()
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -45,10 +49,18 @@ export default function Login() {
                 password: formValues.loginPassword,
             }
             try {
-                await loginRequest(requestBody)
-                setIsAuth(true)
-                router.push('/')
-                toast.success('Logged in successfully')
+                const res = await loginRequest(requestBody)
+                if (res) {
+                    sessionStorage.setItem('id', res.id)
+                    sessionStorage.setItem('username', res.username)
+                    sessionStorage.setItem('email', res.email)
+                    sessionStorage.setItem('TTL', new Date().toString())
+                    sessionStorage.setItem('isAuth', 'true')
+                    setIsAuth(true)
+                    setIsValid(true)
+                    router.push('/')
+                    toast.success('Logged in successfully')
+                }
             } catch (error) {
                 if (error instanceof Error) {
                     toast.error(error.message)
