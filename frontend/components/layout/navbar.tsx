@@ -17,7 +17,11 @@ import { LogOutIcon } from 'lucide-react'
 export function NavBar() {
     return (
         <div className="flex justify-between border-b-[1px]">
-            <Image src="/logo.svg" alt="Logo" width={30} height={30} className="my-2 mx-8" />
+            <Link href="/" legacyBehavior passHref>
+                <div className={navigationMenuTriggerStyle()}>
+                    <Image src="/logo.svg" alt="Logo" width={30} height={30} />
+                </div>
+            </Link>
             <NavigationMenu>
                 <NavigationMenuList>
                     <NavigationMenuItem>
