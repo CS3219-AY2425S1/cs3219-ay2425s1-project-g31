@@ -35,6 +35,8 @@ api.interceptors.response.use(
                 case 403: // Forbidden
                     console.error('Access denied. You do not have permission to access this resource.')
                     break
+                case 500:
+                    throw new Error('Failed to connect to server, please try again!')
             }
         }
         return Promise.reject(error)

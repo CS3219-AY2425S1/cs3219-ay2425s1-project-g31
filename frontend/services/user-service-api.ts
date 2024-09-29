@@ -123,8 +123,6 @@ export const updatePasswordRequest = async (password: IUserPassword, id: string)
                     throw new Error('Invalid login credentials, please check your input!')
                 case 404:
                     throw new Error('No such user, please try again!')
-                case 500:
-                    throw new Error('Failed to connect to server, please try again!')
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -149,8 +147,25 @@ export const updateProfile = async (id: string, userData: Partial<IUserProfile>)
                     throw new Error('No such user, please try again!')
                 case 409:
                     throw new Error('The username is taken already, please try again with a different username')
-                case 500:
-                    throw new Error('Failed to connect to server, please try again!')
+            }
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
+    }
+}
+
+// DELETE /:id/
+export const deleteAccount = async (id: string): Promise<void> => {
+    try {
+        await axiosInstance.delete(`/users/${id}`)
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const statusCode = error.response?.status
+            switch (statusCode) {
+                case 400:
+                    throw new Error('Bad Request...')
+                case 404:
+                    throw new Error('No such user, please try again!')
             }
         } else {
             throw new Error('An unexpected error occurred')

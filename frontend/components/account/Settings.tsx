@@ -5,10 +5,16 @@ import { InputField } from '../customs/custom-input'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useMemo, useState } from 'react'
-import { updatePasswordRequest } from '@/services/user-service-api'
+import { deleteAccount, updatePasswordRequest } from '@/services/user-service-api'
 import React from 'react'
+import { useSetRecoilState } from 'recoil'
+import { tokenState, userState } from '@/atoms/auth'
+import { useRouter } from 'next/router'
 
 function Setting() {
+    const route = useRouter()
+    const setIsAuth = useSetRecoilState(userState)
+    const setIsValid = useSetRecoilState(tokenState)
     const defaultEmail: string = useMemo(() => {
         if (typeof window !== 'undefined') {
             return sessionStorage.getItem('email') ?? ''
@@ -73,9 +79,14 @@ function Setting() {
         }
     }
 
-    const handleDeleteConfirm = (): void => {
-        // Delete user from database
+    const handleDeleteConfirm = async (): Promise<void> => {
+        await deleteAccount(userId)
+        setIsAuth(false)
+        setIsValid(false)
         toggleDeleteDialogOpen(false)
+        sessionStorage.clear()
+        route.push('/auth')
+        toast.success('Successfully Delete Account')
     }
 
     return (
