@@ -10,7 +10,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { InputField, OTPField } from '../customs/custom-input'
-import { sendResetPasswordEmail, verifyEmail } from '@/services/user-service-api'
+import { sendResetPasswordEmail, updatePassword, verifyEmail } from '@/services/user-service-api'
 import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import { Button } from '@/components/ui/button'
@@ -107,10 +107,22 @@ export function PasswordReset() {
         setFormErrors(errors)
 
         if (isValid) {
-            toast.success('Password reset successfully!')
-            setFormStep(ResetPasswordSteps.Step1)
-            setOpen(false)
-            setFormValues({ ...initialFormValues })
+            try {
+                const requestBody = {
+                    email: formValues.email,
+                    password: formValues.password,
+                    verificationToken: formValues.otp,
+                }
+                await updatePassword(requestBody)
+                toast.success('Password reset successfully!')
+                setFormStep(ResetPasswordSteps.Step1)
+                setOpen(false)
+                setFormValues({ ...initialFormValues })
+            } catch (error) {
+                if (error instanceof Error) {
+                    toast.error(error.message)
+                }
+            }
         }
     }
 
