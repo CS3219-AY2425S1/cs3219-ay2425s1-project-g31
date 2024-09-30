@@ -49,6 +49,15 @@ export default function Datatable({
         paginationHandler(newPage, pagination.limit)
     }
 
+    const displayPageNum = (): string => {
+        let current = pagination.currentPage
+        const total = pagination.totalPages
+        if (total == 0) {
+            current = 0
+        }
+        return `${current} of ${total}`
+    }
+
     return (
         <>
             <Table>
@@ -151,9 +160,7 @@ export default function Datatable({
                     >
                         <LeftIcon color="#9ca3af" />
                     </Button>
-                    <span>
-                        {pagination.currentPage} of {pagination.totalPages}
-                    </span>
+                    <span>{displayPageNum()}</span>
                     <Button
                         variant="icon"
                         size={'icon'}

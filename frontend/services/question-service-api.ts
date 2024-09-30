@@ -6,7 +6,7 @@ import axiosInstance from './axios-middleware2'
 export const getQuestionsRequest = async (data: IGetQuestions): Promise<IQuestionsApi | undefined> => {
     try {
         let params: IGetQuestionsDto = {
-            page: data.page,
+            page: data.page == 0 ? 1 : data.page,
             limit: data.limit,
         }
         if (data.sortBy && data.sortBy.direction !== SortDirection.NONE) {
