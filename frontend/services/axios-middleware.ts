@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const api = axios.create({
-    baseURL: 'http://localhost:3002',
+    baseURL: process.env.USER_SERVICE_URL,
+    // baseURL: 'http://localhost:3002',
 })
 
 // Request interceptor for all axios calls
@@ -11,6 +12,7 @@ api.interceptors.request.use(
         if (token) {
             config.headers['Authorization'] = `Bearer ${token}`
         }
+        console.log(config.baseURL)
         return config
     },
     (error) => {

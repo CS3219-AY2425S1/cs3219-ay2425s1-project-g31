@@ -1,11 +1,26 @@
 # This docker-compose file is for local development only. It is not intended to be deployed.
 
 services:
+    frontend:
+        container_name: frontend
+        environment:
+            - USER_SERVICE_URL=http://user-service:${USER_SERVICE_PORT}
+            - QUESTION_SERVICE_URL=http://question-service:${QUESTION_SERVICE_PORT}
+        build:
+            context: .
+            dockerfile: ./frontend/Dockerfile
+        restart: always
+        ports:
+            - 3000:3000
+        networks:
+            - user-service-network
+            - question-service-network
+
     user-service:
         container_name: user-service
         environment:
             - NODE_ENV=development
-            - PORT=3002
+            - PORT=${USER_SERVICE_PORT}
             - DB_URL=mongodb://user-db:27017/user-service
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
@@ -43,10 +58,10 @@ services:
         container_name: question-service
         environment:
             - NODE_ENV=development
-            - PORT=3004
+            - PORT=${QUESTION_SERVICE_PORT}
             - DB_URL=mongodb://question-db:27017/question-service
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
-            - USER_SERVICE_URL=http://user-service:3002
+            - USER_SERVICE_URL=http://user-service:${USER_SERVICE_PORT}
         build:
             context: .
             dockerfile: ./backend/question-service/Dockerfile
