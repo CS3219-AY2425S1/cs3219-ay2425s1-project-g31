@@ -18,7 +18,7 @@ services:
         ports:
             - 3002:3002
         networks:
-            - user-service-network
+            - backend-network
         depends_on:
             user-db:
                 condition: service_healthy
@@ -31,7 +31,7 @@ services:
         volumes:
             - 'user_data:/data/db'
         networks:
-            - user-service-network
+            - backend-network
         healthcheck:
             test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
             interval: 10s
@@ -46,6 +46,7 @@ services:
             - PORT=3004
             - DB_URL=mongodb://question-db:27017/question-service
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
         build:
             context: .
@@ -54,7 +55,7 @@ services:
         ports:
             - 3004:3004
         networks:
-            - question-service-network
+            - backend-network
         depends_on:
             question-db:
                 condition: service_healthy
@@ -67,7 +68,7 @@ services:
         volumes:
             - 'question_data:/data/db'
         networks:
-            - question-service-network
+            - backend-network
         healthcheck:
             test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
             interval: 10s
@@ -83,5 +84,4 @@ volumes:
 # with each other, by using their container name as a hostname
 # without having to go through mapped ports
 networks:
-    user-service-network:
-    question-service-network:
+    backend-network:
