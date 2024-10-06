@@ -15,6 +15,7 @@ userServiceAPI.interceptors.request.use(
         if (session) {
             config.headers['Authorization'] = `Bearer ${session.user.accessToken}`
         }
+        console.log(config.baseURL)
         return config
     },
     (error) => {

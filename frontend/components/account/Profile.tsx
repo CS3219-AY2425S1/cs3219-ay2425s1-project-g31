@@ -12,7 +12,11 @@ import { useState } from 'react'
 function Profile() {
     const { data: session, update } = useSession()
     const defaultUsername = session?.user.username ?? ''
-    const [formValues, setFormValues] = useState({ ...initialFormValues, username: defaultUsername })
+    const [formValues, setFormValues] = useState({
+        ...initialFormValues,
+        username: defaultUsername,
+        proficiency: session?.user.proficiency as Proficiency,
+    })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [isDialogOpen, toggleDialogOpen] = useState(false)
     const [isFormSubmit, setIsFormSubmit] = useState(false)
@@ -41,7 +45,10 @@ function Profile() {
                     username: response.username ?? '',
                     proficiency: proficiency,
                 })
-                update({ ...session, user: { ...session?.user, username: response.username, role: response.role } })
+                update({
+                    ...session,
+                    user: { ...session?.user, username: response.username, proficiency: proficiency },
+                })
                 toast.success('Profile has been updated successfully.')
             }
         } catch (error) {
