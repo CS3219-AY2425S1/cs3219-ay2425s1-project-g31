@@ -27,6 +27,13 @@ export default NextAuth({
                         baseURL: 'http://localhost:3002',
                     })
 
+                    // api.interceptors.request.use((config) => {
+                    //     console.log(config.baseURL) // Logs the full request URL
+                    //     console.log('hello')
+
+                    //     return config
+                    // })
+
                     const response = await api.post('/auth/login', { usernameOrEmail: username, password })
 
                     if (!response) {
@@ -68,5 +75,6 @@ export default NextAuth({
         strategy: 'jwt',
         maxAge: 3600,
     },
-    secret: process.env.NEXTAUTH_SECRET,
+    // secret: process.env.NEXTAUTH_SECRET,
+    secret: 'a2ca69058c7da5cf77aa626555e62a3124973b3e3459fe66d874abe71777d3fb',
 })

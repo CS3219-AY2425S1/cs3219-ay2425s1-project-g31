@@ -4,8 +4,8 @@ services:
     frontend:
         container_name: frontend
         environment:
-            - USER_SERVICE_URL=http://user-service:${USER_SERVICE_PORT}
-            - QUESTION_SERVICE_URL=http://question-service:${QUESTION_SERVICE_PORT}
+            - NEXT_PUBLIC_USER_SERVICE_URL=http://user-service:${USER_SERVICE_PORT}
+            - NEXT_PUBLIC_QUESTION_SERVICE_URL=http://question-service:${QUESTION_SERVICE_PORT}
         build:
             context: .
             dockerfile: ./frontend/Dockerfile
