@@ -78,7 +78,7 @@ export default function Questions() {
             const res = await getQuestionsRequest(body)
             if (res) {
                 setData(res.questions)
-                if (res.pagination.currentPage > res.pagination.totalPages) {
+                if (res.pagination.currentPage > res.pagination.totalPages && res.pagination.totalPages > 0) {
                     body.page = res.pagination.totalPages
                     load(body)
                 }
@@ -97,11 +97,6 @@ export default function Questions() {
         }
         await load(body)
     }
-
-    useEffect(() => {
-        if (!session) return
-        loadData()
-    }, [])
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
@@ -234,8 +229,12 @@ export default function Questions() {
 
     const { loading } = useProtectedRoute()
 
+    useEffect(() => {
+        if (!session) return
+        loadData()
+    }, [])
+
     if (loading) return <Loading />
-    if (!data || data?.length === 0) return null
 
     return (
         <div className="m-8">
