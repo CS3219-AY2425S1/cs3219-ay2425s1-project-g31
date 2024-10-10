@@ -1,6 +1,6 @@
 import { Category, Proficiency } from '@repo/user-types'
 
-export interface IUserQueue {
+export interface IUserQueueMessage {
     TTL: Date
     websocketId: string
     proficiency: Proficiency
