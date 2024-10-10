@@ -1,0 +1,87 @@
+# This docker-compose file is for local development only. It is not intended to be deployed.
+
+services:
+    user-service:
+        container_name: user-service
+        environment:
+            - NODE_ENV=development
+            - PORT=3002
+            - DB_URL=mongodb://user-db:27017/user-service
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
+            - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
+        build:
+            context: .
+            dockerfile: ./backend/user-service/Dockerfile
+        restart: always
+        ports:
+            - 3002:3002
+        networks:
+            - backend-network
+        depends_on:
+            user-db:
+                condition: service_healthy
+
+    user-db:
+        container_name: user-db
+        image: mongo:8.0.0
+        ports:
+            - '27027:27017'
+        volumes:
+            - 'user_data:/data/db'
+        networks:
+            - backend-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 10s
+
+    question-service:
+        container_name: question-service
+        environment:
+            - NODE_ENV=development
+            - PORT=3004
+            - DB_URL=mongodb://question-db:27017/question-service
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - USER_SERVICE_URL=http://user-service:3002
+        build:
+            context: .
+            dockerfile: ./backend/question-service/Dockerfile
+        restart: always
+        ports:
+            - 3004:3004
+        networks:
+            - backend-network
+        depends_on:
+            question-db:
+                condition: service_healthy
+
+    question-db:
+        container_name: question-db
+        image: mongo:8.0.0
+        ports:
+            - '27047:27017'
+        volumes:
+            - 'question_data:/data/db'
+        networks:
+            - backend-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 10s
+
+volumes:
+    user_data:
+    question_data:
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+# without having to go through mapped ports
+networks:
+    backend-network:

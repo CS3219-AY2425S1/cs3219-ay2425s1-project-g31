@@ -1,0 +1,17 @@
+.git
+.vscode
+
+/node_modules
+**/node_modules
+
+**/.env
+**/.env.*
+
+**/dist
+**/coverage
+
+**/*.log
+
+**/.turbo
+
+**/*.tsbuildinfo
