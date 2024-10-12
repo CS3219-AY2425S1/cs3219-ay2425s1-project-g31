@@ -1,4 +1,4 @@
-import client, { Connection, Channel } from 'amqplib'
+import client, { Connection, Channel, GetMessage } from 'amqplib'
 
 import config from '../common/config.util'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
@@ -48,14 +48,14 @@ class RabbitMQConnection {
 
             // Params: Queue, Exchange, Routing Key
             await this.channel.bindQueue('entry_queue', 'Entry-Queue', 'entry')
-            this.channel.publish('Entry-Queue', 'entry', Buffer.from(JSON.stringify(message)))
+            this.channel.publish('Entry-Queue', 'entry', Buffer.from(JSON.stringify(message)), { expiration: '60000' })
         } catch (error) {
             logger.error(`[Error] Failed to send message to Entry-Queue: ${error}`)
             throw error
         }
     }
 
-    async entryConsumer() {
+    async entryQueueConsumer() {
         try {
             await this.channel.assertExchange('Entry-Queue', 'direct', { durable: false })
             const q = await this.channel.assertQueue('entry_queue', { durable: false })
@@ -74,6 +74,61 @@ class RabbitMQConnection {
         } catch (error) {
             logger.error(`[Error] Failed to consume Entry-Queue: ${error}`)
             throw error
+        }
+    }
+
+    // Header Exchange for Waiting Queue
+    async sendToWaitingQueue(message: IUserQueueMessage) {
+        try {
+            if (!this.channel) {
+                await this.connect()
+            }
+
+            const queueName = `${message.proficiency}.${message.complexity}.${message.topic}`
+
+            // Set durable true to ensure queue stays even with mq restart (does not include message persistance)
+            await this.channel.assertExchange('Waiting-Queue', 'headers', { durable: false })
+
+            // asserts if queue exists, if it does not, create one
+            const q = await this.channel.assertQueue(queueName, { durable: false })
+
+            // Params: Queue, Exchange, Routing Key, Headers
+            await this.channel.bindQueue(q.queue, 'Waiting-Queue', '', {
+                arguments: {
+                    'x-match': 'all', // Ensures that all headers must match for the message to be routed
+                    proficiency: message.proficiency,
+                    complexity: message.complexity,
+                    topic: message.topic,
+                },
+            })
+
+            this.channel.publish('Waiting-Queue', '', Buffer.from(JSON.stringify(message)), {
+                headers: {
+                    proficiency: message.proficiency,
+                    complexity: message.complexity,
+                    topic: message.topic,
+                },
+            })
+        } catch (error) {
+            logger.error(`[Error] Failed to send message to Waiting-Queue: ${error}`)
+            throw error
+        }
+    }
+
+    // Only consume when the match is valid, and user to be removed from waiting queue
+    async waitingQueueConsumer(queueName: string) {
+        this.checkWaitingQueue(queueName)
+    }
+
+    // Checks if there is a user waiting in queried queueName
+    async checkWaitingQueue(queueName: string): Promise<boolean> {
+        const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
+        if (waitingUser === false) {
+            logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
+            return false
+        } else {
+            logger.info(`[Waiting-Queue] A user is waiting in ${queueName}: `, waitingUser.content.toString())
+            return true
         }
     }
 }

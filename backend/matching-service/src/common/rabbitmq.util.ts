@@ -3,7 +3,7 @@ import logger from './logger.util'
 
 export default async () => {
     await mqConnection.connect()
-    await mqConnection.entryConsumer().then(() => {
+    await mqConnection.entryQueueConsumer().then(() => {
         logger.info(`[Entry-Queue] Listening to Entry Queue...`)
     })
 }
