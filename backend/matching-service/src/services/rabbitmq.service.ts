@@ -66,6 +66,13 @@ class RabbitMQConnection {
                     if (msg.content) {
                         // Insert logic to check for possible match before re-queuing
                         logger.info('[Entry-Queue] User information queued ', msg.content.toString())
+                        // Check for exact match if possible, else
+
+                        // If proficiency beginner, check intermediate
+                        // If proficiency intermediate, check beginner and advanced
+                        // if proficiency advanced, check intermediate and expert
+                        // if proficiency expert, check advanced
+                        // If match found, ack the message returned by check waiting queue to remove from waiting
                         this.channel.ack(msg) // ACK removes message from queue
                     }
                 },
@@ -115,21 +122,15 @@ class RabbitMQConnection {
         }
     }
 
-    // Only consume when the match is valid, and user to be removed from waiting queue
-    async waitingQueueConsumer(queueName: string) {
-        this.checkWaitingQueue(queueName)
-    }
-
     // Checks if there is a user waiting in queried queueName
     async checkWaitingQueue(queueName: string): Promise<boolean> {
         const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
         if (waitingUser === false) {
             logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
-            return false
         } else {
             logger.info(`[Waiting-Queue] A user is waiting in ${queueName}: `, waitingUser.content.toString())
-            return true
         }
+        return waitingUser
     }
 }
 
