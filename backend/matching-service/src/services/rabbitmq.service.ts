@@ -111,28 +111,42 @@ class RabbitMQConnection {
                                         break
                                 }
                                 if (directMatch && directMatch2) {
-                                    const ttl1 = parseInt(directMatch.properties.expiration, 10)
-                                    const ttl2 = parseInt(directMatch2.properties.expiration, 10)
+                                    const ttl1 = parseInt(directMatch.properties.headers.sentAt)
+                                    const ttl2 = parseInt(directMatch2.properties.headers.sentAt)
+                                    logger.info(`ttl1: ${ttl1}`)
+                                    logger.info(`ttl2: ${ttl2}`)
                                     // Compare TTL values
                                     if (ttl1 < ttl2) {
                                         // Choose directMatch over directMatch2
-                                        logger.info('[Entry-Queue] Match found  ', directMatch.content.toString())
+                                        const matchedUser: IUserQueueMessage = JSON.parse(
+                                            directMatch.content.toString()
+                                        )
+                                        logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
                                         this.channel.ack(msg)
                                         this.channel.ack(directMatch)
+                                        this.channel.nack(directMatch2)
                                     } else {
+                                        const matchedUser: IUserQueueMessage = JSON.parse(
+                                            directMatch2.content.toString()
+                                        )
                                         // Choose directMatch2 over directMatch
-                                        logger.info('[Entry-Queue] Match found  ', directMatch2.content.toString())
+                                        logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
                                         this.channel.ack(msg)
                                         this.channel.ack(directMatch2)
+                                        this.channel.nack(directMatch)
                                     }
                                 } else if (directMatch) {
                                     // Only directMatch can match
-                                    logger.info('[Entry-Queue] Match found  ', directMatch.content.toString())
+                                    const matchedUser: IUserQueueMessage = JSON.parse(directMatch.content.toString())
+                                    // Choose directMatch2 over directMatch
+                                    logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
                                     this.channel.ack(msg)
                                     this.channel.ack(directMatch)
                                 } else if (directMatch2) {
                                     // Only directMatch2 can match
-                                    logger.info('[Entry-Queue] Match found  ', directMatch2.content.toString())
+                                    const matchedUser: IUserQueueMessage = JSON.parse(directMatch2.content.toString())
+                                    // Choose directMatch2 over directMatch
+                                    logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
                                     this.channel.ack(msg)
                                     this.channel.ack(directMatch2)
                                 } else {
@@ -172,6 +186,9 @@ class RabbitMQConnection {
 
             this.channel.publish('Waiting-Queue', queueName, Buffer.from(JSON.stringify(message)), {
                 expiration: ttl,
+                headers: {
+                    sentAt: Date.now(),
+                },
             })
 
             logger.info(message)
