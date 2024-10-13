@@ -73,14 +73,16 @@ class RabbitMQConnection {
 
                             // Check for exact match if possible, else
                             let directMatch = await this.checkWaitingQueue(destinationQueue)
+
                             if (directMatch) {
                                 // Add logic that combines both users into one and returns
-                                logger.info('[Entry-Queue] Match found  ', directMatch.content.toString())
+                                logger.info('[Entry-Queue] Match found: ', JSON.parse(directMatch.content.toString()))
                                 this.channel.ack(msg)
                                 this.channel.ack(directMatch)
                             } else {
                                 let directMatch2: false | GetMessage = false
                                 let queryQueueName: string = ''
+                                logger.info('[Entry-Queue] No Match found')
                                 switch (content.proficiency) {
                                     case Proficiency.BEGINNER:
                                         // If proficiency beginner, check intermediate
@@ -134,7 +136,7 @@ class RabbitMQConnection {
                                     this.channel.ack(directMatch2)
                                 } else {
                                     // No match found, enqueue user into waiting queue
-                                    this.sendToWaitingQueue(content, destinationQueue, msg.properties.expiration)
+                                    this.sendToWaitingQueue(content, destinationQueue, '60000')
                                     this.channel.ack(msg)
                                 }
                             }
@@ -159,30 +161,20 @@ class RabbitMQConnection {
             }
 
             // Set durable true to ensure queue stays even with mq restart (does not include message persistance)
-            await this.channel.assertExchange('Waiting-Queue', 'headers', { durable: false })
+            await this.channel.assertExchange('Waiting-Queue', 'direct', { durable: false })
 
             // asserts if queue exists, if it does not, create one
             const q = await this.channel.assertQueue(queueName, { durable: false })
 
-            // Params: Queue, Exchange, Routing Key, Headers
-            await this.channel.bindQueue(q.queue, 'Waiting-Queue', '', {
-                arguments: {
-                    'x-match': 'all', // Ensures that all headers must match for the message to be routed
-                    proficiency: message.proficiency,
-                    complexity: message.complexity,
-                    topic: message.topic,
-                },
-            })
+            // Params: Queue, Exchange, Routing Key
+            await this.channel.bindQueue(q.queue, 'Waiting-Queue', queueName)
 
-            this.channel.publish('Waiting-Queue', '', Buffer.from(JSON.stringify(message)), {
-                headers: {
-                    proficiency: message.proficiency,
-                    complexity: message.complexity,
-                    topic: message.topic,
-                },
+            this.channel.publish('Waiting-Queue', queueName, Buffer.from(JSON.stringify(message)), {
                 expiration: ttl,
             })
-            logger.info(`[Waiting-Queue] ${message} was put into ${queueName}`)
+
+            logger.info(message)
+            logger.info(`[Waiting-Queue] was put into ${queueName}`)
         } catch (error) {
             logger.error(`[Error] Failed to send message to Waiting-Queue: ${error}`)
             throw error
@@ -191,7 +183,7 @@ class RabbitMQConnection {
 
     // Checks if there is a user waiting in queried queueName
     async checkWaitingQueue(queueName: string): Promise<false | GetMessage> {
-        await this.channel.assertQueue(queueName, { durable: false })
+        await this.channel.assertQueue(queueName, { durable: false, autoDelete: false })
         const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
         if (waitingUser === false) {
             logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
