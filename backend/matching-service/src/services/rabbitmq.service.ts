@@ -58,6 +58,9 @@ class RabbitMQConnection {
 
     async entryQueueConsumer() {
         try {
+            if (!this.channel) {
+                await this.connect()
+            }
             await this.channel.assertExchange('Entry-Queue', 'direct', { durable: false })
             const q = await this.channel.assertQueue('entry_queue', { durable: false })
             await this.channel.bindQueue(q.queue, 'Entry-Queue', 'entry')
@@ -109,14 +112,22 @@ class RabbitMQConnection {
 
     // Checks if there is a user waiting in queried queueName
     async checkWaitingQueue(queueName: string): Promise<false | GetMessage> {
-        await this.channel.assertQueue(queueName, { durable: false, autoDelete: false })
-        const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
-        if (waitingUser === false) {
-            logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
-        } else {
-            logger.info(`[Waiting-Queue] A user is waiting in ${queueName}: `, waitingUser.content.toString())
+        try {
+            if (!this.channel) {
+                await this.connect()
+            }
+            await this.channel.assertQueue(queueName, { durable: false, autoDelete: false })
+            const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
+            if (waitingUser === false) {
+                logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
+            } else {
+                logger.info(`[Waiting-Queue] A user is waiting in ${queueName}: `, waitingUser.content.toString())
+            }
+            return waitingUser
+        } catch (error) {
+            logger.error(`[Error] Failed to check message in Waiting-Queue: ${error}`)
+            throw error
         }
-        return waitingUser
     }
 
     async attemptMatch(msg: ConsumeMessage) {
@@ -127,7 +138,7 @@ class RabbitMQConnection {
             const destinationQueue = `${content.proficiency}.${content.complexity}.${content.topic}`
 
             // Check for exact match if possible, else
-            let directMatch = await this.checkWaitingQueue(destinationQueue)
+            const directMatch = await this.checkWaitingQueue(destinationQueue)
 
             if (directMatch) {
                 const matchedUser: IUserQueueMessage = JSON.parse(directMatch.content.toString())
@@ -136,64 +147,65 @@ class RabbitMQConnection {
                 this.channel.ack(msg)
                 this.channel.ack(directMatch)
             } else {
-                let directMatch2: false | GetMessage = false
+                let match1: false | GetMessage = false
+                let match2: false | GetMessage = false
                 let queryQueueName: string = ''
-                logger.info('[Entry-Queue] No Match found')
+                logger.info('[Entry-Queue] No Direct Match found')
                 switch (content.proficiency) {
                     case Proficiency.BEGINNER:
                         // If proficiency beginner, check intermediate
                         queryQueueName = `${Proficiency.INTERMEDIATE}.${content.complexity}.${content.topic}`
-                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                        match1 = await this.checkWaitingQueue(queryQueueName)
                         break
                     case Proficiency.INTERMEDIATE:
                         // If proficiency intermediate, check beginner and advanced
                         queryQueueName = `${Proficiency.BEGINNER}.${content.complexity}.${content.topic}`
-                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                        match1 = await this.checkWaitingQueue(queryQueueName)
                         queryQueueName = `${Proficiency.ADVANCED}.${content.complexity}.${content.topic}`
-                        directMatch2 = await this.checkWaitingQueue(queryQueueName)
+                        match2 = await this.checkWaitingQueue(queryQueueName)
                         break
                     case Proficiency.ADVANCED:
                         // if proficiency advanced, check intermediate and expert
                         queryQueueName = `${Proficiency.INTERMEDIATE}.${content.complexity}.${content.topic}`
-                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                        match1 = await this.checkWaitingQueue(queryQueueName)
                         queryQueueName = `${Proficiency.EXPERT}.${content.complexity}.${content.topic}`
-                        directMatch2 = await this.checkWaitingQueue(queryQueueName)
+                        match2 = await this.checkWaitingQueue(queryQueueName)
                         break
                     case Proficiency.EXPERT:
                         // if proficiency expert, check advanced
                         queryQueueName = `${Proficiency.ADVANCED}.${content.complexity}.${content.topic}`
-                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                        match1 = await this.checkWaitingQueue(queryQueueName)
                         break
                 }
-                if (directMatch && directMatch2) {
-                    const messageTime1 = parseInt(directMatch.properties.headers.sentAt)
-                    const messageTime2 = parseInt(directMatch2.properties.headers.sentAt)
+                if (match1 && match2) {
+                    const messageTime1 = parseInt(match1.properties.headers.sentAt)
+                    const messageTime2 = parseInt(match2.properties.headers.sentAt)
                     // Compare TTL values
                     if (messageTime1 < messageTime2) {
-                        // Choose directMatch over directMatch2
-                        const matchedUser: IUserQueueMessage = JSON.parse(directMatch.content.toString())
+                        // Choose directMatch over match2
+                        const matchedUser: IUserQueueMessage = JSON.parse(match1.content.toString())
                         logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
-                        this.channel.ack(directMatch)
-                        this.channel.nack(directMatch2)
+                        this.channel.ack(match1)
+                        this.channel.nack(match2)
                     } else {
-                        const matchedUser: IUserQueueMessage = JSON.parse(directMatch2.content.toString())
-                        // Choose directMatch2 over directMatch
+                        const matchedUser: IUserQueueMessage = JSON.parse(match2.content.toString())
+                        // Choose match2 over directMatch
                         logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
-                        this.channel.ack(directMatch2)
-                        this.channel.nack(directMatch)
+                        this.channel.ack(match2)
+                        this.channel.nack(match1)
                     }
-                } else if (directMatch) {
+                } else if (match1) {
                     // Only directMatch can match
-                    const matchedUser: IUserQueueMessage = JSON.parse(directMatch.content.toString())
-                    // Choose directMatch2 over directMatch
+                    const matchedUser: IUserQueueMessage = JSON.parse(match1.content.toString())
+                    // Choose match2 over directMatch
                     logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
-                    this.channel.ack(directMatch)
-                } else if (directMatch2) {
-                    // Only directMatch2 can match
-                    const matchedUser: IUserQueueMessage = JSON.parse(directMatch2.content.toString())
-                    // Choose directMatch2 over directMatch
+                    this.channel.ack(match1)
+                } else if (match2) {
+                    // Only match2 can match
+                    const matchedUser: IUserQueueMessage = JSON.parse(match2.content.toString())
+                    // Choose match2 over directMatch
                     logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
-                    this.channel.ack(directMatch2)
+                    this.channel.ack(match2)
                 } else {
                     // No match found, enqueue user into waiting queue
                     this.sendToWaitingQueue(content, destinationQueue, '60000')
