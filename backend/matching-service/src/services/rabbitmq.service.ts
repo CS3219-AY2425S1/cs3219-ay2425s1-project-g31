@@ -3,6 +3,7 @@ import client, { Connection, Channel, GetMessage } from 'amqplib'
 import config from '../common/config.util'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
 import logger from '../common/logger.util'
+import { Proficiency } from '@repo/user-types'
 
 class RabbitMQConnection {
     connection!: Connection
@@ -62,18 +63,84 @@ class RabbitMQConnection {
             await this.channel.bindQueue(q.queue, 'Entry-Queue', 'entry')
             this.channel.consume(
                 q.queue,
-                (msg) => {
+                async (msg) => {
                     if (msg.content) {
-                        // Insert logic to check for possible match before re-queuing
-                        logger.info('[Entry-Queue] User information queued ', msg.content.toString())
-                        // Check for exact match if possible, else
+                        try {
+                            // Insert logic to check for possible match before re-queuing
+                            logger.info('[Entry-Queue] User information queued ', msg.content.toString())
+                            const content: IUserQueueMessage = JSON.parse(msg.content.toString())
+                            const destinationQueue = `${content.proficiency}.${content.complexity}.${content.topic}`
 
-                        // If proficiency beginner, check intermediate
-                        // If proficiency intermediate, check beginner and advanced
-                        // if proficiency advanced, check intermediate and expert
-                        // if proficiency expert, check advanced
-                        // If match found, ack the message returned by check waiting queue to remove from waiting
-                        this.channel.ack(msg) // ACK removes message from queue
+                            // Check for exact match if possible, else
+                            let directMatch = await this.checkWaitingQueue(destinationQueue)
+                            if (directMatch) {
+                                // Add logic that combines both users into one and returns
+                                logger.info('[Entry-Queue] Match found  ', directMatch.content.toString())
+                                this.channel.ack(msg)
+                                this.channel.ack(directMatch)
+                            } else {
+                                let directMatch2: false | GetMessage = false
+                                let queryQueueName: string = ''
+                                switch (content.proficiency) {
+                                    case Proficiency.BEGINNER:
+                                        // If proficiency beginner, check intermediate
+                                        queryQueueName = `${Proficiency.INTERMEDIATE}.${content.complexity}.${content.topic}`
+                                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                                        break
+                                    case Proficiency.INTERMEDIATE:
+                                        // If proficiency intermediate, check beginner and advanced
+                                        queryQueueName = `${Proficiency.BEGINNER}.${content.complexity}.${content.topic}`
+                                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                                        queryQueueName = `${Proficiency.ADVANCED}.${content.complexity}.${content.topic}`
+                                        directMatch2 = await this.checkWaitingQueue(queryQueueName)
+                                        break
+                                    case Proficiency.ADVANCED:
+                                        // if proficiency advanced, check intermediate and expert
+                                        queryQueueName = `${Proficiency.INTERMEDIATE}.${content.complexity}.${content.topic}`
+                                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                                        queryQueueName = `${Proficiency.EXPERT}.${content.complexity}.${content.topic}`
+                                        directMatch2 = await this.checkWaitingQueue(queryQueueName)
+                                        break
+                                    case Proficiency.EXPERT:
+                                        // if proficiency expert, check advanced
+                                        queryQueueName = `${Proficiency.ADVANCED}.${content.complexity}.${content.topic}`
+                                        directMatch = await this.checkWaitingQueue(queryQueueName)
+                                        break
+                                }
+                                if (directMatch && directMatch2) {
+                                    const ttl1 = parseInt(directMatch.properties.expiration, 10)
+                                    const ttl2 = parseInt(directMatch2.properties.expiration, 10)
+                                    // Compare TTL values
+                                    if (ttl1 < ttl2) {
+                                        // Choose directMatch over directMatch2
+                                        logger.info('[Entry-Queue] Match found  ', directMatch.content.toString())
+                                        this.channel.ack(msg)
+                                        this.channel.ack(directMatch)
+                                    } else {
+                                        // Choose directMatch2 over directMatch
+                                        logger.info('[Entry-Queue] Match found  ', directMatch2.content.toString())
+                                        this.channel.ack(msg)
+                                        this.channel.ack(directMatch2)
+                                    }
+                                } else if (directMatch) {
+                                    // Only directMatch can match
+                                    logger.info('[Entry-Queue] Match found  ', directMatch.content.toString())
+                                    this.channel.ack(msg)
+                                    this.channel.ack(directMatch)
+                                } else if (directMatch2) {
+                                    // Only directMatch2 can match
+                                    logger.info('[Entry-Queue] Match found  ', directMatch2.content.toString())
+                                    this.channel.ack(msg)
+                                    this.channel.ack(directMatch2)
+                                } else {
+                                    // No match found, enqueue user into waiting queue
+                                    this.sendToWaitingQueue(content, destinationQueue, msg.properties.expiration)
+                                    this.channel.ack(msg)
+                                }
+                            }
+                        } catch (error) {
+                            logger.error(`[Entry-Queue] Issue checking with Waiting-Queue: ${error}`)
+                        }
                     }
                 },
                 { noAck: false }
@@ -85,13 +152,11 @@ class RabbitMQConnection {
     }
 
     // Header Exchange for Waiting Queue
-    async sendToWaitingQueue(message: IUserQueueMessage) {
+    async sendToWaitingQueue(message: IUserQueueMessage, queueName: string, ttl: string) {
         try {
             if (!this.channel) {
                 await this.connect()
             }
-
-            const queueName = `${message.proficiency}.${message.complexity}.${message.topic}`
 
             // Set durable true to ensure queue stays even with mq restart (does not include message persistance)
             await this.channel.assertExchange('Waiting-Queue', 'headers', { durable: false })
@@ -115,7 +180,9 @@ class RabbitMQConnection {
                     complexity: message.complexity,
                     topic: message.topic,
                 },
+                expiration: ttl,
             })
+            logger.info(`[Waiting-Queue] ${message} was put into ${queueName}`)
         } catch (error) {
             logger.error(`[Error] Failed to send message to Waiting-Queue: ${error}`)
             throw error
@@ -123,7 +190,8 @@ class RabbitMQConnection {
     }
 
     // Checks if there is a user waiting in queried queueName
-    async checkWaitingQueue(queueName: string): Promise<boolean> {
+    async checkWaitingQueue(queueName: string): Promise<false | GetMessage> {
+        await this.channel.assertQueue(queueName, { durable: false })
         const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
         if (waitingUser === false) {
             logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
