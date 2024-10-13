@@ -75,8 +75,9 @@ class RabbitMQConnection {
                             let directMatch = await this.checkWaitingQueue(destinationQueue)
 
                             if (directMatch) {
-                                // Add logic that combines both users into one and returns
-                                logger.info('[Entry-Queue] Match found: ', JSON.parse(directMatch.content.toString()))
+                                const matchedUser: IUserQueueMessage = JSON.parse(directMatch.content.toString())
+                                // Add logic here that combines both users into one and returns
+                                logger.info(`[Entry-Queue] Match found: ${JSON.stringify(matchedUser)}`)
                                 this.channel.ack(msg)
                                 this.channel.ack(directMatch)
                             } else {
