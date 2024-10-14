@@ -108,8 +108,7 @@ class RabbitMQConnection {
                 },
             })
 
-            logger.info(message)
-            logger.info(`[Waiting-Queue] was put into ${queueName}`)
+            logger.info(`[Waiting-Queue] ${JSON.stringify(message)} was put into ${queueName}`)
         } catch (error) {
             logger.error(`[Error] Failed to send message to Waiting-Queue: ${error}`)
             throw error
@@ -125,11 +124,12 @@ class RabbitMQConnection {
             await this.channel.assertQueue(queueName, { durable: false })
             const waitingUser: GetMessage | false = await this.channel.get(queueName, { noAck: false })
             if (waitingUser === false) {
-                logger.info(`[Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
-                const queueInfo = await this.channel.checkQueue(queueName)
-                if (queueInfo.messageCount === 0) await this.channel.deleteQueue(queueName) // Remove empty queue to reduce memory usage
+                logger.info(`[Check-Waiting-Queue] Queue ${queueName} does not exist or is empty.`)
+                await this.removeIfEmptyQueue(queueName)
             } else {
-                logger.info(`[Waiting-Queue] A user is waiting in ${queueName}: ${waitingUser.content.toString()}`)
+                logger.info(
+                    `[Check-Waiting-Queue] A user is waiting in ${queueName}: ${waitingUser.content.toString()}`
+                )
             }
             return waitingUser
         } catch (error) {
@@ -152,6 +152,7 @@ class RabbitMQConnection {
                 // Add logic here that combines both users into one and returns
                 logger.info(`[Waiting-Queue] Match found: ${directMatch.content.toString()}`)
                 this.channel.ack(directMatch)
+                await this.removeIfEmptyQueue(destinationQueue)
             } else {
                 let match1: false | GetMessage = false
                 let match2: false | GetMessage = false
@@ -186,22 +187,26 @@ class RabbitMQConnection {
                         logger.info(`[Waiting-Queue] Match found: ${match1.content.toString()}`)
                         this.channel.ack(match1)
                         this.channel.nack(match2)
+                        await this.removeIfEmptyQueue(queryQueueName1)
                     } else {
                         // Choose match2 over directMatch
                         logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                         this.channel.ack(match2)
                         this.channel.nack(match1)
+                        await this.removeIfEmptyQueue(queryQueueName2)
                     }
                 } else if (match1) {
                     // Only directMatch can match
                     logger.info(`[Waiting-Queue] Match found: ${match1.content.toString()}`)
                     // Choose match2 over directMatch
                     this.channel.ack(match1)
+                    await this.removeIfEmptyQueue(queryQueueName1)
                 } else if (match2) {
                     // Only match2 can match
                     logger.info(`[Waiting-Queue] Match found: ${match2.content.toString()}`)
                     // Choose match2 over directMatch
                     this.channel.ack(match2)
+                    await this.removeIfEmptyQueue(queryQueueName2)
                 } else {
                     // No match found, enqueue user into waiting queue
                     this.sendToWaitingQueue(content, destinationQueue, '60000')
@@ -209,6 +214,17 @@ class RabbitMQConnection {
             }
         } catch (error) {
             logger.error(`[Entry-Queue] Issue checking with Waiting-Queue: ${error}`)
+        }
+    }
+
+    // If queue is empty remove queue, else do nothing (queue must already exist)
+    async removeIfEmptyQueue(queueName: string) {
+        try {
+            const queueInfo = await this.channel.checkQueue(queueName)
+            if (queueInfo.messageCount === 0) await this.channel.deleteQueue(queueName) // Remove empty queue to reduce memory usage
+            logger.info(`[Delete-Queue] Deleted empty queue: ${queueName}`)
+        } catch (error) {
+            logger.error(`[Waiting-Queue] Failed to delete queue ${queueName}: ${error}`)
         }
     }
 }
