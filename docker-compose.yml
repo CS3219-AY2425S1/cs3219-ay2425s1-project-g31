@@ -4,6 +4,7 @@ services:
     reverse-proxy:
         container_name: reverse-proxy
         environment:
+            - D=$
             - NGINX_PORT=8080
             - USER_SERVICE_URL=http://user-service:3002
             - QUESTION_SERVICE_URL=http://question-service:3004
