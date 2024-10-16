@@ -1,6 +1,25 @@
 # This docker-compose file is for local development only. It is not intended to be deployed.
 
 services:
+    reverse-proxy:
+        container_name: reverse-proxy
+        environment:
+            - NGINX_PORT=8080
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+        image: nginx:1.27.2-alpine
+        ports:
+            - 8080:8080
+        restart: always
+        volumes:
+            - ./nginx/templates:/etc/nginx/templates
+        networks:
+            - backend-network
+        depends_on:
+            - user-service
+            - question-service
+        command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+
     matching-service:
         container_name: matching-service
         environment:
@@ -17,15 +36,11 @@ services:
             context: .
             dockerfile: ./backend/matching-service/Dockerfile
         restart: always
-        ports:
-            - 3006:3006
         networks:
             - backend-network
         depends_on:
-            rabbitmq:
-                condition: service_healthy
-            matching-db:
-                condition: service_healthy
+            - rabbitmq
+            - matching-db
 
     rabbitmq:
         image: rabbitmq:4-management-alpine
@@ -38,12 +53,6 @@ services:
             - rabbitmq_log:/var/log/rabbitmq/
         networks:
             - backend-network
-        healthcheck:
-            test: rabbitmq-diagnostics -q ping
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 10s
 
     matching-db:
         container_name: matching-db
@@ -54,12 +63,6 @@ services:
             - 'matching_data:/data/db'
         networks:
             - backend-network
-        healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 10s
 
     user-service:
         container_name: user-service
@@ -75,8 +78,6 @@ services:
             context: .
             dockerfile: ./backend/user-service/Dockerfile
         restart: always
-        ports:
-            - 3002:3002
         networks:
             - backend-network
         depends_on:
@@ -106,8 +107,6 @@ services:
             context: .
             dockerfile: ./backend/question-service/Dockerfile
         restart: always
-        ports:
-            - 3004:3004
         networks:
             - backend-network
         depends_on:

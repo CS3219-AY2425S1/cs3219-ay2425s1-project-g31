@@ -1,0 +1,19 @@
+events {}
+
+http {
+  server {
+    listen ${NGINX_PORT};
+
+    location /auth/ {
+      proxy_pass ${USER_SERVICE_URL};
+    }
+
+    location /users/ {
+      proxy_pass ${USER_SERVICE_URL};
+    }
+
+    location /questions/ {
+      proxy_pass ${QUESTION_SERVICE_URL};
+    }
+  }
+}
