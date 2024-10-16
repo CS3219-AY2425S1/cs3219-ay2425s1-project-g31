@@ -44,7 +44,7 @@ services:
             timeout: 10s
             retries: 3
             start_period: 10s
-    
+
     matching-db:
         container_name: matching-db
         image: mongo:8.0.0
@@ -80,8 +80,7 @@ services:
         networks:
             - backend-network
         depends_on:
-            user-db:
-                condition: service_healthy
+            - user-db
 
     user-db:
         container_name: user-db
@@ -92,12 +91,7 @@ services:
             - 'user_data:/data/db'
         networks:
             - backend-network
-        healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 10s
+        command: mongod --quiet --logpath /dev/null
 
     question-service:
         container_name: question-service
@@ -117,8 +111,7 @@ services:
         networks:
             - backend-network
         depends_on:
-            question-db:
-                condition: service_healthy
+            - question-db
 
     question-db:
         container_name: question-db
@@ -129,12 +122,7 @@ services:
             - 'question_data:/data/db'
         networks:
             - backend-network
-        healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 10s
+        command: mongod --quiet --logpath /dev/null
 
 volumes:
     user_data:
