@@ -1,6 +1,65 @@
 # This docker-compose file is for local development only. It is not intended to be deployed.
 
 services:
+    matching-service:
+        container_name: matching-service
+        environment:
+            - NODE_ENV=development
+            - PORT=3006
+            - DB_URL=mongodb://user-db:27017/user-service
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - USER_SERVICE_URL=http://user-service:3002
+            - RMQ_USER=${RMQ_USER}
+            - RMQ_PASSWORD=${RMQ_PASSWORD}
+            - RMQ_HOST=${RMQ_HOST}
+        build:
+            context: .
+            dockerfile: ./backend/matching-service/Dockerfile
+        restart: always
+        ports:
+            - 3006:3006
+        networks:
+            - backend-network
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            matching-db:
+                condition: service_healthy
+
+    rabbitmq:
+        image: rabbitmq:4-management-alpine
+        container_name: rabbitmq
+        ports:
+            - 5672:5672
+            - 15672:15672
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq/
+            - rabbitmq_log:/var/log/rabbitmq/
+        networks:
+            - backend-network
+        healthcheck:
+            test: rabbitmq-diagnostics -q ping
+            interval: 30s
+            timeout: 30s
+            retries: 3
+    
+    matching-db:
+        container_name: matching-db
+        image: mongo:8.0.0
+        ports:
+            - '27067:27017'
+        volumes:
+            - 'matching_data:/data/db'
+        networks:
+            - backend-network
+        healthcheck:
+            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+            interval: 10s
+            timeout: 10s
+            retries: 5
+            start_period: 10s
+
     user-service:
         container_name: user-service
         environment:
@@ -79,6 +138,9 @@ services:
 volumes:
     user_data:
     question_data:
+    matching_data:
+    rabbitmq_data:
+    rabbitmq_log:
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
