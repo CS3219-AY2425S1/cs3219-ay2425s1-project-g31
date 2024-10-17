@@ -10,6 +10,7 @@ services:
             - SSL_KEY_FILE=/etc/nginx/ssl/server.key
             - USER_SERVICE_URL=http://user-service:3002
             - QUESTION_SERVICE_URL=http://question-service:3004
+            - MATCHING_SERVICE_URL=http://matching-service:3006
         image: nginx:1.27.2-alpine
         ports:
             - 443:443

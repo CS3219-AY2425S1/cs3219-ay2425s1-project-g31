@@ -33,6 +33,10 @@ http {
       proxy_pass ${QUESTION_SERVICE_URL};
     }
 
+    location /matching/ {
+      proxy_pass ${MATCHING_SERVICE_URL};
+    }
+
     error_page 404 /404.json;
     location /404.json {
         return 404 '{"error":{"code":404,"message":"Not Found"}}';
