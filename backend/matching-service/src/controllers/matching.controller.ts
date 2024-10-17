@@ -3,7 +3,7 @@ import { Response } from 'express'
 import { ValidationError } from 'class-validator'
 import { UserQueueRequestDto } from '../types/UserQueueRequestDto'
 import mqConnection from '../services/rabbitmq.service'
-import { IUserQueueMessage } from '../types/IUserQueueMessage'
+// import { IUserQueueMessage } from '../types/IUserQueueMessage'
 
 export async function addUserToMatchingQueue(
     request: ITypedBodyRequest<UserQueueRequestDto>,
@@ -17,11 +17,9 @@ export async function addUserToMatchingQueue(
         return
     }
 
-    // Add logic to generate and return 2 WS IDs
-
-    const message: IUserQueueMessage = { ...createDto, websocketId: 'testing' }
-    await mqConnection.sendToEntryQueue(message)
-    response.status(200).send()
+    // const message: IUserQueueMessage = { ...createDto, websocketId: 'testing' }
+    // await mqConnection.sendToEntryQueue(message)
+    response.status(200).send({ websocketID: createDto.userId + createDto.timestamp })
 }
 
 // This will change after the WS is implemented
