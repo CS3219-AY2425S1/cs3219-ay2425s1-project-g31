@@ -1,6 +1,30 @@
 # This docker-compose file is for local development only. It is not intended to be deployed.
 
 services:
+    reverse-proxy:
+        container_name: reverse-proxy
+        environment:
+            - D=$
+            - NGINX_SERVER_NAME=localhost
+            - SSL_CERT_FILE=/etc/nginx/ssl/server.crt
+            - SSL_KEY_FILE=/etc/nginx/ssl/server.key
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+            - MATCHING_SERVICE_URL=http://matching-service:3006
+        image: nginx:1.27.2-alpine
+        ports:
+            - 443:443
+        restart: always
+        volumes:
+            - ./nginx/templates:/etc/nginx/templates
+            - ./nginx/ssl:/etc/nginx/ssl
+        networks:
+            - backend-network
+        depends_on:
+            - user-service
+            - question-service
+        command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+
     matching-service:
         container_name: matching-service
         environment:
@@ -17,15 +41,11 @@ services:
             context: .
             dockerfile: ./backend/matching-service/Dockerfile
         restart: always
-        ports:
-            - 3006:3006
         networks:
             - backend-network
         depends_on:
-            rabbitmq:
-                condition: service_healthy
-            matching-db:
-                condition: service_healthy
+            - rabbitmq
+            - matching-db
 
     rabbitmq:
         image: rabbitmq:4-management-alpine
@@ -38,13 +58,7 @@ services:
             - rabbitmq_log:/var/log/rabbitmq/
         networks:
             - backend-network
-        healthcheck:
-            test: rabbitmq-diagnostics -q ping
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 10s
-    
+
     matching-db:
         container_name: matching-db
         image: mongo:8.0.0
@@ -54,12 +68,6 @@ services:
             - 'matching_data:/data/db'
         networks:
             - backend-network
-        healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 10s
 
     user-service:
         container_name: user-service
@@ -75,13 +83,10 @@ services:
             context: .
             dockerfile: ./backend/user-service/Dockerfile
         restart: always
-        ports:
-            - 3002:3002
         networks:
             - backend-network
         depends_on:
-            user-db:
-                condition: service_healthy
+            - user-db
 
     user-db:
         container_name: user-db
@@ -92,12 +97,7 @@ services:
             - 'user_data:/data/db'
         networks:
             - backend-network
-        healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 10s
+        command: mongod --quiet --logpath /dev/null
 
     question-service:
         container_name: question-service
@@ -112,13 +112,10 @@ services:
             context: .
             dockerfile: ./backend/question-service/Dockerfile
         restart: always
-        ports:
-            - 3004:3004
         networks:
             - backend-network
         depends_on:
-            question-db:
-                condition: service_healthy
+            - question-db
 
     question-db:
         container_name: question-db
@@ -129,12 +126,7 @@ services:
             - 'question_data:/data/db'
         networks:
             - backend-network
-        healthcheck:
-            test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-            interval: 30s
-            timeout: 10s
-            retries: 5
-            start_period: 10s
+        command: mongod --quiet --logpath /dev/null
 
 volumes:
     user_data:

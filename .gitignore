@@ -15,3 +15,5 @@
 **/.turbo
 
 **/*.tsbuildinfo
+
+/nginx/ssl
