@@ -34,5 +34,20 @@ http {
       proxy_set_header Upgrade ${D}http_upgrade;
       proxy_set_header Connection "upgrade";
     }
+
+    error_page 404 /404.json;
+    location /404.json {
+        return 404 '{"error":{"code":404,"message":"Not Found"}}';
+    }
+
+    error_page 429 /429.json;
+    location /429.json {
+        return 429 '{"error":{"code":429,"message":"Too Many Requests"}}';
+    }
+
+    error_page 502 /502.json;
+    location /502.json {
+        return 502 '{"error":{"code":502,"message":"Bad Gateway"}}';
+    }
   }
 }
