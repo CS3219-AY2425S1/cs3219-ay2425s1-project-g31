@@ -5,24 +5,25 @@ services:
         container_name: reverse-proxy
         environment:
             - D=$
-            - NGINX_SERVER_NAME=localhost
-            - SSL_CERT_FILE=/etc/nginx/ssl/server.crt
-            - SSL_KEY_FILE=/etc/nginx/ssl/server.key
+            - NGINX_SERVER_NAME=${VPS_HOST}
             - USER_SERVICE_URL=http://user-service:3002
             - QUESTION_SERVICE_URL=http://question-service:3004
             - MATCHING_SERVICE_URL=http://matching-service:3006
+            - RMQ_URL=http://rabbitmq:15672/
         image: nginx:1.27.2-alpine
         ports:
             - 443:443
         restart: always
         volumes:
             - ./nginx/templates:/etc/nginx/templates
-            - ./nginx/ssl:/etc/nginx/ssl
+            - ${VPS_SSL_CERT_FILE}:/etc/nginx/ssl/server.crt
+            - ${VPS_SSL_KEY_FILE}:/etc/nginx/ssl/server.key
         networks:
             - backend-network
         depends_on:
             - user-service
             - question-service
+            - matching-service
         command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
 
     matching-service:
@@ -36,7 +37,7 @@ services:
             - USER_SERVICE_URL=http://user-service:3002
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
-            - RMQ_HOST=${RMQ_HOST}
+            - RMQ_HOST=rabbitmq
         build:
             context: .
             dockerfile: ./backend/matching-service/Dockerfile
@@ -50,9 +51,9 @@ services:
     rabbitmq:
         image: rabbitmq:4-management-alpine
         container_name: rabbitmq
-        ports:
-            - 5672:5672
-            - 15672:15672
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+            - RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD}
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq/
             - rabbitmq_log:/var/log/rabbitmq/
