@@ -21,19 +21,19 @@ http {
     proxy_set_header Upgrade ${D}http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    location /auth/ {
+    location /auth {
       proxy_pass ${USER_SERVICE_URL};
     }
 
-    location /users/ {
+    location /users {
       proxy_pass ${USER_SERVICE_URL};
     }
 
-    location /questions/ {
+    location /questions {
       proxy_pass ${QUESTION_SERVICE_URL};
     }
 
-    location /matching/ {
+    location /matching {
       proxy_pass ${MATCHING_SERVICE_URL};
     }
 
