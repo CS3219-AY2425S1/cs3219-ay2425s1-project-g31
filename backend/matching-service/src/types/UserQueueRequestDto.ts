@@ -1,6 +1,14 @@
-import { ITypedBodyRequest } from '@repo/request-types'
 import { Category, Complexity, Proficiency } from '@repo/user-types'
 import { IsEnum, IsNotEmpty, IsString, ValidationError, validate } from 'class-validator'
+
+export type UserQueueRequest = {
+    proficiency: Proficiency
+    complexity: Complexity
+    topic: Category
+    userId: string
+    timestamp: string
+    websocketId: string
+}
 
 export class UserQueueRequestDto {
     @IsEnum(Proficiency)
@@ -23,18 +31,35 @@ export class UserQueueRequestDto {
     @IsNotEmpty()
     timestamp: string
 
-    constructor(proficiency: Proficiency, complexity: Complexity, topic: Category, userId: string, timestamp: string) {
+    @IsString()
+    @IsNotEmpty()
+    websocketId: string
+
+    constructor(
+        proficiency: Proficiency,
+        complexity: Complexity,
+        topic: Category,
+        userId: string,
+        timestamp: string,
+        websocketId: string
+    ) {
         this.proficiency = proficiency
         this.complexity = complexity
         this.topic = topic
         this.userId = userId
         this.timestamp = timestamp
+        this.websocketId = websocketId
     }
 
-    static fromRequest({
-        body: { proficiency, complexity, topic, userId, timestamp },
-    }: ITypedBodyRequest<UserQueueRequestDto>): UserQueueRequestDto {
-        return new UserQueueRequestDto(proficiency, complexity, topic, userId, timestamp)
+    static fromJSON(data: UserQueueRequest): UserQueueRequestDto {
+        return new UserQueueRequestDto(
+            data.proficiency,
+            data.complexity,
+            data.topic,
+            data.userId,
+            data.timestamp,
+            data.websocketId
+        )
     }
 
     async validate(): Promise<ValidationError[]> {

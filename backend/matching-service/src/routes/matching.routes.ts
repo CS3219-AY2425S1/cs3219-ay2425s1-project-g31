@@ -1,12 +1,11 @@
 import { Router } from 'express'
 import passport from 'passport'
-import { addUserToMatchingQueue, removeUserFromMatchingQueue } from '../controllers/matching.controller'
+import { generateWS } from '../controllers/matching.controller'
 
 const router = Router()
 
 router.use(passport.authenticate('jwt', { session: false }))
 
-router.post('/', addUserToMatchingQueue)
-router.post('/cancel', removeUserFromMatchingQueue)
+router.post('/', generateWS)
 
 export default router

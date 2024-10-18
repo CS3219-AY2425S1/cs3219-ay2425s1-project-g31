@@ -9,7 +9,11 @@ const { publicKey, privateKey } = generateKeyPairSync('rsa', {
 
 export default {
     NODE_ENV: 'test',
-    PORT: '3006',
+    PORT: '8000',
     ACCESS_TOKEN_PUBLIC_KEY: Buffer.from(publicKey).toString('base64'),
     ACCESS_TOKEN_PRIVATE_KEY: Buffer.from(privateKey).toString('base64'),
+    RMQ_USER: 'test',
+    RMQ_PASSWORD: 'test',
+    RMQ_HOST: 'test',
+    DB_URL: 'test',
 }

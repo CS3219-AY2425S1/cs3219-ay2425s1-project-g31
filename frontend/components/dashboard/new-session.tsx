@@ -67,34 +67,58 @@ export const NewSession = () => {
         }))
 
         //TODO: Modify this response to match the response from the API
-        let response: { wsId: string; wsUrl: string } | undefined
+        let response: { websocketID: string } | undefined = { websocketID: '' }
 
+        const t = new Date().toISOString()
+        setTimestamp(t)
         try {
-            setTimestamp(new Date().toISOString())
-            response = await addUserToMatchmaking({
-                userId: session?.user.id ?? '',
-                proficiency: session?.user.proficiency as Proficiency,
-                complexity: selectedComplexity as Complexity,
-                topic: selectedTopic as Category,
-                timestamp: timestamp,
-            })
+            const r = await addUserToMatchmaking()
+            response.websocketID = r.websocketID
         } catch {
             await handleFailedMatchmaking()
         }
 
-        const socket = new WebSocket(`wss://${response?.wsUrl}`)
+        if (!response.websocketID) {
+            toast.error('Failed to retrieve websocket ID.')
+            return
+        }
+
+        const socket = new WebSocket(`${process.env.NEXT_PUBLIC_WEBSOCKET_URL}/?id=${response.websocketID}`)
         socketRef.current = socket
+        socketRef.current.onopen = () => {
+            socketRef.current?.send(
+                JSON.stringify({
+                    userId: session?.user.id ?? '',
+                    proficiency: session?.user.proficiency as Proficiency,
+                    complexity: selectedComplexity as Complexity,
+                    topic: selectedTopic as Category,
+                    timestamp: t,
+                    websocketId: response.websocketID,
+                })
+            )
+        }
         socketRef.current.onmessage = (event: MessageEvent) => {
             if (typeof event.data === 'string') {
                 const newMessage = JSON.parse(event.data)
                 switch (newMessage.type) {
-                    case 'success':
+                    case WebSocketMessageType.SUCCESS:
                         handleMatchFound()
                         break
-                    case 'fail':
+                    case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
                         socketRef.current = undefined
                         handleFailedMatchmaking()
+                        break
+                    case WebSocketMessageType.CANCEL:
+                        socketRef.current?.close()
+                        socketRef.current = undefined
+                        setModalData((modalData) => {
+                            return {
+                                ...modalData,
+                                isOpen: false,
+                                isMatchmaking: false,
+                            }
+                        })
                         break
                     default:
                         console.error('Unexpected message type received')
@@ -120,15 +144,6 @@ export const NewSession = () => {
     const handleCancelMatchmaking = async () => {
         const cancelMessage = { type: WebSocketMessageType.CANCEL }
         socketRef.current?.send(JSON.stringify(cancelMessage))
-        socketRef.current?.close()
-        socketRef.current = undefined
-        setModalData((modalData) => {
-            return {
-                ...modalData,
-                isOpen: false,
-                isMatchmaking: false,
-            }
-        })
     }
 
     const handleMatchFound = async () => {
