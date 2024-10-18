@@ -28,6 +28,7 @@ services:
 
     matching-service:
         container_name: matching-service
+        image: glemenneo/cs3219-ay2425s1-project-g31-matching-service:latest
         environment:
             - NODE_ENV=development
             - PORT=3006
@@ -38,9 +39,6 @@ services:
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
             - RMQ_HOST=rabbitmq
-        build:
-            context: .
-            dockerfile: ./backend/matching-service/Dockerfile
         restart: always
         networks:
             - backend-network
@@ -73,6 +71,7 @@ services:
 
     user-service:
         container_name: user-service
+        image: glemenneo/cs3219-ay2425s1-project-g31-user-service:latest
         environment:
             - NODE_ENV=development
             - PORT=3002
@@ -81,9 +80,6 @@ services:
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
             - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
-        build:
-            context: .
-            dockerfile: ./backend/user-service/Dockerfile
         restart: always
         networks:
             - backend-network
@@ -103,6 +99,7 @@ services:
 
     question-service:
         container_name: question-service
+        image: glemenneo/cs3219-ay2425s1-project-g31-question-service:latest
         environment:
             - NODE_ENV=development
             - PORT=3004
@@ -110,9 +107,6 @@ services:
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
-        build:
-            context: .
-            dockerfile: ./backend/question-service/Dockerfile
         restart: always
         networks:
             - backend-network
