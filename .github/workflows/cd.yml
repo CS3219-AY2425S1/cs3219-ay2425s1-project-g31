@@ -65,5 +65,6 @@ jobs:
                   script: |
                       cd cs3219-ay2425s1-project-g31
                       docker compose down
+                      git switch main
                       git pull
                       docker compose up -d
