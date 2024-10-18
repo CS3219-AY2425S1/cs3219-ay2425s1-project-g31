@@ -35,6 +35,8 @@ jobs:
                   file: ${{ matrix.dockerfile }}
                   push: true
                   tags: ${{ matrix.image }}:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
     deploy:
         name: Deploy to VPS
         needs: push
