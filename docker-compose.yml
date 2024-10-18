@@ -1,45 +1,42 @@
-# This docker-compose file is for local development only. It is not intended to be deployed.
-
 services:
     reverse-proxy:
         container_name: reverse-proxy
         environment:
             - D=$
-            - NGINX_SERVER_NAME=localhost
-            - SSL_CERT_FILE=/etc/nginx/ssl/server.crt
-            - SSL_KEY_FILE=/etc/nginx/ssl/server.key
+            - NGINX_SERVER_NAME=${VPS_HOST}
             - USER_SERVICE_URL=http://user-service:3002
             - QUESTION_SERVICE_URL=http://question-service:3004
             - MATCHING_SERVICE_URL=http://matching-service:3006
+            - RMQ_URL=http://rabbitmq:15672
         image: nginx:1.27.2-alpine
         ports:
             - 443:443
         restart: always
         volumes:
             - ./nginx/templates:/etc/nginx/templates
-            - ./nginx/ssl:/etc/nginx/ssl
+            - ${VPS_SSL_CERT_FILE}:/etc/nginx/ssl/server.crt
+            - ${VPS_SSL_KEY_FILE}:/etc/nginx/ssl/server.key
         networks:
             - backend-network
         depends_on:
             - user-service
             - question-service
+            - matching-service
         command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
 
     matching-service:
         container_name: matching-service
+        image: glemenneo/cs3219-ay2425s1-project-g31-matching-service:latest
         environment:
             - NODE_ENV=development
             - PORT=3006
-            - DB_URL=mongodb://user-db:27017/user-service
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@matching-db:27017/matching-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
-            - RMQ_HOST=${RMQ_HOST}
-        build:
-            context: .
-            dockerfile: ./backend/matching-service/Dockerfile
+            - RMQ_HOST=rabbitmq
         restart: always
         networks:
             - backend-network
@@ -50,9 +47,9 @@ services:
     rabbitmq:
         image: rabbitmq:4-management-alpine
         container_name: rabbitmq
-        ports:
-            - 5672:5672
-            - 15672:15672
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+            - RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD}
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq/
             - rabbitmq_log:/var/log/rabbitmq/
@@ -62,26 +59,28 @@ services:
     matching-db:
         container_name: matching-db
         image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
         ports:
             - '27067:27017'
         volumes:
             - 'matching_data:/data/db'
         networks:
             - backend-network
+        command: mongod --quiet --logpath /dev/null --auth
 
     user-service:
         container_name: user-service
+        image: glemenneo/cs3219-ay2425s1-project-g31-user-service:latest
         environment:
             - NODE_ENV=development
             - PORT=3002
-            - DB_URL=mongodb://user-db:27017/user-service
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@user-db:27017/user-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
             - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
-        build:
-            context: .
-            dockerfile: ./backend/user-service/Dockerfile
         restart: always
         networks:
             - backend-network
@@ -91,26 +90,27 @@ services:
     user-db:
         container_name: user-db
         image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
         ports:
             - '27027:27017'
         volumes:
             - 'user_data:/data/db'
         networks:
             - backend-network
-        command: mongod --quiet --logpath /dev/null
+        command: mongod --quiet --logpath /dev/null --auth
 
     question-service:
         container_name: question-service
+        image: glemenneo/cs3219-ay2425s1-project-g31-question-service:latest
         environment:
             - NODE_ENV=development
             - PORT=3004
-            - DB_URL=mongodb://question-db:27017/question-service
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@question-db:27017/question-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
-        build:
-            context: .
-            dockerfile: ./backend/question-service/Dockerfile
         restart: always
         networks:
             - backend-network
@@ -120,13 +120,18 @@ services:
     question-db:
         container_name: question-db
         image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
         ports:
             - '27047:27017'
         volumes:
             - 'question_data:/data/db'
+            - ${VPS_SSL_CERT_FILE}:/etc/ssl/certs/mongodb.crt
+            - ${VPS_SSL_KEY_FILE}:/etc/ssl/private/mongodb.key
         networks:
             - backend-network
-        command: mongod --quiet --logpath /dev/null
+        command: mongod --quiet --logpath /dev/null --auth
 
 volumes:
     user_data:

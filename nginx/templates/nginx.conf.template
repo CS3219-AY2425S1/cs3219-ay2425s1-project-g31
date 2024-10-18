@@ -10,8 +10,8 @@ http {
 
     server_name ${NGINX_SERVER_NAME};
 
-    ssl_certificate ${SSL_CERT_FILE};
-    ssl_certificate_key ${SSL_KEY_FILE};
+    ssl_certificate /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
 
     limit_req zone=rate_limit_zone burst=20 nodelay;
 
@@ -21,20 +21,24 @@ http {
     proxy_set_header Upgrade ${D}http_upgrade;
     proxy_set_header Connection "upgrade";
 
-    location /auth/ {
+    location /auth {
       proxy_pass ${USER_SERVICE_URL};
     }
 
-    location /users/ {
+    location /users {
       proxy_pass ${USER_SERVICE_URL};
     }
 
-    location /questions/ {
+    location /questions {
       proxy_pass ${QUESTION_SERVICE_URL};
     }
 
-    location /matching/ {
+    location /matching {
       proxy_pass ${MATCHING_SERVICE_URL};
+    }
+
+    location /rabbitmq/ {
+      proxy_pass ${RMQ_URL}/;
     }
 
     error_page 404 /404.json;
