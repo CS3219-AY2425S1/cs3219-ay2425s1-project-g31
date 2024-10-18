@@ -69,6 +69,7 @@ services:
             - 'matching_data:/data/db'
         networks:
             - backend-network
+        command: mongod --quiet --logpath /dev/null
 
     user-service:
         container_name: user-service
