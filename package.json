@@ -1,0 +1,37 @@
+{
+    "name": "cs3219-ay2425s1-project-g31",
+    "version": "0.1.0",
+    "description": "CS3219 Project (PeerPrep) - AY2425S1 Group: G31",
+    "author": "CS3219 AY2024S1 Group 31",
+    "license": "MIT",
+    "workspaces": [
+        "frontend",
+        "backend/*",
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "turbo run build",
+        "dev": "turbo run dev",
+        "test": "turbo run test",
+        "lint": "turbo run lint",
+        "lint-staged": "lint-staged",
+        "prepare": "husky || true"
+    },
+    "devDependencies": {
+        "@repo/eslint-config": "*",
+        "@repo/typescript-config": "*",
+        "husky": "^9.1.6",
+        "lint-staged": "^15.2.10",
+        "prettier": "^3.3.3",
+        "turbo": "^2.1.2"
+    },
+    "lint-staged": {
+        "*.{js, jsx,ts,tsx}": [
+            "eslint --quiet --fix"
+        ],
+        "*.{json,js,ts,jsx,tsx,html}": [
+            "prettier --write --ignore-unknown"
+        ]
+    },
+    "packageManager": "npm@10.8.2+"
+}
