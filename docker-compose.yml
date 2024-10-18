@@ -30,7 +30,7 @@ services:
         environment:
             - NODE_ENV=development
             - PORT=3006
-            - DB_URL=mongodb://user-db:27017/user-service
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@matching-db:27017/matching-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
@@ -59,13 +59,16 @@ services:
     matching-db:
         container_name: matching-db
         image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
         ports:
             - '27067:27017'
         volumes:
             - 'matching_data:/data/db'
         networks:
             - backend-network
-        command: mongod --quiet --logpath /dev/null
+        command: mongod --quiet --logpath /dev/null --auth
 
     user-service:
         container_name: user-service
@@ -73,7 +76,7 @@ services:
         environment:
             - NODE_ENV=development
             - PORT=3002
-            - DB_URL=mongodb://user-db:27017/user-service
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@user-db:27017/user-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
@@ -87,13 +90,16 @@ services:
     user-db:
         container_name: user-db
         image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
         ports:
             - '27027:27017'
         volumes:
             - 'user_data:/data/db'
         networks:
             - backend-network
-        command: mongod --quiet --logpath /dev/null
+        command: mongod --quiet --logpath /dev/null --auth
 
     question-service:
         container_name: question-service
@@ -101,7 +107,7 @@ services:
         environment:
             - NODE_ENV=development
             - PORT=3004
-            - DB_URL=mongodb://question-db:27017/question-service
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@question-db:27017/question-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
@@ -114,13 +120,18 @@ services:
     question-db:
         container_name: question-db
         image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
         ports:
             - '27047:27017'
         volumes:
             - 'question_data:/data/db'
+            - ${VPS_SSL_CERT_FILE}:/etc/ssl/certs/mongodb.crt
+            - ${VPS_SSL_KEY_FILE}:/etc/ssl/private/mongodb.key
         networks:
             - backend-network
-        command: mongod --quiet --logpath /dev/null
+        command: mongod --quiet --logpath /dev/null --auth
 
 volumes:
     user_data:
