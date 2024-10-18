@@ -37,6 +37,7 @@ jobs:
                   tags: ${{ matrix.image }}:latest
     deploy:
         name: Deploy to VPS
+        needs: push
         timeout-minutes: 15
         runs-on: ubuntu-latest
         steps:
@@ -52,11 +53,13 @@ jobs:
                   NODEMAILER_PASSWORD: ${{ secrets.NODEMAILER_PASSWORD }}
                   RMQ_USER: ${{ secrets.RMQ_USER }}
                   RMQ_PASSWORD: ${{ secrets.RMQ_PASSWORD }}
+                  MONGO_USER: ${{ secrets.MONGO_USER }}
+                  MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
               with:
                   host: ${{ secrets.VPS_HOST }}
                   username: ${{ secrets.VPS_USERNAME }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  envs: VPS_HOST,VPS_SSL_KEY_FILE,VPS_SSL_CERT_FILE,ACCESS_TOKEN_PUBLIC_KEY,ACCESS_TOKEN_PRIVATE_KEY,NODEMAILER_EMAIL,NODEMAILER_PASSWORD,RMQ_USER,RMQ_PASSWORD
+                  envs: VPS_HOST,VPS_SSL_KEY_FILE,VPS_SSL_CERT_FILE,ACCESS_TOKEN_PUBLIC_KEY,ACCESS_TOKEN_PRIVATE_KEY,NODEMAILER_EMAIL,NODEMAILER_PASSWORD,RMQ_USER,RMQ_PASSWORD,MONGO_USER,MONGO_PASSWORD
                   script: |
                       cd cs3219-ay2425s1-project-g31
                       docker compose down
