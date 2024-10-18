@@ -6,4 +6,7 @@ export default async () => {
     await mqConnection.entryQueueConsumer().then(() => {
         logger.info(`[Entry-Queue] Listening to Entry Queue...`)
     })
+    await mqConnection.listenToDeadLetterQueue().then(() => {
+        logger.info(`[DeadLetter-Queue] Listening to DeadLetter Queue...`)
+    })
 }
