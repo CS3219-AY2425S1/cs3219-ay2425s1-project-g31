@@ -38,7 +38,7 @@ http {
     }
 
     location /rabbitmq/ {
-      proxy_pass ${RMQ_URL};
+      proxy_pass ${RMQ_URL}/;
     }
 
     error_page 404 /404.json;
