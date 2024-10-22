@@ -16,3 +16,7 @@ export async function isUserInMatch(userId: string): Promise<boolean> {
     })
     return !!match
 }
+
+export async function getMatchById(matchId: string): Promise<IMatch> {
+    return matchModel.findById(matchId)
+}

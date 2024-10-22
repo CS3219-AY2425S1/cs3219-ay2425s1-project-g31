@@ -1,11 +1,12 @@
 import { Router } from 'express'
 import passport from 'passport'
-import { generateWS } from '../controllers/matching.controller'
+import { generateWS, getMatchDetails } from '../controllers/matching.controller'
 
 const router = Router()
 
 router.use(passport.authenticate('jwt', { session: false }))
 
 router.post('/', generateWS)
+router.get('/', getMatchDetails)
 
 export default router
