@@ -41,5 +41,6 @@ const createServiceAPI = (baseURL: string) => {
 const userServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_USER_SERVICE_URL ?? '')
 const questionServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_QUESTION_SERVICE_URL ?? '')
 const matchingServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_MATCHING_SERVICE_URL ?? '')
+const collaborationServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_COLLABORATION_SERVICE_URL ?? '')
 
-export default { userServiceAPI, questionServiceAPI, matchingServiceAPI }
+export default { userServiceAPI, questionServiceAPI, matchingServiceAPI, collaborationServiceAPI }
