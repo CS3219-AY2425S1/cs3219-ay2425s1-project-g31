@@ -5,7 +5,7 @@ export interface IMatch {
     user1Id: string
     user2Id: string
     isCompleted: boolean
-    categories: Category[]
+    category: Category
     complexity: Complexity
     createdAt: Date
 }

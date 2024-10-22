@@ -13,7 +13,6 @@ import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 import { WebSocketMessageType } from '@repo/ws-types'
 import { IPostMatching, MatchingStatus } from '@/types/matching-api'
-import { getMatchDetails } from '@/services/collaboration-service-api'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -160,16 +159,6 @@ export const NewSession = () => {
         }))
     }
 
-    const handleJoinSession = async () => {
-        try {
-            await getMatchDetails(modalData.matchId)
-        } catch (e) {
-            toast.error('Failed to get match details. Please try again later.')
-            return
-        }
-        router.push('/code')
-    }
-
     return (
         <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
             <div>
@@ -268,7 +257,16 @@ export const NewSession = () => {
                         {modalData.matchStatus === MatchingStatus.MATCH_EXISTS && (
                             <>
                                 <h2 className="text-xl font-bold text-center">You already have a match!</h2>
-                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleJoinSession}>
+                                <Button
+                                    variant={'ghostTabLabel'}
+                                    size={'lg'}
+                                    onClick={() =>
+                                        void router.push(
+                                            { pathname: '/code', query: { matchId: modalData.matchId } },
+                                            '/code'
+                                        )
+                                    }
+                                >
                                     Proceed to coding session
                                 </Button>
                             </>

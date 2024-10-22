@@ -1,25 +1,25 @@
 import CustomLabel from '../ui/label'
-import { Difficulty } from '@/types/difficulty'
+import { Complexity } from '@repo/user-types'
 
 import { FC } from 'react'
 
 interface DifficultyLabelProps {
-    complexity: Difficulty
+    complexity: Complexity
 }
 
 export const DifficultyLabel: FC<DifficultyLabelProps> = ({ complexity }) => {
     let textColor = ''
     let bgColor = ''
     switch (complexity.toLowerCase()) {
-        case Difficulty.Easy:
+        case Complexity.EASY:
             textColor = 'text-green'
             bgColor = 'bg-green-light'
             break
-        case Difficulty.Medium:
+        case Complexity.MEDIUM:
             textColor = 'text-amber'
             bgColor = 'bg-amber-light'
             break
-        case Difficulty.Hard:
+        case Complexity.HARD:
             textColor = 'text-red'
             bgColor = 'bg-red-light'
             break

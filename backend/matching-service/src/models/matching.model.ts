@@ -56,8 +56,8 @@ const matchSchema = new Schema<IMatch>({
             }
         },
     },
-    categories: {
-        type: [String],
+    category: {
+        type: String,
         enum: Object.values(Category),
         required: true,
     },

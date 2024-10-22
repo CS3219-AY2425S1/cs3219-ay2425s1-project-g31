@@ -1,5 +1,5 @@
+import { Complexity } from '@repo/user-types'
 import { IPagination } from './datatable'
-import { Difficulty } from './difficulty'
 
 export enum QuestionStatus {
     COMPLETED = 'completed',
@@ -10,7 +10,7 @@ export interface IQuestion {
     id?: string
     title: string
     description: string
-    complexity: Difficulty
+    complexity: Complexity
     categories: string[]
     status?: QuestionStatus
     link?: string

@@ -1,7 +1,7 @@
-import { Difficulty, FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
+import { FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
 import { ExclamationIcon, TickIcon } from '@/assets/icons'
 
-import { Category } from '@repo/user-types'
+import { Category, Complexity } from '@repo/user-types'
 import CustomLabel from '@/components/ui/label'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 
@@ -96,7 +96,7 @@ const formFields: IFormFields[] = [
         accessKey: 'complexity',
         formType: FormType.SELECT,
         required: true,
-        selectOptions: Object.values(Difficulty),
+        selectOptions: Object.values(Complexity),
     },
     {
         label: 'Description',

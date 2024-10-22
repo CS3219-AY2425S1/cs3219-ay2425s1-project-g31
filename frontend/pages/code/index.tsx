@@ -11,7 +11,7 @@ import 'ace-builds/src-noconflict/ext-language_tools'
 
 import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
 import { IQuestion, ITestcase } from '@/types'
-import { mockChatData, mockCollaboratorData, mockQuestionData, mockTestCaseData, mockUserData } from '@/mock-data'
+import { mockChatData, mockCollaboratorData, mockTestCaseData, mockUserData } from '@/mock-data'
 import { useEffect, useRef, useState } from 'react'
 
 import AceEditor from 'react-ace'
@@ -24,7 +24,10 @@ import LanguageModeSelect from './language-mode-select'
 import React from 'react'
 import TestcasesTab from './testcase-tab'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
-import { useRouter } from 'next/router'
+import { useRouter, withRouter } from 'next/router'
+import { getMatchDetails } from '../../services/collaboration-service-api'
+import { toast } from 'sonner'
+import { Complexity } from '@repo/user-types'
 
 interface ICollaborator {
     name: string
@@ -34,7 +37,7 @@ interface ICollaborator {
 const collaboratorData: ICollaborator = mockCollaboratorData
 const userData: ICollaborator = mockUserData
 const initialChatData = mockChatData
-const questionData: IQuestion = mockQuestionData
+// const questionData: IQuestion = mockQuestionData
 const testCasesData: ITestcase[] = mockTestCaseData
 
 const formatQuestionCategories = (cat: string[]) => {
@@ -65,7 +68,7 @@ const getChatBubbleFormat = (currUser: ICollaborator, type: 'label' | 'text') =>
     return format
 }
 
-export default function Code() {
+function Code(props: any) {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
     const [chatData, setChatData] = useState(initialChatData)
@@ -73,9 +76,26 @@ export default function Code() {
     const [editorLanguage, setEditorLanguage] = useState('javascript')
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
+    const [questionData, setQuestionData] = useState<IQuestion | undefined>(undefined)
+    const [matchData, setMatchData] = useState(null)
 
     // Ref for autoscroll the last chat message
     const chatEndRef = useRef<HTMLDivElement | null>(null)
+
+    useEffect(() => {
+        getSessionDetails()
+    }, [])
+
+    const getSessionDetails = async () => {
+        try {
+            const response = await getMatchDetails(props.router.query.matchId)
+            setQuestionData(response.question)
+            setMatchData(response.match)
+        } catch (e) {
+            toast.error('Failed to get session details. Please try again later.')
+            return
+        }
+    }
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
@@ -142,16 +162,16 @@ export default function Code() {
                     id="question-data"
                     className="flex-grow border-2 rounded-lg border-slate-100 mt-2 py-2 px-3 overflow-y-auto"
                 >
-                    <h3 className="text-lg font-medium">{questionData.title}</h3>
+                    <h3 className="text-lg font-medium">{questionData?.title}</h3>
                     <div className="flex gap-3 my-2 text-sm">
-                        <DifficultyLabel complexity={questionData.complexity} />
+                        <DifficultyLabel complexity={questionData?.complexity ?? Complexity.EASY} />
                         <CustomLabel
-                            title={formatQuestionCategories(questionData.categories)}
+                            title={formatQuestionCategories(questionData?.categories ?? [])}
                             textColor="text-theme"
                             bgColor="bg-theme-100"
                         />
                     </div>
-                    <div className="mt-6">{questionData.description}</div>
+                    <div className="mt-6">{questionData?.description}</div>
                 </div>
 
                 <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-twoFifthScreen flex flex-col">
@@ -264,3 +284,5 @@ export default function Code() {
         </div>
     )
 }
+
+export default withRouter(Code)
