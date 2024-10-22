@@ -62,19 +62,15 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
     return dto
 }
 
-export async function getMatchDetails(
-    request: ITypedBodyRequest<{ matchId: string }>,
-    response: Response
-): Promise<void> {
-    const match = await getMatchById(request.body.matchId)
+export async function getMatchDetails(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
+    const match = await getMatchById(request.params.matchId)
+
     if (!match) {
         response.status(404).send('MATCH_NOT_FOUND')
         return
     }
 
     const userId = request.user.id
-
-    console.log(userId)
 
     if (match.user1Id !== userId && match.user2Id !== userId) {
         response.status(403).send('UNAUTHORIZED')

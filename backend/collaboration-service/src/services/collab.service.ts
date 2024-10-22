@@ -9,6 +9,8 @@ export async function getUserById(id: string, accessToken: string): Promise<IUse
     return response.data
 }
 
-export async function getMatch(matchId: string): Promise<AxiosResponse> {
-    return await axios.get(`${config.MATCHING_SERVICE_URL}/matches/${matchId}`)
+export async function getMatch(matchId: string, accessToken: string): Promise<AxiosResponse> {
+    return await axios.get(`${config.MATCHING_SERVICE_URL}/matching/${matchId}`, {
+        headers: { authorization: accessToken },
+    })
 }

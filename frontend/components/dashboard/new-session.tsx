@@ -13,6 +13,7 @@ import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 import { WebSocketMessageType } from '@repo/ws-types'
 import { IPostMatching, MatchingStatus } from '@/types/matching-api'
+import { getMatchDetails } from '@/services/collaboration-service-api'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -156,6 +157,11 @@ export const NewSession = () => {
         }))
     }
 
+    const handleJoinSession = async () => {
+        await getMatchDetails(modalData.matchId)
+        router.push('/code')
+    }
+
     return (
         <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
             <div>
@@ -249,7 +255,7 @@ export const NewSession = () => {
                                     Match found! Please wait while we redirect you to the coding session...
                                 </h2>
                                 <h3 className="text-md font-bold text-center">Match ID: {modalData.matchId}</h3>
-                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={() => void router.push('/code')}>
+                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleJoinSession}>
                                     Proceed to coding session
                                 </Button>
                             </>
@@ -259,7 +265,8 @@ export const NewSession = () => {
                                 <h2 className="text-xl font-bold text-center">
                                     You already have a match! Please wait while we redirect you to the coding session...
                                 </h2>
-                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={() => void router.push('/code')}>
+                                <h3 className="text-md font-bold text-center">Match ID: {modalData.matchId}</h3>
+                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleJoinSession}>
                                     Proceed to coding session
                                 </Button>
                             </>
