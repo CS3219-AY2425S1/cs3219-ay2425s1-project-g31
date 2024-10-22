@@ -27,7 +27,6 @@ export class Config {
     constructor(
         NODE_ENV: string,
         PORT: string,
-        WS_PORT: string,
         DB_URL: string,
         ACCESS_TOKEN_PUBLIC_KEY: string,
         USER_SERVICE_URL: string,
@@ -47,7 +46,6 @@ export class Config {
         return new Config(
             env.NODE_ENV!,
             env.PORT!,
-            env.WS_PORT!,
             env.DB_URL!,
             env.ACCESS_TOKEN_PUBLIC_KEY!,
             env.USER_SERVICE_URL!,
