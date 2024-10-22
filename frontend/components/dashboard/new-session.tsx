@@ -158,7 +158,12 @@ export const NewSession = () => {
     }
 
     const handleJoinSession = async () => {
-        await getMatchDetails(modalData.matchId)
+        try {
+            await getMatchDetails(modalData.matchId)
+        } catch (e) {
+            toast.error('Failed to get match details. Please try again later.')
+            return
+        }
         router.push('/code')
     }
 
