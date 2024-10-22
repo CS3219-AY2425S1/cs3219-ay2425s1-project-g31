@@ -11,10 +11,6 @@ const matchSchema = new Schema<IMatch>({
         type: String,
         required: true,
     },
-    questionId: {
-        type: String,
-        required: true,
-    },
     isCompleted: {
         type: Boolean,
         required: true,

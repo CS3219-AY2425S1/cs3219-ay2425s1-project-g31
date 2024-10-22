@@ -51,7 +51,6 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
         wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
-    data.questionId = randomUUID() // TODO: replace with actual question ID
     const createDto = MatchDto.fromJSON(data)
     const errors = await createDto.validate()
     if (errors.length) {
@@ -74,6 +73,8 @@ export async function getMatchDetails(
     }
 
     const userId = request.user.id
+
+    console.log(userId)
 
     if (match.user1Id !== userId && match.user2Id !== userId) {
         response.status(403).send('UNAUTHORIZED')

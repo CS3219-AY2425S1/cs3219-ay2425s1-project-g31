@@ -20,10 +20,6 @@ export class MatchDto {
     @IsNotEmpty()
     user2Id: string
 
-    @IsString()
-    @IsNotEmpty()
-    questionId: string
-
     @IsNotEmpty()
     isCompleted: boolean
 
@@ -35,7 +31,6 @@ export class MatchDto {
         user2Id: string,
         complexity: Complexity,
         categories: Category[],
-        questionId: string,
         isCompleted: boolean = false,
         createdAt: Date = new Date()
     ) {
@@ -43,7 +38,6 @@ export class MatchDto {
         this.user2Id = user2Id
         this.complexity = complexity
         this.categories = categories
-        this.questionId = questionId
         this.isCompleted = isCompleted
         this.createdAt = createdAt
     }
@@ -54,7 +48,6 @@ export class MatchDto {
             data.user2Id,
             data.complexity,
             data.categories,
-            data.questionId,
             data.isCompleted,
             data.createdAt
         )

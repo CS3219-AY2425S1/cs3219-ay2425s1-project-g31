@@ -1,5 +1,5 @@
 import { IUserDto } from '@repo/user-types'
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import config from '../common/config.util'
 
 export async function getUserById(id: string, accessToken: string): Promise<IUserDto> {
@@ -7,4 +7,8 @@ export async function getUserById(id: string, accessToken: string): Promise<IUse
         headers: { authorization: accessToken },
     })
     return response.data
+}
+
+export async function getMatch(matchId: string): Promise<AxiosResponse> {
+    return await axios.get(`${config.MATCHING_SERVICE_URL}/matches/${matchId}`)
 }
