@@ -12,7 +12,7 @@ import { createMatch, getMatchById, isUserInMatch } from '../models/matching.rep
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
     if (userHasMatch) {
-        response.status(403).send('USER_ALREADY_IN_MATCH')
+        response.status(403).send(userHasMatch)
         return
     }
 

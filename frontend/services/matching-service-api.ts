@@ -10,7 +10,7 @@ export const addUserToMatchmaking = async (): Promise<any | undefined> => {
     } catch (error) {
         if (axios.isAxiosError(error)) {
             if (error.response) {
-                throw { status: error.response.status, message: error.message }
+                throw { status: error.response.status, message: error.message, data: error.response.data }
             } else {
                 throw { message: `Axios error: ${error.message}` }
             }

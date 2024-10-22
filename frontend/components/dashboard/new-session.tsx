@@ -71,7 +71,7 @@ export const NewSession = () => {
             websocketId = r?.websocketID ?? ''
         } catch (e: any) {
             if (e.status === 403) {
-                await updateMatchmakingStatus(MatchingStatus.MATCH_EXISTS)
+                await updateMatchmakingStatus(MatchingStatus.MATCH_EXISTS, e.data)
             } else if (e.status === 409) {
                 await updateMatchmakingStatus(MatchingStatus.USER_ALREADY_IN_QUEUE)
             } else {
@@ -101,6 +101,9 @@ export const NewSession = () => {
                 switch (newMessage.type) {
                     case WebSocketMessageType.SUCCESS:
                         updateMatchmakingStatus(MatchingStatus.MATCH_FOUND, newMessage.matchId)
+                        setTimeout(() => {
+                            router.push('/code')
+                        }, 3000)
                         break
                     case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
@@ -256,21 +259,15 @@ export const NewSession = () => {
                         )}
                         {modalData.matchStatus === MatchingStatus.MATCH_FOUND && (
                             <>
-                                <h2 className="text-xl font-bold text-center">
-                                    Match found! Please wait while we redirect you to the coding session...
-                                </h2>
-                                <h3 className="text-md font-bold text-center">Match ID: {modalData.matchId}</h3>
-                                <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleJoinSession}>
-                                    Proceed to coding session
-                                </Button>
+                                <h2 className="text-xl font-bold text-center">Match found!</h2>
+                                <h3 className="text-md font-bold text-center">
+                                    Please wait while we redirect you to the coding session...
+                                </h3>
                             </>
                         )}
                         {modalData.matchStatus === MatchingStatus.MATCH_EXISTS && (
                             <>
-                                <h2 className="text-xl font-bold text-center">
-                                    You already have a match! Please wait while we redirect you to the coding session...
-                                </h2>
-                                <h3 className="text-md font-bold text-center">Match ID: {modalData.matchId}</h3>
+                                <h2 className="text-xl font-bold text-center">You already have a match!</h2>
                                 <Button variant={'ghostTabLabel'} size={'lg'} onClick={handleJoinSession}>
                                     Proceed to coding session
                                 </Button>

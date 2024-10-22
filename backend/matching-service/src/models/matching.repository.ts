@@ -9,12 +9,12 @@ export async function createMatch(dto: MatchDto): Promise<IMatch> {
     return matchModel.create(dto)
 }
 
-export async function isUserInMatch(userId: string): Promise<boolean> {
+export async function isUserInMatch(userId: string): Promise<string | undefined> {
     const match = await matchModel.findOne({
         $or: [{ user1Id: userId }, { user2Id: userId }],
         $and: [{ isCompleted: false }],
     })
-    return !!match
+    return match?.id
 }
 
 export async function getMatchById(matchId: string): Promise<IMatch> {
