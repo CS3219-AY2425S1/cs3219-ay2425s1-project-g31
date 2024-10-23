@@ -29,5 +29,16 @@ export async function getMatchDetails(
         return
     }
 
+    // const dto = CollabDto.fromJSON({
+    //     user1Id: matchResponse.data.user1Id,
+    //     user2Id: matchResponse.data.user2Id,
+    //     matchId: request.body.matchId,
+    //     question: questionResponse,
+    //     user1Name: request.user.username,
+    //     user2Name: 'test2',
+    //     code: {},
+    //     chat: {},
+    // })
+
     response.status(200).send({ question: questionResponse, match: matchResponse.data })
 }
