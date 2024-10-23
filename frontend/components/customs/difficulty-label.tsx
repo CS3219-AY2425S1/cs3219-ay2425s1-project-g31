@@ -10,7 +10,7 @@ interface DifficultyLabelProps {
 export const DifficultyLabel: FC<DifficultyLabelProps> = ({ complexity }) => {
     let textColor = ''
     let bgColor = ''
-    switch (complexity.toLowerCase()) {
+    switch (complexity) {
         case Complexity.EASY:
             textColor = 'text-green'
             bgColor = 'bg-green-light'
