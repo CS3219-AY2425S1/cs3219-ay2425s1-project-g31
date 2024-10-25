@@ -1,0 +1,16 @@
+{
+    "name": "@repo/collaboration-types",
+    "version": "0.0.0",
+    "private": true,
+    "scripts": {
+        "build": "tsc"
+    },
+    "main": "./dist/index.js",
+    "types": "./src/index.ts",
+    "devDependencies": {
+        "@repo/typescript-config": "*"
+    },
+    "dependencies": {
+        "@codemirror/collab": "^6.1.1"
+    }
+}

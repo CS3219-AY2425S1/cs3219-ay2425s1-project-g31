@@ -25,6 +25,7 @@ import React from 'react'
 import TestcasesTab from './testcase-tab'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { useRouter } from 'next/router'
+import CustomEditor from '@/components/customs/custom-editor/custom-editor'
 
 interface ICollaborator {
     name: string
@@ -225,22 +226,7 @@ export default function Code() {
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <AceEditor
-                        ref={editorRef}
-                        height="55vh"
-                        width="100%"
-                        value={code}
-                        mode={editorLanguage}
-                        theme="monokai"
-                        fontSize="16px"
-                        highlightActiveLine={true}
-                        setOptions={{
-                            enableLiveAutocompletion: true,
-                            showLineNumbers: true,
-                            tabSize: 2,
-                            useWorker: false,
-                        }}
-                    />
+                    <CustomEditor />
                 </div>
                 <CustomTabs
                     tabs={testTabs}

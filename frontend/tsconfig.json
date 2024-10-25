@@ -11,6 +11,13 @@
             "@/fonts": ["./styles/fonts"]
         }
     },
-    "include": ["next-env.d.ts", "next.config.js", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "include": [
+        "next-env.d.ts",
+        "next.config.js",
+        "**/*.ts",
+        "**/*.tsx",
+        ".next/types/**/*.ts",
+        "../packages/collaboration-types/src/PeerTypes.ts"
+    ],
     "exclude": ["node_modules", "**/*.test.ts", "**/*.html"]
 }
