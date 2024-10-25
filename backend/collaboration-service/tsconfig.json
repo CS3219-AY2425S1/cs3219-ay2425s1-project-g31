@@ -4,6 +4,6 @@
         "rootDir": "./src",
         "outDir": "./dist"
     },
-    "include": ["src/**/*", "../../packages/collaboration-types/src/DocumentTypes.ts"],
+    "include": ["src/**/*"],
     "exclude": ["**/*.test.ts", "**/*.html"]
 }
