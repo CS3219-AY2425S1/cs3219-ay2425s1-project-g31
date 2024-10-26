@@ -24,7 +24,7 @@ import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
 import { ValidationError } from 'class-validator'
-import { Complexity } from '@repo/user-types'
+import { SortedComplexity } from '../types/SortedComplexity'
 
 export async function handleCreateQuestion(
     request: ITypedBodyRequest<CreateQuestionDto>,
@@ -186,12 +186,13 @@ export async function handleGetRandomQuestion(request: Request, response: Respon
         response.status(400).json('invalid topic').send()
         return
     }
-    if (!Object.values(Complexity).includes(complexity as Complexity)) {
+    if (!Object.values(SortedComplexity).includes(complexity as SortedComplexity)) {
+        console.log(topic, complexity, Object.values(SortedComplexity).includes(complexity as SortedComplexity))
         response.status(400).json('invalid complexity').send()
         return
     }
 
-    const question = await findRandomQuestionByTopicAndComplexity(topic as Category, complexity as Complexity)
+    const question = await findRandomQuestionByTopicAndComplexity(topic as Category, complexity as SortedComplexity)
     if (!question) {
         response.status(404).json('NOT_FOUND').send()
         return

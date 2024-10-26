@@ -14,18 +14,9 @@ import {
     getQuestionsRequest,
     updateQuestionRequest,
 } from '@/services/question-service-api'
-import {
-    Difficulty,
-    IGetQuestions,
-    IPagination,
-    IQuestion,
-    ISortBy,
-    Modification,
-    QuestionStatus,
-    SortDirection,
-} from '@/types'
+import { IGetQuestions, IPagination, IQuestion, ISortBy, Modification, QuestionStatus, SortDirection } from '@/types'
 import { capitalizeFirst } from '@/util/string-modification'
-import { Role } from '@repo/user-types'
+import { Complexity, Role } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -67,7 +58,7 @@ export default function Questions() {
         title: '',
         description: '',
         categories: [],
-        complexity: Difficulty.Easy,
+        complexity: Complexity.EASY,
         status: QuestionStatus.NOT_ATTEMPTED,
         link: '',
     })
@@ -183,7 +174,7 @@ export default function Questions() {
             title: '',
             description: '',
             categories: [],
-            complexity: Difficulty.Easy,
+            complexity: Complexity.EASY,
             status: QuestionStatus.NOT_ATTEMPTED,
             link: '',
         })
