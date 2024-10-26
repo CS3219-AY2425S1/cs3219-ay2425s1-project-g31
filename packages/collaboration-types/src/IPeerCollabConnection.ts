@@ -37,6 +37,8 @@ export interface IPeerCollabConnection {
      */
     onUpdatesReceived: (onUpdatesReceivedCallback: (updates: Update[]) => void) => void
 
+    endSession: () => void
+
     /**
      * Performs cleanup operations.
      */

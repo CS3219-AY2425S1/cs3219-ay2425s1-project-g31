@@ -30,6 +30,8 @@ import { getMatchDetails } from '@/services/matching-service-api'
 import { Category, IMatch, SortedComplexity } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
+import { attemptEndSession } from '@/components/customs/custom-editor/lib/editor'
+import { ReloadIcon } from '@radix-ui/react-icons'
 
 interface ICollaborator {
     name: string
@@ -76,6 +78,7 @@ export default function Code() {
     const [editorLanguage, setEditorLanguage] = useState('javascript')
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
+    const [endSessionPressed, setEndSessionPressed] = useState(false)
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
 
     const retrieveMatchDetails = async () => {
@@ -137,9 +140,12 @@ export default function Code() {
     }
 
     const handleEndSession = () => {
-        // TODO: Add end session logic + confirmation dialog
-        console.log('End session')
-        router.push('/')
+        setEndSessionPressed(!endSessionPressed)
+        // TODO: Add end session logic + confirmation dialog + wait for room to be implemented
+        if (endSessionPressed) {
+            attemptEndSession()
+            // router.push('/')
+        }
     }
 
     const { loading } = useProtectedRoute()
@@ -237,10 +243,17 @@ export default function Code() {
                             Submit
                         </Button>
                     </div>
-                    <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
-                        <EndIcon fill="white" className="mr-2" />
-                        End session
-                    </Button>
+                    {endSessionPressed ? (
+                        <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
+                            <ReloadIcon className="mr-1 animate-spin" />
+                            Please wait
+                        </Button>
+                    ) : (
+                        <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
+                            <EndIcon fill="white" className="mr-2" />
+                            End session
+                        </Button>
+                    )}
                 </div>
                 <div id="editor-container" className="mt-4">
                     <div id="language-mode-select" className="rounded-t-xl bg-black">

@@ -129,3 +129,7 @@ export const registerConnectionToggleListener = () => {
     const btn = document.getElementById('toggle-connection')
     btn?.addEventListener('click', connectionToggleHandler)
 }
+
+export const attemptEndSession = () => {
+    connection.socket.emit('endSession')
+}

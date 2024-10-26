@@ -49,6 +49,10 @@ export const createPeerConnection = (clientID: string): PConnection => {
             socket.on('peer-selection', handler)
         },
 
+        endSession() {
+            socket.emit('endSession', { clientID })
+        },
+
         destroy() {
             socket.offAny()
             socket.offAnyOutgoing()

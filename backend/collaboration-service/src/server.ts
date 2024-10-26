@@ -40,6 +40,10 @@ io.on('connection', (socket: Socket) => {
         return socket.broadcast.emit('peer-selection', clientId, selections)
     })
 
+    socket.on('endSession', () => {
+        console.log('Ending session for clientID:', socket.handshake.auth.clientID)
+    })
+
     socket.on('disconnect', () => {
         socket.broadcast.emit('peer-selection', socket.handshake.auth.clientID, null)
     })
