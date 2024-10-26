@@ -3,8 +3,7 @@ import client, { Connection, Channel, GetMessage, ConsumeMessage } from 'amqplib
 import config from '../common/config.util'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
 import logger from '../common/logger.util'
-import { Proficiency } from '@repo/user-types'
-import { IMatch } from '../types/IMatch'
+import { Proficiency, IMatch } from '@repo/user-types'
 import { handleCreateMatch } from '../controllers/matching.controller'
 import wsConnection from '../services/ws.service'
 

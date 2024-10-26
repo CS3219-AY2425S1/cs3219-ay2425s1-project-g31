@@ -5,9 +5,9 @@ import mqConnection from '../services/rabbitmq.service'
 import { randomUUID } from 'crypto'
 import { WebSocketMessageType } from '@repo/ws-types'
 import wsConnection from '../services/ws.service'
-import { IMatch } from '../types/IMatch'
+import { IMatch } from '@repo/user-types'
 import { MatchDto } from '../types/MatchDto'
-import { createMatch, getMatchById, isUserInMatch } from '../models/matching.repository'
+import { createMatch, getMatchByUserId, isUserInMatch } from '../models/matching.repository'
 import { getRandomQuestion } from '../services/matching.service'
 import { convertComplexityToSortedComplexity } from '@repo/question-types'
 
@@ -72,17 +72,11 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
 }
 
 export async function getMatchDetails(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
-    const match = await getMatchById(request.params.matchId)
+    const userId = request.user.id
+    const match = await getMatchByUserId(userId)
 
     if (!match) {
         response.status(404).send('MATCH_NOT_FOUND')
-        return
-    }
-
-    const userId = request.user.id
-
-    if (match.user1Id !== userId && match.user2Id !== userId) {
-        response.status(403).send('UNAUTHORIZED')
         return
     }
 

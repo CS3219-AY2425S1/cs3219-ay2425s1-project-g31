@@ -13,7 +13,7 @@ export function convertComplexityToSortedComplexity(complexity: Complexity): Sor
     }
 }
 
-export function convertSortedComplexityToComplexity(sortedComplexity: SortedComplexity): Complexity {
+export function convertSortedComplexityToComplexity(sortedComplexity: SortedComplexity | Complexity): Complexity {
     switch (sortedComplexity) {
         case SortedComplexity.EASY:
             return Complexity.EASY
