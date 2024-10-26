@@ -133,3 +133,7 @@ export const registerConnectionToggleListener = () => {
 export const attemptEndSession = () => {
     connection.socket.emit('endSession')
 }
+
+export const joinRoom = (room: string) => {
+    connection.socket.emit('joinRoom', room)
+}

@@ -30,9 +30,8 @@ import { getMatchDetails } from '@/services/matching-service-api'
 import { Category, IMatch, SortedComplexity } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
-import { attemptEndSession } from '@/components/customs/custom-editor/lib/editor'
+import { attemptEndSession, joinRoom } from '@/components/customs/custom-editor/lib/editor'
 import { ReloadIcon } from '@radix-ui/react-icons'
-import { toast } from 'sonner'
 
 interface ICollaborator {
     name: string
@@ -87,6 +86,7 @@ export default function Code() {
             router.push('/')
         })
         setMatchData(response)
+        joinRoom(response._id ?? '')
     }
 
     const { data: sessionData } = useSession()

@@ -21,6 +21,11 @@ const documentService = new DocumentService()
 io.on('connection', (socket: Socket) => {
     console.log('A user connected', socket.handshake.auth)
 
+    socket.on('joinRoom', (room: string) => {
+        socket.join(room)
+        console.log(`Socket ${socket.id} joined room: ${room}`)
+    })
+
     socket.on('getDocument', (callback) => {
         callback(documentService.getDoc())
     })
