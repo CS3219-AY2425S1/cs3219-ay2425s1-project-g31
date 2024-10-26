@@ -19,3 +19,16 @@ export const addUserToMatchmaking = async (): Promise<any | undefined> => {
         }
     }
 }
+
+// GET /matching
+export const getMatchDetails = async (): Promise<any | undefined> => {
+    try {
+        return await axiosInstance.get(`/matching`)
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw { message: `Axios error: ${error.message}` }
+        } else {
+            throw { message: 'An unexpected error occurred' }
+        }
+    }
+}

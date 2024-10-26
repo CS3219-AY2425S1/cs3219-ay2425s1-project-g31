@@ -1,4 +1,5 @@
-import { Category, Complexity } from '@repo/user-types'
+import { Category, Complexity } from '.'
+import { IQuestionDto } from '@repo/question-types'
 
 export interface IMatch {
     id: string // match token
@@ -6,7 +7,7 @@ export interface IMatch {
     user1Name: string
     user2Id: string
     user2Name: string
-    question: object
+    question: IQuestionDto
     isCompleted: boolean
     category: Category
     complexity: Complexity
