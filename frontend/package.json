@@ -11,6 +11,7 @@
         "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
     },
     "dependencies": {
+        "@codemirror/lang-python": "^6.1.6",
         "@emotion/react": "^11.13.3",
         "@emotion/styled": "^11.13.0",
         "@mui/icons-material": "^6.1.1",
@@ -28,6 +29,7 @@
         "axios": "^1.7.7",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
+        "codemirror": "^6.0.1",
         "input-otp": "^1.2.4",
         "lucide-react": "^0.441.0",
         "moment": "^2.30.1",
@@ -40,7 +42,9 @@
         "recoil": "^0.7.7",
         "sonner": "^1.5.0",
         "tailwind-merge": "^1.14.0",
-        "tailwindcss-animate": "^1.0.7"
+        "tailwindcss-animate": "^1.0.7",
+        "y-codemirror.next": "^0.3.5",
+        "y-websocket": "^2.0.4"
     },
     "devDependencies": {
         "@repo/eslint-config": "*",

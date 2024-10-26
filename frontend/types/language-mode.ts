@@ -1,9 +1,9 @@
 export enum LanguageMode {
     Csharp = 'csharp',
-    Golang = 'golang',
-    Javascript = 'javascript',
-    Java = 'java',
-    Python = 'python',
+    Golang = 'Go',
+    Javascript = 'Javascript',
+    Java = 'Java',
+    Python = 'Python',
     Ruby = 'ruby',
-    Typescript = 'typescript',
+    Typescript = 'Typescript',
 }

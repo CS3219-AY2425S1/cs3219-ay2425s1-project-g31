@@ -20,11 +20,12 @@ import CustomLabel from '@/components/ui/label'
 import CustomTabs from '@/components/customs/custom-tabs'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import Image from 'next/image'
-import LanguageModeSelect from './language-mode-select'
+import LanguageModeSelect from '../language-mode-select'
 import React from 'react'
-import TestcasesTab from './testcase-tab'
+import TestcasesTab from '../testcase-tab'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { useRouter } from 'next/router'
+import CodeMirrorEditor from '../editor'
 
 interface ICollaborator {
     name: string
@@ -69,7 +70,7 @@ export default function Code() {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
     const [chatData, setChatData] = useState(initialChatData)
-    const code = ''
+    const { id } = router.query
     const [editorLanguage, setEditorLanguage] = useState('javascript')
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
@@ -106,6 +107,7 @@ export default function Code() {
     }, [chatData])
 
     const handleLanguageModeSelect = (value: string) => {
+        console.log('Hey', value)
         setEditorLanguage(value)
     }
 
@@ -225,22 +227,7 @@ export default function Code() {
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <AceEditor
-                        ref={editorRef}
-                        height="55vh"
-                        width="100%"
-                        value={code}
-                        mode={editorLanguage}
-                        theme="monokai"
-                        fontSize="16px"
-                        highlightActiveLine={true}
-                        setOptions={{
-                            enableLiveAutocompletion: true,
-                            showLineNumbers: true,
-                            tabSize: 2,
-                            useWorker: false,
-                        }}
-                    />
+                    <CodeMirrorEditor roomId={id as string} language={editorLanguage} />
                 </div>
                 <CustomTabs
                     tabs={testTabs}
