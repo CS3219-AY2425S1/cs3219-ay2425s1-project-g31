@@ -6,6 +6,7 @@ export type UserQueueRequest = {
     complexity: Complexity
     topic: Category
     userId: string
+    userName: string
     websocketId: string
 }
 
@@ -28,6 +29,10 @@ export class UserQueueRequestDto {
 
     @IsString()
     @IsNotEmpty()
+    userName: string
+
+    @IsString()
+    @IsNotEmpty()
     websocketId: string
 
     constructor(
@@ -35,17 +40,26 @@ export class UserQueueRequestDto {
         complexity: Complexity,
         topic: Category,
         userId: string,
+        userName: string,
         websocketId: string
     ) {
         this.proficiency = proficiency
         this.complexity = complexity
         this.topic = topic
         this.userId = userId
+        this.userName = userName
         this.websocketId = websocketId
     }
 
     static fromJSON(data: UserQueueRequest): UserQueueRequestDto {
-        return new UserQueueRequestDto(data.proficiency, data.complexity, data.topic, data.userId, data.websocketId)
+        return new UserQueueRequestDto(
+            data.proficiency,
+            data.complexity,
+            data.topic,
+            data.userId,
+            data.userName,
+            data.websocketId
+        )
     }
 
     async validate(): Promise<ValidationError[]> {

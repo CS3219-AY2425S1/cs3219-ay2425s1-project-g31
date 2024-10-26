@@ -17,7 +17,15 @@ export class MatchDto {
 
     @IsString()
     @IsNotEmpty()
+    user1Name: string
+
+    @IsString()
+    @IsNotEmpty()
     user2Id: string
+
+    @IsString()
+    @IsNotEmpty()
+    user2Name: string
 
     @IsObject()
     @IsNotEmpty()
@@ -31,7 +39,9 @@ export class MatchDto {
 
     constructor(
         user1Id: string,
+        user1Name: string,
         user2Id: string,
+        user2Name: string,
         complexity: Complexity,
         category: Category,
         question: object,
@@ -39,7 +49,9 @@ export class MatchDto {
         createdAt: Date = new Date()
     ) {
         this.user1Id = user1Id
+        this.user1Name = user1Name
         this.user2Id = user2Id
+        this.user2Name = user2Name
         this.complexity = complexity
         this.category = category
         this.question = question
@@ -50,7 +62,9 @@ export class MatchDto {
     static fromJSON(data: IMatch): MatchDto {
         return new MatchDto(
             data.user1Id,
+            data.user1Name,
             data.user2Id,
+            data.user2Name,
             data.complexity,
             data.category,
             data.question,
