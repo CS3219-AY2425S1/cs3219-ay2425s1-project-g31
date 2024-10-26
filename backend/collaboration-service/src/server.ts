@@ -4,7 +4,7 @@ import config from './common/config.util'
 import logger from './common/logger.util'
 import connectToDatabase from './common/mongodb.util'
 import index from './index'
-import { setupWSConnection } from 'y-websocket/bin/utils'
+import { setupWSConnection } from './yjs.js'
 import WebSocket from 'ws'
 
 const server: Server = http.createServer(index)
