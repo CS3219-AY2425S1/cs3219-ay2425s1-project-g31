@@ -1,5 +1,5 @@
 import { QuestionStatus } from '@/types'
-import { Difficulty } from '@/types/difficulty'
+import { Complexity } from '@repo/user-types'
 import { ISession } from '@/types/session'
 
 interface ICollaborator {
@@ -10,7 +10,7 @@ interface ICollaborator {
 interface IQuestion {
     title: string
     description: string
-    complexity: Difficulty
+    complexity: Complexity
     categories: string[]
 }
 
@@ -61,7 +61,7 @@ const mockQuestionData: IQuestion = {
     title: 'Reverse a String',
     description:
         'Write a function that reverses a string. The input string is given as an array of characters s. You must do this by modifying the input array in-place with O(1) extra memory. Example 1: Input: s =["h", "e", "l", "l", "o"] Output: ["o", "l", "l", "e", "h"]',
-    complexity: Difficulty.Easy,
+    complexity: Complexity.EASY,
     categories: ['Array', 'Hash Table'],
 }
 
@@ -86,7 +86,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description: 'This is a description',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -94,7 +94,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description: 'This is a description',
-        complexity: Difficulty.Easy,
+        complexity: Complexity.EASY,
         title: 'Title of the question',
     },
     {
@@ -102,7 +102,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.COMPLETED,
         description: 'This is a description',
-        complexity: Difficulty.Hard,
+        complexity: Complexity.HARD,
         title: 'Title of the question',
     },
     {
@@ -110,7 +110,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.NOT_ATTEMPTED,
         description: 'This is a description',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -118,7 +118,7 @@ const mockQuestionsData = [
         category: ['Strings'],
         status: QuestionStatus.COMPLETED,
         description: 'This is a description',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -126,7 +126,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.COMPLETED,
         description: 'This is a description',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -134,7 +134,7 @@ const mockQuestionsData = [
         category: ['Strings'],
         status: QuestionStatus.FAILED,
         description: 'This is a description',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -143,7 +143,7 @@ const mockQuestionsData = [
         status: QuestionStatus.FAILED,
         description:
             'This is some super super unnecessarily long description to test the overflow of the text in the datatable column. This is some super super unnecessarily long description to test the overflow of the text in the datatable column',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Another title of the question',
     },
     {
@@ -151,7 +151,7 @@ const mockQuestionsData = [
         category: ['Algorithms, Strings'],
         status: QuestionStatus.NOT_ATTEMPTED,
         description: 'Test algbat',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -159,7 +159,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.FAILED,
         description: 'Appla tat',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Another title of the question',
     },
     {
@@ -167,7 +167,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.NOT_ATTEMPTED,
         description: 'ZOogo a',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
     {
@@ -175,7 +175,7 @@ const mockQuestionsData = [
         category: ['Algorithms'],
         status: QuestionStatus.COMPLETED,
         description: 'Baga bia',
-        complexity: Difficulty.Medium,
+        complexity: Complexity.MEDIUM,
         title: 'Title of the question',
     },
 ]
@@ -188,7 +188,7 @@ const mockSessionsData: ISession[] = [
         question: 'reverse a string',
         description: 'reverse the given string, returning the chracters in reverse order',
         status: 'failed',
-        complexity: 'easy',
+        complexity: 'EASY',
         time: 1727445395396,
     },
     {
@@ -198,7 +198,7 @@ const mockSessionsData: ISession[] = [
         question: 'reverse a string',
         description: 'reverse the given string, returning the chracters in reverse order',
         status: 'completed',
-        complexity: 'medium',
+        complexity: 'MEDIUM',
         time: 1727745397396,
     },
     {

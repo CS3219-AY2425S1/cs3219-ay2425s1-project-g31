@@ -4,7 +4,7 @@ import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { SortedComplexity } from '../types/SortedComplexity'
 import questionSchema from './question.model'
-import { Category, Complexity } from '@repo/user-types'
+import { Category } from '@repo/user-types'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
 
@@ -22,14 +22,13 @@ export async function findOneQuestionByTitle(title: string): Promise<IQuestion |
 
 export async function findRandomQuestionByTopicAndComplexity(
     category: Category,
-    complexity: Complexity
+    complexity: SortedComplexity
 ): Promise<IQuestion | null> {
-    const sortedComplexity = new SortedComplexity(complexity)
     const query = [
         {
             $match: {
                 categories: { $in: [category] },
-                complexity: sortedComplexity.sortedEnum,
+                complexity: complexity,
             },
         },
         {
@@ -37,6 +36,7 @@ export async function findRandomQuestionByTopicAndComplexity(
         },
     ]
     const result = await questionModel.aggregate(query)
+
     if (result.length === 0) {
         return null
     }
