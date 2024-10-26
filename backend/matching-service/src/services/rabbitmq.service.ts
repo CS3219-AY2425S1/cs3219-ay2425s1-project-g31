@@ -281,7 +281,9 @@ class RabbitMQConnection {
                 const matchedUserContent = JSON.parse(matchedUser.content.toString())
                 const match: Partial<IMatch> = {
                     user1Id: content.userId,
+                    user1Name: content.userName,
                     user2Id: matchedUserContent.userId,
+                    user2Name: matchedUserContent.userName,
                     category: content.topic,
                     complexity: content.complexity,
                 }

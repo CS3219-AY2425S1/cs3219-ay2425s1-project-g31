@@ -87,6 +87,7 @@ export const NewSession = () => {
         socketRef.current.onopen = () => {
             const data: IPostMatching = {
                 userId: session?.user.id ?? '',
+                userName: session?.user.username ?? '',
                 proficiency: session?.user.proficiency as Proficiency,
                 complexity: selectedComplexity as Complexity,
                 topic: selectedTopic as Category,

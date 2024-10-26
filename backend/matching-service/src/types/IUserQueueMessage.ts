@@ -6,4 +6,5 @@ export interface IUserQueueMessage {
     complexity: Complexity
     topic: Category
     userId: string
+    userName: string
 }
