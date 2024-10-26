@@ -11,10 +11,6 @@ const matchSchema = new Schema<IMatch>({
         type: String,
         required: true,
     },
-    questionId: {
-        type: String,
-        required: true,
-    },
     isCompleted: {
         type: Boolean,
         required: true,
@@ -60,8 +56,8 @@ const matchSchema = new Schema<IMatch>({
             }
         },
     },
-    categories: {
-        type: [String],
+    category: {
+        type: String,
         enum: Object.values(Category),
         required: true,
     },

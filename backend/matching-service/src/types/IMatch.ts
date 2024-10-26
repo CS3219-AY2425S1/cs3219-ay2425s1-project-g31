@@ -4,9 +4,8 @@ export interface IMatch {
     id: string // match token
     user1Id: string
     user2Id: string
-    questionId: string
     isCompleted: boolean
-    categories: Category[]
+    category: Category
     complexity: Complexity
     createdAt: Date
 }

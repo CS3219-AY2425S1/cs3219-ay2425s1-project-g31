@@ -282,7 +282,7 @@ class RabbitMQConnection {
                 const match: Partial<IMatch> = {
                     user1Id: content.userId,
                     user2Id: matchedUserContent.userId,
-                    categories: [content.topic],
+                    category: content.topic,
                     complexity: content.complexity,
                 }
                 await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
