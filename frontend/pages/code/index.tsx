@@ -31,6 +31,7 @@ import { getMatchDetails } from '@/services/matching-service-api'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
 import { attemptEndSession } from '@/components/customs/custom-editor/lib/editor'
 import { ReloadIcon } from '@radix-ui/react-icons'
+import { toast } from 'sonner'
 
 interface ICollaborator {
     name: string
@@ -81,7 +82,9 @@ export default function Code() {
     const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
 
     const retrieveMatchDetails = async () => {
-        const response = await getMatchDetails()
+        const response = await getMatchDetails().catch((_) => {
+            router.push('/')
+        })
         setMatchData(response)
     }
 
