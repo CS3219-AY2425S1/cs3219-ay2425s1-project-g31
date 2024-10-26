@@ -15,6 +15,10 @@ const matchSchema = new Schema<IMatch>({
         type: Boolean,
         required: true,
     },
+    questionId: {
+        type: String,
+        required: true,
+    },
     complexity: {
         type: String,
         enum: Object.values(Complexity).map((value: Complexity): string => {

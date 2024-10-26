@@ -24,7 +24,7 @@ import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'
 import { ValidationError } from 'class-validator'
-import { SortedComplexity } from '../types/SortedComplexity'
+import { SortedComplexity } from '@repo/user-types'
 
 export async function handleCreateQuestion(
     request: ITypedBodyRequest<CreateQuestionDto>,
@@ -197,5 +197,6 @@ export async function handleGetRandomQuestion(request: Request, response: Respon
         response.status(404).json('NOT_FOUND').send()
         return
     }
+
     response.status(200).json(question).send()
 }

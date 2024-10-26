@@ -17,10 +17,10 @@ import passport from 'passport'
 
 const router = Router()
 
+router.get('/random-question', handleGetRandomQuestion)
 router.use(passport.authenticate('jwt', { session: false }))
 
 router.get('/', handleGetPaginatedQuestions)
-router.get('/random-question', handleGetRandomQuestion)
 router.get('/:id', handleGetQuestionById)
 router.post('/', handleRoleBasedAccessControl([Role.ADMIN]), handleCreateQuestion)
 router.put('/:id', handleRoleBasedAccessControl([Role.ADMIN]), handleUpdateQuestion)

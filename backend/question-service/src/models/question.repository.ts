@@ -2,7 +2,7 @@ import { FilterQuery, Model, model, SortOrder } from 'mongoose'
 
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
-import { SortedComplexity } from '../types/SortedComplexity'
+import { SortedComplexity } from '@repo/user-types'
 import questionSchema from './question.model'
 import { Category } from '@repo/user-types'
 
@@ -23,7 +23,7 @@ export async function findOneQuestionByTitle(title: string): Promise<IQuestion |
 export async function findRandomQuestionByTopicAndComplexity(
     category: Category,
     complexity: SortedComplexity
-): Promise<IQuestion | null> {
+): Promise<string | null> {
     const query = [
         {
             $match: {
@@ -40,7 +40,7 @@ export async function findRandomQuestionByTopicAndComplexity(
     if (result.length === 0) {
         return null
     }
-    return result[0]
+    return result[0]._id
 }
 
 export async function findPaginatedQuestionsWithSortAndFilter(
