@@ -54,13 +54,13 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
 
-    const questionId = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+    const question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
 
-    if (!questionId) {
+    if (!question) {
         throw new Error('Question not found')
     }
 
-    const createDto = MatchDto.fromJSON({ ...data, questionId })
+    const createDto = MatchDto.fromJSON({ ...data, question })
     const errors = await createDto.validate()
     if (errors.length) {
         throw new Error('Invalid match data')

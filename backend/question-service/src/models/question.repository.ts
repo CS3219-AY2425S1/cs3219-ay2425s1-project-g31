@@ -5,6 +5,7 @@ import { IQuestion } from '../types/IQuestion'
 import { SortedComplexity } from '@repo/user-types'
 import questionSchema from './question.model'
 import { Category } from '@repo/user-types'
+import { QuestionDto } from '../types/QuestionDto'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
 
@@ -23,7 +24,7 @@ export async function findOneQuestionByTitle(title: string): Promise<IQuestion |
 export async function findRandomQuestionByTopicAndComplexity(
     category: Category,
     complexity: SortedComplexity
-): Promise<string | null> {
+): Promise<QuestionDto | null> {
     const query = [
         {
             $match: {
@@ -40,7 +41,7 @@ export async function findRandomQuestionByTopicAndComplexity(
     if (result.length === 0) {
         return null
     }
-    return result[0]._id
+    return result[0]
 }
 
 export async function findPaginatedQuestionsWithSortAndFilter(
