@@ -8,6 +8,8 @@ import wsConnection from '../services/ws.service'
 import { IMatch } from '../types/IMatch'
 import { MatchDto } from '../types/MatchDto'
 import { createMatch, getMatchById, isUserInMatch } from '../models/matching.repository'
+import { getRandomQuestion } from '../services/matching.service'
+import { convertComplexityToSortedComplexity } from '@repo/question-types'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
@@ -51,7 +53,14 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
         wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
-    const createDto = MatchDto.fromJSON(data)
+
+    const questionId = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+
+    if (!questionId) {
+        throw new Error('Question not found')
+    }
+
+    const createDto = MatchDto.fromJSON({ ...data, questionId })
     const errors = await createDto.validate()
     if (errors.length) {
         throw new Error('Invalid match data')
