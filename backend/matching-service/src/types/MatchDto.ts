@@ -1,5 +1,5 @@
 import { Category, Complexity } from '@repo/user-types'
-import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, ValidationError, validate } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsString, ValidationError, validate } from 'class-validator'
 import { IMatch } from './IMatch'
 
 export class MatchDto {
@@ -7,10 +7,9 @@ export class MatchDto {
     @IsNotEmpty()
     complexity: Complexity
 
-    @IsArray()
-    @IsEnum(Category, { each: true })
-    @ArrayNotEmpty()
-    categories: Category[]
+    @IsEnum(Category)
+    @IsNotEmpty()
+    category: Category
 
     @IsString()
     @IsNotEmpty()
@@ -19,10 +18,6 @@ export class MatchDto {
     @IsString()
     @IsNotEmpty()
     user2Id: string
-
-    @IsString()
-    @IsNotEmpty()
-    questionId: string
 
     @IsNotEmpty()
     isCompleted: boolean
@@ -34,16 +29,14 @@ export class MatchDto {
         user1Id: string,
         user2Id: string,
         complexity: Complexity,
-        categories: Category[],
-        questionId: string,
+        category: Category,
         isCompleted: boolean = false,
         createdAt: Date = new Date()
     ) {
         this.user1Id = user1Id
         this.user2Id = user2Id
         this.complexity = complexity
-        this.categories = categories
-        this.questionId = questionId
+        this.category = category
         this.isCompleted = isCompleted
         this.createdAt = createdAt
     }
@@ -53,8 +46,7 @@ export class MatchDto {
             data.user1Id,
             data.user2Id,
             data.complexity,
-            data.categories,
-            data.questionId,
+            data.category,
             data.isCompleted,
             data.createdAt
         )
