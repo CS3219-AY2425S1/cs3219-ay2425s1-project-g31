@@ -15,8 +15,8 @@ const matchSchema = new Schema<IMatch>({
         type: Boolean,
         required: true,
     },
-    questionId: {
-        type: String,
+    question: {
+        type: Object,
         required: true,
     },
     complexity: {

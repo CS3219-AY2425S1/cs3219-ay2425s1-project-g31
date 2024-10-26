@@ -1,5 +1,5 @@
 import { Category, Complexity } from '@repo/user-types'
-import { IsEnum, IsNotEmpty, IsString, ValidationError, validate } from 'class-validator'
+import { IsEnum, IsNotEmpty, IsObject, IsString, ValidationError, validate } from 'class-validator'
 import { IMatch } from './IMatch'
 
 export class MatchDto {
@@ -19,9 +19,9 @@ export class MatchDto {
     @IsNotEmpty()
     user2Id: string
 
-    @IsString()
+    @IsObject()
     @IsNotEmpty()
-    questionId: string
+    question: object
 
     @IsNotEmpty()
     isCompleted: boolean
@@ -34,7 +34,7 @@ export class MatchDto {
         user2Id: string,
         complexity: Complexity,
         category: Category,
-        questionId: string,
+        question: object,
         isCompleted: boolean = false,
         createdAt: Date = new Date()
     ) {
@@ -42,7 +42,7 @@ export class MatchDto {
         this.user2Id = user2Id
         this.complexity = complexity
         this.category = category
-        this.questionId = questionId
+        this.question = question
         this.isCompleted = isCompleted
         this.createdAt = createdAt
     }
@@ -53,7 +53,7 @@ export class MatchDto {
             data.user2Id,
             data.complexity,
             data.category,
-            data.questionId,
+            data.question,
             data.isCompleted,
             data.createdAt
         )
