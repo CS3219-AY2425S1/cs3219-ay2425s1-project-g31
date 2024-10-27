@@ -29,7 +29,6 @@ import { Category, IMatch, SortedComplexity } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { getMatchDetails } from '@/services/matching-service-api'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
-import { attemptEndSession } from '@/components/customs/custom-editor/lib/editor'
 import { ReloadIcon } from '@radix-ui/react-icons'
 import { toast } from 'sonner'
 
@@ -145,7 +144,6 @@ export default function Code() {
         setEndSessionPressed(!endSessionPressed)
         // TODO: Add end session logic + confirmation dialog + wait for room to be implemented
         if (endSessionPressed) {
-            attemptEndSession()
             // router.push('/')
         }
     }
