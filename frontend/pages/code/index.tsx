@@ -143,9 +143,10 @@ export default function Code() {
     const handleEndSession = () => {
         setEndSessionPressed(!endSessionPressed)
         // TODO: Add end session logic + confirmation dialog + wait for room to be implemented
-        if (endSessionPressed) {
-            // router.push('/')
-        }
+        router.push('/')
+        // if (endSessionPressed) {
+        //     router.push('/')
+        // }
     }
 
     const { loading } = useProtectedRoute()
