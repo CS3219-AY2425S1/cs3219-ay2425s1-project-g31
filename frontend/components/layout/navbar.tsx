@@ -15,9 +15,9 @@ import Link from 'next/link'
 import { LogOutIcon } from 'lucide-react'
 import { signOut } from 'next-auth/react'
 
-export function NavBar() {
+export function NavBar({ className }: Readonly<{ className?: string }>) {
     return (
-        <div className="flex justify-between border-b-[1px]">
+        <div className={`flex justify-between border-b-[1px] h-[3rem] ${className}`}>
             <Link href="/" legacyBehavior passHref>
                 <div className={navigationMenuTriggerStyle()}>
                     <Image src="/logo.svg" alt="Logo" width={30} height={30} />

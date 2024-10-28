@@ -14,16 +14,27 @@ export default function RootLayout({
     const { data: session } = useSession()
     const router = useRouter()
 
+    // Routes that should hide navbar
+    const navBlacklist = [
+        {
+            name: 'code',
+            route: '/code',
+        },
+    ]
+
+    const isHideNavbar = navBlacklist.some((item) => router.pathname.includes(item.route))
+    const topMargin = isHideNavbar ? 'mt-5' : 'mt-[4rem]'
+
     return (
-        <>
+        <div>
             {session ? (
-                <>
-                    {router.pathname !== '/code' && <NavBar />}
-                    <div className={`${inter.className} mx-10 my-6`}>{children}</div>
-                </>
+                <div className="initial">
+                    {!isHideNavbar && <NavBar className="z-[99999] fixed w-full top-0 bg-white" />}
+                    <div className={`${topMargin} mx-10 ${inter.className}`}>{children}</div>
+                </div>
             ) : (
                 children
             )}
-        </>
+        </div>
     )
 }

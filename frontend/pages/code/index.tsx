@@ -154,7 +154,7 @@ export default function Code() {
     if (loading) return null
 
     return (
-        <div className="flex h-fullscreen gap-3">
+        <div className="flex gap-3">
             <section className="w-1/3 flex flex-col">
                 <div className="flex items-center gap-4">
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
