@@ -1,26 +1,26 @@
 services:
-    reverse-proxy:
-        container_name: reverse-proxy
-        environment:
-            - D=$
-            - USER_SERVICE_URL=http://user-service:3002
-            - QUESTION_SERVICE_URL=http://question-service:3004
-            - MATCHING_SERVICE_URL=http://matching-service:3006
-            - RMQ_URL=http://rabbitmq:15672
-            - DOMAIN_NAME=${DOMAIN_NAME}
-        image: nginx:1.27.2-alpine
-        ports:
-            - 8080:8080
-        restart: always
-        volumes:
-            - ./nginx/templates/local-nginx.conf.template:/etc/nginx/templates/nginx.conf.template
-        networks:
-            - backend-network
-        depends_on:
-            - user-service
-            - question-service
-            - matching-service
-        command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    # reverse-proxy:
+    #     container_name: reverse-proxy
+    #     environment:
+    #         - D=$
+    #         - USER_SERVICE_URL=http://user-service:3002
+    #         - QUESTION_SERVICE_URL=http://question-service:3004
+    #         - MATCHING_SERVICE_URL=http://matching-service:3006
+    #         - RMQ_URL=http://rabbitmq:15672
+    #         - DOMAIN_NAME=${DOMAIN_NAME}
+    #     image: nginx:1.27.2-alpine
+    #     ports:
+    #         - 8080:8080
+    #     restart: always
+    #     volumes:
+    #         - ./nginx/templates/local-nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+    #     networks:
+    #         - backend-network
+    #     depends_on:
+    #         - user-service
+    #         - question-service
+    #         - matching-service
+    #     command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
 
     matching-service:
         container_name: matching-service
