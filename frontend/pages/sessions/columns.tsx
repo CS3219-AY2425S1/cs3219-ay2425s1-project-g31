@@ -15,28 +15,18 @@ const convertTimestamp = (millis: number) => {
 
 export const columns: IDatatableColumn[] = [
     {
-        key: 'name',
+        key: 'collaboratorName',
+        label: 'Name',
     },
     {
         key: 'question',
     },
     {
-        key: 'description',
-        maxWidth: '40%',
-        offAutoCapitalize: true,
-    },
-    {
-        key: 'status',
+        key: 'isCompleted',
+        label: 'Status',
+        maxWidth: '5%',
         formatter: (value) => {
-            return (
-                <div className="flex items-center justify-center">
-                    {value === QuestionStatus.COMPLETED ? (
-                        <TickIcon />
-                    ) : value === QuestionStatus.FAILED ? (
-                        <ExclamationIcon />
-                    ) : null}
-                </div>
-            )
+            return <div className="flex items-center justify-center">{value ? <TickIcon /> : <ExclamationIcon />}</div>
         },
     },
     {
@@ -47,7 +37,8 @@ export const columns: IDatatableColumn[] = [
         },
     },
     {
-        key: 'time',
+        key: 'createdAt',
+        label: 'Time',
         formatter: (value) => {
             return <span>{convertTimestamp(value)}</span>
         },
