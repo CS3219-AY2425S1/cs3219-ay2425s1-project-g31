@@ -5,6 +5,7 @@ interface IRowData {
 
 interface IDatatableColumn {
     key: string
+    label?: string
     isHidden?: boolean
     width?: string
     maxWidth?: string

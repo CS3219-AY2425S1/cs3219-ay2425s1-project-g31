@@ -75,7 +75,7 @@ export default function Datatable({
                                     style={{ width: elem.width, maxWidth: elem.maxWidth }}
                                 >
                                     <div className="flex items-center justify-center gap-1">
-                                        {elem.key}
+                                        {elem.label ? elem.label : elem.key}
                                         {elem.isSortable && (
                                             <Button
                                                 variant="ghostTab"
