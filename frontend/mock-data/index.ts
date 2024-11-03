@@ -1,7 +1,5 @@
-import { QuestionStatus } from '@/types'
 import { Complexity } from '@repo/user-types'
-import { ISession } from '@/types/session'
-import { ITestcase } from '@/types/question'
+import { ITestcase, QuestionStatus } from '@/types'
 
 interface ICollaborator {
     name: string
@@ -192,45 +190,37 @@ const mockQuestionsData = [
     },
 ]
 
-const mockSessionsData: ISession[] = [
-    {
-        id: '1',
-        name: 'Olivian Martin',
-        email: 'olvia.martin@email.com',
-        question: 'reverse a string',
-        description: 'reverse the given string, returning the chracters in reverse order',
-        status: 'failed',
-        complexity: 'EASY',
-        time: 1727445395396,
-    },
-    {
-        id: '2',
-        name: 'Billy Russo',
-        email: 'billy.russo@email.com',
-        question: 'reverse a string',
-        description: 'reverse the given string, returning the chracters in reverse order',
-        status: 'completed',
-        complexity: 'MEDIUM',
-        time: 1727745397396,
-    },
-    {
-        id: '1',
-        name: 'Charlie munger',
-        email: 'charlie.mnunger@email.com',
-        question: 'reverse a string',
-        description: 'reverse the given string, returning the chracters in reverse order',
-        status: 'failed',
-        complexity: 'hard',
-        time: 1797445395396,
-    },
-]
+// const mockSessionsData: ISession[] = [
+//     {
+//         id: '1',
+//         name: 'Olivian Martin',
+//         email: 'olvia.martin@email.com',
+//         question: 'reverse a string',
+//         description: 'reverse the given string, returning the chracters in reverse order',
+//         status: 'failed',
+//         complexity: 'EASY',
+//         time: 1727445395396,
+//     },
+//     {
+//         id: '2',
+//         name: 'Billy Russo',
+//         email: 'billy.russo@email.com',
+//         question: 'reverse a string',
+//         description: 'reverse the given string, returning the chracters in reverse order',
+//         status: 'completed',
+//         complexity: 'MEDIUM',
+//         time: 1727745397396,
+//     },
+//     {
+//         id: '1',
+//         name: 'Charlie munger',
+//         email: 'charlie.mnunger@email.com',
+//         question: 'reverse a string',
+//         description: 'reverse the given string, returning the chracters in reverse order',
+//         status: 'failed',
+//         complexity: 'hard',
+//         time: 1797445395396,
+//     },
+// ]
 
-export {
-    mockCollaboratorData,
-    mockUserData,
-    mockChatData,
-    mockQuestionData,
-    mockTestCaseData,
-    mockQuestionsData,
-    mockSessionsData,
-}
+export { mockCollaboratorData, mockUserData, mockChatData, mockQuestionData, mockTestCaseData, mockQuestionsData }
