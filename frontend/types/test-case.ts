@@ -1,4 +1,4 @@
-export interface ITestcase {
+export interface ITestcases {
     idx: number
     inputVar: string
     input: string
