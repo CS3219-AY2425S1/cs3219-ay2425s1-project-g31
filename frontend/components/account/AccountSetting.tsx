@@ -21,7 +21,8 @@ const AccountSetting = () => {
                         <CustomTabs
                             tabs={accountTabs}
                             handleActiveTabChange={handleActiveTabChange}
-                            isBottomBorder={true}
+                            activeTab={activeTab}
+                            setActiveTab={setActiveTab}
                             className="flex flex-[4]"
                             btnclassName="text-lg"
                         />
