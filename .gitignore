@@ -17,3 +17,5 @@
 **/*.tsbuildinfo
 
 /nginx/ssl
+# Local Netlify folder
+.netlify
