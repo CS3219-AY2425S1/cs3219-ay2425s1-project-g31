@@ -27,7 +27,14 @@ export default function Sessions() {
 
     const { session, loading } = useProtectedRoute()
 
-    const paginationHandler = (page?: number, limit?: number) => {}
+    const paginationHandler = (page: number, limit: number) => {
+        const body = {
+            page: page,
+            limit: limit,
+            sortBy: sortBy,
+        }
+        load(body)
+    }
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
