@@ -68,8 +68,6 @@ services:
             - backend-network
         privileged: true
         restart: always
-        ports:
-            - '2358:2358'
         depends_on:
             db:
                 condition: service_healthy

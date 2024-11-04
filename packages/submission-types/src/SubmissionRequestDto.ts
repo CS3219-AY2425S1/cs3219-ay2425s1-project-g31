@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsNumber, IsString, validate, ValidationError } from 'class-validator'
+import 'reflect-metadata'
 
 export class SubmissionRequestDto {
     @IsNumber()
