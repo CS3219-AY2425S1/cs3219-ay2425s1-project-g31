@@ -13,7 +13,7 @@ export default function TestcasesTab({
 }) {
     const testcaseTabs = testInputs?.map((_, idx) => `Case ${idx + 1}`)
 
-    if (testInputs.length === 0) return null
+    if (!testInputs || testInputs.length === 0) return null
     return (
         <div>
             <CustomTabs
