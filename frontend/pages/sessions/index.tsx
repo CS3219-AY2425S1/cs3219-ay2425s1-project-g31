@@ -38,6 +38,12 @@ export default function Sessions() {
 
     const sortHandler = (sortBy: ISortBy) => {
         setSortBy(sortBy)
+        const body: IGetSessions = {
+            page: pagination.currentPage,
+            limit: pagination.limit,
+            sortBy: sortBy,
+        }
+        load(body)
     }
 
     const load = async (body: IGetSessions) => {
