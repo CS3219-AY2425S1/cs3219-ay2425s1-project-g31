@@ -49,7 +49,6 @@ export class WebSocketConnection {
                     const response: IResponse = { stdout, status, time }
                     this.io.to(roomId).emit('code-executed', response, data.expected_output)
                 } catch (err) {
-                    console.log(err)
                     this.io.to(roomId).emit('code-executed', { error: err })
                 }
             })
