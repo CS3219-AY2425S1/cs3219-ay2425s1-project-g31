@@ -90,7 +90,7 @@ export default function Code() {
         socketRef.current.on('code-executed', (res: SubmissionResponseDto, expected_output: string) => {
             setTestResult({ data: res, expectedOutput: expected_output })
             setIsCodeRunning(false)
-            handleActiveTestTabChange(1)
+            setActiveTestTab(1)
         })
 
         socketRef.current.on('user-connected', (username: string) => {
@@ -135,10 +135,6 @@ export default function Code() {
             }
             socketRef.current?.emit('run-code', data)
         }
-    }
-
-    const handleActiveTestTabChange = (tab: number) => {
-        setActiveTestTab(tab)
     }
 
     const handleEndSession = () => {

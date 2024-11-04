@@ -8,11 +8,6 @@ const AccountSetting = () => {
     const accountTabs = ['Profile', 'Setting']
     const [activeTab, setActiveTab] = useState(0) // 0: Profile, 1: Setting
 
-    const handleActiveTabChange = (tab: number) => {
-        setActiveTab(tab)
-        console.log(activeTab)
-    }
-
     return (
         <>
             <div className="h-[calc(100vh-101px)]">
@@ -20,7 +15,6 @@ const AccountSetting = () => {
                     <div className="flex flex-row mb-3">
                         <CustomTabs
                             tabs={accountTabs}
-                            handleActiveTabChange={handleActiveTabChange}
                             activeTab={activeTab}
                             setActiveTab={setActiveTab}
                             className="flex flex-[4]"
