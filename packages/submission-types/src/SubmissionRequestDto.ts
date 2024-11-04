@@ -1,5 +1,4 @@
 import { IsNotEmpty, IsNumber, IsString, validate, ValidationError } from 'class-validator'
-import 'reflect-metadata'
 
 export class SubmissionRequestDto {
     @IsNumber()
@@ -20,6 +19,15 @@ export class SubmissionRequestDto {
         this.source_code = source_code
         this.stdin = stdin ?? ''
         this.expected_output = expected_output
+    }
+
+    static createInstance(
+        language_id: number,
+        source_code: string,
+        expected_output: string,
+        stdin?: string
+    ): SubmissionRequestDto {
+        return new SubmissionRequestDto(language_id, source_code, stdin, expected_output)
     }
 
     async validate(): Promise<ValidationError[]> {

@@ -66,7 +66,7 @@ export async function getChatHistory(request: Request, response: Response): Prom
 }
 
 export async function submitCode(dto: ISubmission): Promise<SubmissionResponseDto> {
-    const submissionRequestDto = new SubmissionRequestDto(
+    const submissionRequestDto = SubmissionRequestDto.createInstance(
         dto.language_id,
         dto.source_code,
         dto.expected_output,
