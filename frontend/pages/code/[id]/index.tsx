@@ -1,6 +1,5 @@
-import { EndIcon, PlayIcon, SubmitIcon } from '@/assets/icons'
-import { ITestcase, LanguageMode, getCodeMirrorLanguage } from '@/types'
-import { mockTestCaseData } from '@/mock-data'
+import { EndIcon, PlayIcon } from '@/assets/icons'
+import { LanguageMode, getCodeMirrorLanguage } from '@/types'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -22,9 +21,9 @@ import Chat from './chat'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
-import { SubmissionRequestDto } from '@repo/submission-types'
-
-const testCasesData: ITestcase[] = mockTestCaseData
+import { ISubmission, SubmissionResponseDto } from '@repo/submission-types'
+import { mapLanguageToJudge0 } from '@/util/language-mapper'
+import TestResult from '../test-result'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -34,6 +33,7 @@ export default function Code() {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
     const { id } = router.query
+    const editorRef = useRef<{ getText: () => string } | null>(null)
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
@@ -41,6 +41,10 @@ export default function Code() {
     const socketRef = useRef<Socket | null>(null)
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
+    const [activeTest, setActiveTest] = useState(0)
+    const [testResult, setTestResult] = useState<{ data: SubmissionResponseDto; expectedOutput: string } | undefined>(
+        undefined
+    )
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -71,7 +75,6 @@ export default function Code() {
         socketRef.current.on('connect', () => {
             if (socketRef.current) {
                 socketRef.current.emit('joinRoom', { roomId: id })
-                console.log('Connected and joined room:', id)
             }
         })
 
@@ -84,12 +87,10 @@ export default function Code() {
             setIsCodeRunning(true)
         })
 
-        socketRef.current.on('code-executed', (res: any) => {
-            console.log(res)
-            setTimeout(() => {
-                setIsCodeRunning(false)
-                handleActiveTestTabChange(1)
-            }, 2000)
+        socketRef.current.on('code-executed', (res: SubmissionResponseDto, expected_output: string) => {
+            setTestResult({ data: res, expectedOutput: expected_output })
+            setIsCodeRunning(false)
+            handleActiveTestTabChange(1)
         })
 
         socketRef.current.on('user-connected', (username: string) => {
@@ -120,18 +121,24 @@ export default function Code() {
     }
 
     const handleRunTests = () => {
-        // const currCode = editorRef.current?.editor?.getValue()
-        // console.log(currCode)
         if (!isCodeRunning) {
-            const dto = new SubmissionRequestDto(71, "print('Hello, World!')", '', 'Hello, World!\n')
-            dto.validate()
-            socketRef.current?.emit('run-code', dto)
+            const code = editorRef.current?.getText() ?? ''
+            if (code.length === 0) {
+                toast.error('Please write some code before running the tests')
+                return
+            }
+            const data: ISubmission = {
+                language_id: mapLanguageToJudge0(editorLanguage),
+                source_code: code,
+                expected_output: matchData?.question.testOutputs[activeTest] ?? '',
+                stdin: '',
+            }
+            socketRef.current?.emit('run-code', data)
         }
     }
 
     const handleActiveTestTabChange = (tab: number) => {
         setActiveTestTab(tab)
-        console.log(activeTestTab)
     }
 
     const handleEndSession = () => {
@@ -202,7 +209,7 @@ export default function Code() {
                                 <>
                                     {' '}
                                     <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
-                                    Run tests
+                                    Run test
                                 </>
                             )}
                         </Button>
@@ -231,13 +238,16 @@ export default function Code() {
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <CodeMirrorEditor roomId={id as string} language={getCodeMirrorLanguage(editorLanguage)} />
+                    <CodeMirrorEditor
+                        ref={editorRef}
+                        roomId={id as string}
+                        language={getCodeMirrorLanguage(editorLanguage)}
+                    />
                 </div>
                 <CustomTabs
                     tabs={testTabs}
                     activeTab={activeTestTab}
                     setActiveTab={setActiveTestTab}
-                    handleActiveTabChange={handleActiveTestTabChange}
                     className="mt-4 border-2 rounded-t-lg border-slate-100"
                 />
                 <div
@@ -246,9 +256,14 @@ export default function Code() {
                 >
                     <div className="m-4 flex overflow-x-auto">
                         {activeTestTab === 0 ? (
-                            <TestcasesTab testcases={testCasesData} />
+                            <TestcasesTab
+                                activeTestcaseIdx={activeTest}
+                                setActiveTestcaseIdx={setActiveTest}
+                                testInputs={matchData?.question.testInputs ?? []}
+                                testOutputs={matchData?.question.testOutputs ?? []}
+                            />
                         ) : (
-                            <div className="text-sm text-slate-400">No test results yet</div>
+                            <TestResult result={testResult?.data} expectedOutput={testResult?.expectedOutput ?? ''} />
                         )}
                     </div>
                 </div>

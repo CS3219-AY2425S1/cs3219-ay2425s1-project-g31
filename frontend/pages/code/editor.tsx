@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useEffect, useImperativeHandle, useMemo, useRef, useState, forwardRef } from 'react'
 import { Compartment, EditorState } from '@codemirror/state'
 import { EditorView, keymap } from '@codemirror/view'
 import { basicSetup } from 'codemirror'
@@ -8,11 +8,11 @@ import * as Y from 'yjs'
 import { useSession } from 'next-auth/react'
 import { languages } from '@codemirror/language-data'
 import { userColor } from '@/util/cursor-colors'
-import { CodeMirrorEditorProps } from '@/types/editor'
+import { CodeMirrorEditorProps, CodeMirrorEditorRef } from '@/types/editor'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { javascript } from '@codemirror/lang-javascript'
 
-const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language }) => {
+const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; language: string }, ref) => {
     const editorContainerRef = useRef<HTMLDivElement>(null)
     // eslint-disable-next-line no-unused-vars
     const [provider, setProvider] = useState<WebsocketProvider | null>(null)
@@ -33,6 +33,14 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
             })
         })()
     }, [editorView, language])
+
+    useImperativeHandle(
+        ref,
+        () => ({
+            getText: () => ytext.toString(),
+        }),
+        [ytext]
+    )
 
     useEffect(() => {
         if (!session) return
@@ -85,6 +93,6 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({ roomId, language })
             }}
         />
     )
-}
+})
 
 export default CodeMirrorEditor

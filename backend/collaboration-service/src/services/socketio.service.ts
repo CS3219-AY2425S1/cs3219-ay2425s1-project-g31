@@ -4,9 +4,8 @@ import { completeCollaborationSession } from './collab.service'
 import { updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode } from '../types/LanguageMode'
 import { ChatModel } from '../types'
-import { SubmissionRequestDto } from '@repo/submission-types'
-import judgeZero from './judgezero.service'
-import config from '../common/config.util'
+import { ISubmission, SubmissionResponseDto } from '@repo/submission-types'
+import { submitCode } from '../controllers/collab.controller'
 
 export class WebSocketConnection {
     private io: IOServer
@@ -41,15 +40,14 @@ export class WebSocketConnection {
                 await updateLanguage(roomId, language as LanguageMode)
             })
 
-            socket.on('run-code', async (dto: SubmissionRequestDto) => {
+            socket.on('run-code', async (data: ISubmission) => {
                 this.io.to(roomId).emit('executing-code')
                 try {
-                    const res = await judgeZero.post(config.JUDGE_ZERO_SUBMIT_CONFIG, dto)
-                    console.log(res)
-                    this.io.to(roomId).emit('code-executed', res.data)
+                    const dto: SubmissionResponseDto = await submitCode(data)
+                    this.io.to(roomId).emit('code-executed', dto, data.expected_output)
                 } catch (err) {
                     console.log(err)
-                    this.io.to(roomId).emit('code-executed', { error: 'Failed to execute code' })
+                    this.io.to(roomId).emit('code-executed', { error: err })
                 }
             })
 

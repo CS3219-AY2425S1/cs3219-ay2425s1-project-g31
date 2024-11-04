@@ -1,7 +1,7 @@
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { ITypedBodyRequest } from '@repo/request-types'
-import { SubmissionRequestDto, SubmissionResponseDto } from '@repo/submission-types'
+import { ISubmission, SubmissionRequestDto, SubmissionResponseDto } from '@repo/submission-types'
 import { CollabDto } from '../types/CollabDto'
 import { createSession, getSessionById } from '../models/collab.repository'
 import judgeZero from '../services/judgezero.service'
@@ -65,21 +65,24 @@ export async function getChatHistory(request: Request, response: Response): Prom
     response.status(200).json(session.chatHistory).send()
 }
 
-export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto>, response: Response): Promise<void> {
-    const submissionRequestDto = SubmissionRequestDto.fromRequest(request)
+export async function submitCode(dto: ISubmission): Promise<SubmissionResponseDto> {
+    const submissionRequestDto = new SubmissionRequestDto(
+        dto.language_id,
+        dto.source_code,
+        dto.expected_output,
+        dto.stdin
+    )
     const requestErrors = await submissionRequestDto.validate()
 
     if (requestErrors.length) {
         const errorMessages = requestErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
-        response.status(400).json(errorMessages).send()
-        return
+        throw new Error(errorMessages.join('\n'))
     }
 
-    const res = await judgeZero.post('/submissions?base64_encoded=false&wait=true', request.body)
+    const res = await judgeZero.post('/submissions?base64_encoded=false&wait=true', submissionRequestDto)
 
     if (!res) {
-        response.status(400).json('Failed to submit code. Please try again.').send()
-        return
+        throw new Error('Failed to submit code. Please try again.')
     }
 
     const submissionResponseDto = SubmissionResponseDto.fromResponse(res)
@@ -87,9 +90,10 @@ export async function submitCode(request: ITypedBodyRequest<SubmissionRequestDto
 
     if (responseErrors.length) {
         const errorMessages = responseErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
-        response.status(400).json(errorMessages).send()
-        return
+        throw new Error(errorMessages.join('\n'))
     }
 
-    response.status(200).json(submissionResponseDto).send()
+    console.log(submissionResponseDto)
+
+    return submissionResponseDto
 }

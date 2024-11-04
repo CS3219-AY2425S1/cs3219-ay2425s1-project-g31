@@ -1,4 +1,3 @@
-import { ITypedBodyRequest } from '@repo/request-types'
 import { IsNotEmpty, IsNumber, IsString, validate, ValidationError } from 'class-validator'
 
 export class SubmissionRequestDto {
@@ -20,12 +19,6 @@ export class SubmissionRequestDto {
         this.source_code = source_code
         this.stdin = stdin || ''
         this.expected_output = expected_output
-    }
-
-    static fromRequest({
-        body: { language_id, source_code, stdin, expected_output },
-    }: ITypedBodyRequest<SubmissionRequestDto>): SubmissionRequestDto {
-        return new SubmissionRequestDto(language_id, source_code, stdin, expected_output)
     }
 
     async validate(): Promise<ValidationError[]> {

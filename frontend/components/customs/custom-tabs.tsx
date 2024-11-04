@@ -6,14 +6,12 @@ interface CustomTabsProps {
     setActiveTab: (idx: number) => void
     type?: 'default' | 'label'
     size?: ButtonProps['size']
-    handleActiveTabChange: (idx: number) => void
     className?: string
     btnclassName?: string
 }
 
 export default function CustomTabs({
     tabs,
-    handleActiveTabChange,
     activeTab,
     setActiveTab,
     type,
@@ -28,11 +26,6 @@ export default function CustomTabs({
         return type === 'label' ? 'ghostTabLabel' : 'ghostTab'
     }
 
-    const handleSetActiveTab = (idx: number) => {
-        setActiveTab(idx)
-        handleActiveTabChange(idx)
-    }
-
     return (
         <div
             id="test-tabs"
@@ -43,7 +36,7 @@ export default function CustomTabs({
                     key={index}
                     variant={tabVariant(index)}
                     size={size || 'default'}
-                    onClick={() => handleSetActiveTab(index)}
+                    onClick={() => setActiveTab(index)}
                     className={`${activeTab === 0 ? '-mb-[0.1rem]' : ''} ${btnclassName}`}
                 >
                     {tab}

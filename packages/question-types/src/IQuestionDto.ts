@@ -6,6 +6,8 @@ export interface IQuestionDto {
     description: string
     categories: Category[]
     complexity: Complexity
+    testInputs: string[]
+    testOutputs: string[]
     link: string
     createdAt: Date
     updatedAt: Date
