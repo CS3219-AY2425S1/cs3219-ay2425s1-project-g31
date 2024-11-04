@@ -1,7 +1,9 @@
 import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { ITypedBodyRequest } from '@repo/request-types'
-import { ISubmission, SubmissionRequestDto, SubmissionResponseDto } from '@repo/submission-types'
+import { ISubmission } from '@repo/submission-types'
+import { SubmissionRequestDto } from '../types/SubmissionRequestDto'
+import { SubmissionResponseDto } from '../types/SubmissionResponseDto'
 import { CollabDto } from '../types/CollabDto'
 import { createSession, getSessionById } from '../models/collab.repository'
 import judgeZero from '../services/judgezero.service'
@@ -66,7 +68,7 @@ export async function getChatHistory(request: Request, response: Response): Prom
 }
 
 export async function submitCode(dto: ISubmission): Promise<SubmissionResponseDto> {
-    const submissionRequestDto = SubmissionRequestDto.createInstance(
+    const submissionRequestDto = new SubmissionRequestDto(
         dto.language_id,
         dto.source_code,
         dto.expected_output,
@@ -92,8 +94,6 @@ export async function submitCode(dto: ISubmission): Promise<SubmissionResponseDt
         const errorMessages = responseErrors.flatMap((error: ValidationError) => Object.values(error.constraints))
         throw new Error(errorMessages.join('\n'))
     }
-
-    console.log(submissionResponseDto)
 
     return submissionResponseDto
 }

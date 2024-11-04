@@ -1,12 +1,6 @@
-import { SubmissionResponseDto } from '@repo/submission-types'
+import { IResponse } from '@repo/submission-types'
 
-export default function TestResult({
-    result,
-    expectedOutput,
-}: {
-    result?: SubmissionResponseDto
-    expectedOutput: string
-}) {
+export default function TestResult({ result, expectedOutput }: { result?: IResponse; expectedOutput: string }) {
     if (!result) return <div className="text-sm text-slate-400">No test results yet</div>
 
     return (

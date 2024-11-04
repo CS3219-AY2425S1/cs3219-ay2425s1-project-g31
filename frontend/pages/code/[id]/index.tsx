@@ -21,7 +21,7 @@ import Chat from './chat'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
-import { ISubmission, SubmissionResponseDto } from '@repo/submission-types'
+import { ISubmission, IResponse } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 
@@ -42,9 +42,7 @@ export default function Code() {
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
-    const [testResult, setTestResult] = useState<{ data: SubmissionResponseDto; expectedOutput: string } | undefined>(
-        undefined
-    )
+    const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -87,7 +85,7 @@ export default function Code() {
             setIsCodeRunning(true)
         })
 
-        socketRef.current.on('code-executed', (res: SubmissionResponseDto, expected_output: string) => {
+        socketRef.current.on('code-executed', (res: IResponse, expected_output: string) => {
             setTestResult({ data: res, expectedOutput: expected_output })
             setIsCodeRunning(false)
             setActiveTestTab(1)

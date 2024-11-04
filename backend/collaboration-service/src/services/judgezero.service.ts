@@ -1,6 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import config from '../common/config.util'
-import { SubmissionRequestDto } from '@repo/submission-types'
+import { SubmissionRequestDto } from '../types/SubmissionRequestDto'
 import logger from '../common/logger.util'
 
 class JudgeZero {
