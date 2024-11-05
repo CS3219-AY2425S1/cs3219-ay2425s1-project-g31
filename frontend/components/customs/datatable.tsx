@@ -140,6 +140,11 @@ export default function Datatable({
                     ))}
                 </TableBody>
             </Table>
+            {data.length === 0 && (
+                <div className="w-full p-5 flex items-center justify-center border-2 border-t-transparent border-slate-100 bg-gray-50/50">
+                    <span className="text-gray-400 text-sm">No data available</span>
+                </div>
+            )}
             {/* <Pagination /> */}
             <div className="w-100 py-2 px-5 rounded-xl flex items-center justify-between bg-slate-100 border-[1px] border-slate-100 border-t-0 rounded-t-none text-xs text-gray-400">
                 <div className="flex items-center gap-3">
