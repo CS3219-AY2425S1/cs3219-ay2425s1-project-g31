@@ -38,7 +38,7 @@ export const columns: IDatatableColumn[] = [
     },
     {
         key: 'createdAt',
-        label: 'Time',
+        label: 'Datetime',
         formatter: (value) => {
             return <span>{convertTimestamp(value)}</span>
         },
