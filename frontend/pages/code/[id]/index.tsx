@@ -175,7 +175,7 @@ export default function Code() {
                             bgColor="bg-theme-100"
                         />
                     </div>
-                    <div className="mt-6">{matchData?.question.description}</div>
+                    <div className="mt-6 whitespace-pre-wrap">{matchData?.question.description}</div>
                 </div>
 
                 <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-twoFifthScreen flex flex-col">

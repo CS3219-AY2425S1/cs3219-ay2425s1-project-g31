@@ -29,7 +29,7 @@ export default function CustomTabs({
     return (
         <div
             id="test-tabs"
-            className={`${activeTab === 0 ? 'border-b-2 border-slate-100' : ''} flex items-center ${type === 'label' ? 'gap-2' : ''} ${className}`}
+            className={`${activeTab === 0 ? 'border-slate-100' : ''} flex items-center ${type === 'label' ? 'gap-2' : ''} ${className}`}
         >
             {tabs.map((tab, index) => (
                 <Button

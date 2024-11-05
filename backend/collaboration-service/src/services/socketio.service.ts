@@ -45,8 +45,8 @@ export class WebSocketConnection {
                 this.io.to(roomId).emit('executing-code')
                 try {
                     const dto: SubmissionResponseDto = await submitCode(data)
-                    const { stdout, status, time } = dto
-                    const response: IResponse = { stdout, status, time }
+                    const { stdout, status, time, stderr, compile_output } = dto
+                    const response: IResponse = { stdout, status, time, stderr, compile_output }
                     this.io.to(roomId).emit('code-executed', response, data.expected_output)
                 } catch (err) {
                     this.io.to(roomId).emit('code-executed', { error: err })

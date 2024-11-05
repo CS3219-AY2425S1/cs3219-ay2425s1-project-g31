@@ -15,18 +15,18 @@ export default function TestcasesTab({
 
     if (!testInputs || testInputs.length === 0) return null
     return (
-        <div>
+        <div className="w-full">
             <CustomTabs
                 tabs={testcaseTabs}
                 type="label"
                 activeTab={activeTestcaseIdx}
                 setActiveTab={setActiveTestcaseIdx}
             />
-            <div className="flex flex-col gap-2 text-sm">
+            <div className="flex flex-col gap-2 text-sm w-full">
                 <span className="mt-2">Input = </span>
-                <span className="px-2 py-1 rounded-lg bg-slate-100">{testInputs[activeTestcaseIdx]}</span>
+                <span className="px-2 py-1 rounded-lg bg-slate-100 w-full">{testInputs[activeTestcaseIdx]}</span>
                 <span className="mt-2">Expected output = </span>
-                <span className="px-2 py-1 rounded-lg bg-slate-100">{testOutputs[activeTestcaseIdx]}</span>
+                <span className="px-2 py-1 rounded-lg bg-slate-100 w-full">{testOutputs[activeTestcaseIdx]}</span>
             </div>
         </div>
     )
