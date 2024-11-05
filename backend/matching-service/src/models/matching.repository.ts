@@ -33,7 +33,6 @@ export async function findPaginatedMatches(start: number, limit: number, userId:
     return matchModel
         .find({
             $or: [{ user1Id: userId }, { user2Id: userId }],
-            $and: [{ isCompleted: false }],
         })
         .limit(limit)
         .skip(start)
@@ -48,7 +47,6 @@ export async function findPaginatedMatchesWithSort(
     return matchModel
         .find({
             $or: [{ user1Id: userId }, { user2Id: userId }],
-            $and: [{ isCompleted: false }],
         })
         .sort(sortBy.map(([key, order]): [string, SortOrder] => [key, order as SortOrder]))
         .limit(limit)
