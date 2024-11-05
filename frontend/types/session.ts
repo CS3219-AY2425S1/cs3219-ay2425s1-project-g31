@@ -27,6 +27,7 @@ export interface IGetSessionsDto {
     page: number
     limit: number
     sortBy?: string
+    userId: string
 }
 
 export interface IGetSessions {

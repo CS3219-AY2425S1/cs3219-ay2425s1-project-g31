@@ -48,7 +48,8 @@ export default function Sessions() {
 
     const load = async (body: IGetSessions) => {
         try {
-            const res = await getSessionsRequest(body)
+            if (!session || !session?.user) return
+            const res = await getSessionsRequest(body, session?.user.id)
             if (res) {
                 const sessions = SessionManager.fromDto(res.sessions, session?.user.username)
                 setData(sessions)

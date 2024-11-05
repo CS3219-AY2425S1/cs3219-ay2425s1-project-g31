@@ -28,10 +28,11 @@ export const api = async <T>(type: Action, url: string, body: unknown) => {
     }
 }
 
-export const getSessionsRequest = async (data: IGetSessions) => {
+export const getSessionsRequest = async (data: IGetSessions, userId: string) => {
     let params: IGetSessionsDto = {
         page: data.page == 0 ? 1 : data.page,
         limit: data.limit,
+        userId,
     }
     if (data.sortBy && data.sortBy.direction !== SortDirection.NONE) {
         params = { ...params, sortBy: `${data.sortBy.sortKey}:${data.sortBy.direction}` }
