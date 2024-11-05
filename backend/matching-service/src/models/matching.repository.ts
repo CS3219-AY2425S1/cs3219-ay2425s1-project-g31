@@ -56,7 +56,7 @@ export async function findPaginatedMatchesWithSort(
 }
 
 export function getSortKeysAndOrders(): { keys: string[]; orders: string[] } {
-    return { keys: ['complexity'], orders: ['asc', 'desc'] }
+    return { keys: ['complexity', 'createdAt'], orders: ['asc', 'desc'] }
 }
 
 export function isValidSort(key: string, order: string): boolean {
