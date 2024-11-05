@@ -8,9 +8,9 @@ import * as Y from 'yjs'
 import { useSession } from 'next-auth/react'
 import { languages } from '@codemirror/language-data'
 import { userColor } from '@/util/cursor-colors'
-import { CodeMirrorEditorProps, CodeMirrorEditorRef } from '@/types/editor'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { javascript } from '@codemirror/lang-javascript'
+import { indentWithTab } from '@codemirror/commands'
 
 const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; language: string }, ref) => {
     const editorContainerRef = useRef<HTMLDivElement>(null)
@@ -62,7 +62,7 @@ const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; lan
             const state = EditorState.create({
                 doc: ytext.toString(),
                 extensions: [
-                    keymap.of([...yUndoManagerKeymap]),
+                    keymap.of([...yUndoManagerKeymap, indentWithTab]),
                     basicSetup,
                     oneDark,
                     compartment.of(javascript()),

@@ -11,6 +11,7 @@
         "format": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
     },
     "dependencies": {
+        "@codemirror/commands": "^6.7.1",
         "@codemirror/lang-python": "^6.1.6",
         "@codemirror/language-data": "^6.5.1",
         "@codemirror/theme-one-dark": "^6.1.2",
