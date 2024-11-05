@@ -55,6 +55,7 @@
         "@repo/eslint-config": "*",
         "@repo/typescript-config": "*",
         "@repo/ws-types": "*",
+        "@repo/user-types": "*",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/jest-dom": "^6.5.0",
         "@testing-library/react": "^16.0.1",
