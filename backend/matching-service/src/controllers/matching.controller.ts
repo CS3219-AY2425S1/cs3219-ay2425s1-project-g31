@@ -146,3 +146,14 @@ export async function handleGetPaginatedSessions(request: IPaginationRequest, re
         sessions: matches.map(MatchDto.fromModel),
     })
 }
+
+export async function handleIsUserInMatch(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
+    if (!request.query.userId) {
+        response.status(400).send('MISSING_USER_ID')
+        return
+    }
+    const userMatch = await isUserInMatch(request.query.userId.toString())
+    response.status(200).send({
+        data: userMatch,
+    })
+}
