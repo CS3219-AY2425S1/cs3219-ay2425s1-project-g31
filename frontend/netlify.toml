@@ -1,7 +1,28 @@
+# netlify.toml
+
 [build]
 command = "npm run build"
-publish = ".next"
-functions = "netlify/functions"
+publish = "frontend/public"
+base = "frontend"
+
+# Specify environment variables if needed
+# [build.environment]
+#   NODE_ENV = "production"
+
+functions = "frontend/.netlify/functions"
+
+# Headers (Example: adding custom security headers)
+# [[headers]]
+# for = "/*"
+# [headers.values]
+# Content-Security-Policy = "default-src 'self'"
+# X-Frame-Options = "DENY"
+# X-Content-Type-Options = "nosniff"
+
+# Development context - Settings for running locally in Netlify Dev
+[context.dev]
+command = "npm run dev"
+publish = "frontend/public"
 
 [[plugins]]
 package = "@netlify/plugin-nextjs"
