@@ -32,3 +32,16 @@ export const getMatchDetails = async (matchId: string): Promise<any | undefined>
         }
     }
 }
+
+export const getOngoingMatch = async (userId: string): Promise<string> => {
+    try {
+        const matchId = await axiosInstance.get(`/matching/current`, {
+            params: {
+                userId,
+            },
+        })
+        return matchId.data || ''
+    } catch (error) {
+        return ''
+    }
+}
