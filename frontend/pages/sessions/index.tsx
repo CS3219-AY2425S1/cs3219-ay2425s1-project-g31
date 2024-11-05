@@ -60,7 +60,7 @@ export default function Sessions() {
                 setPagination(res.pagination)
             }
         } catch (error) {
-            toast.error('Failed to fetch questions: ' + error)
+            toast.error('Failed to fetch sessions: ' + error)
         }
     }
 

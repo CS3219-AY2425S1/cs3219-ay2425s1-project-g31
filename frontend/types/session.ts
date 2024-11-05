@@ -54,7 +54,7 @@ export class SessionManager {
                 time: session.time,
                 category: session.category,
                 collaboratorName: getCollaborator(session.user1Name, session.user2Name),
-                question: session.question.title,
+                question: session.question?.title,
                 createdAt: session.createdAt,
             }
         })
