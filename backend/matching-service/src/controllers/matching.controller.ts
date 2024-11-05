@@ -109,6 +109,7 @@ export async function updateCompletion(
 export async function handleGetPaginatedSessions(request: IPaginationRequest, response: Response): Promise<void> {
     const page = parseInt(request.query.page)
     const limit = parseInt(request.query.limit)
+    const userId = request.user.id
 
     if (isNaN(page) || isNaN(limit) || page <= 0 || limit <= 0) {
         response.status(400).json('INVALID_PAGINATION').send()
@@ -128,9 +129,9 @@ export async function handleGetPaginatedSessions(request: IPaginationRequest, re
     let matches: IMatch[]
 
     if (sortBy.length) {
-        matches = await findPaginatedMatchesWithSort(start, limit, sortBy)
+        matches = await findPaginatedMatchesWithSort(start, limit, sortBy, userId)
     } else {
-        matches = await findPaginatedMatches(start, limit)
+        matches = await findPaginatedMatches(start, limit, userId)
     }
 
     const nextPage = start + limit < count ? page + 1 : null
