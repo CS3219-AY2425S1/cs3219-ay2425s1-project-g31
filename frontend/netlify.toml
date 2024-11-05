@@ -3,7 +3,6 @@
 [build]
 command = "npm run build"
 publish = "frontend/public"
-base = "frontend"
 
 # Specify environment variables if needed
 # [build.environment]
