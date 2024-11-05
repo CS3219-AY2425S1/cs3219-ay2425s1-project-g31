@@ -4,7 +4,10 @@ import Loading from '@/components/customs/loading'
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
+import ResumeSession from '@/components/dashboard/resume-session'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
+import { getOngoingMatch } from '@/services/matching-service-api'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
     const progressData = [
@@ -33,6 +36,24 @@ export default function Home() {
 
     const { session, loading } = useProtectedRoute()
 
+    const [ongoingMatchData, setOngoingMatchData] = useState({
+        isOngoingMatch: false,
+        matchId: '',
+    })
+
+    const checkOngoingSession = async () => {
+        if (!session?.user.id) return
+        const ongoingMatchId = await getOngoingMatch(session.user.id)
+        setOngoingMatchData({
+            isOngoingMatch: ongoingMatchId !== '',
+            matchId: ongoingMatchId,
+        })
+    }
+
+    useEffect(() => {
+        checkOngoingSession()
+    }, [])
+
     if (loading)
         return (
             <div className="flex flex-col h-screen w-screen items-center justify-center">
@@ -56,7 +77,7 @@ export default function Home() {
                 ))}
             </div>
             <div className="flex flex-row justify-between my-4">
-                <NewSession />
+                {ongoingMatchData.isOngoingMatch ? <ResumeSession /> : <NewSession />}
                 <RecentSessions />
             </div>
         </div>
