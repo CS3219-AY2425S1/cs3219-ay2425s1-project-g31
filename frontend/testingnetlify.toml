@@ -2,7 +2,7 @@
 
 [build]
 command = "npm run build"
-publish = "frontend/public"
+publish = "frontend/.next"
 
 # Specify environment variables if needed
 # [build.environment]
