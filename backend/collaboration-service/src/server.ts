@@ -14,7 +14,7 @@ connectToDatabase(config.DB_URL)
 
 const server: Server = http.createServer(index)
 const wss = new WebSocket.Server({ noServer: true })
-new WebSocketConnection(3009)
+new WebSocketConnection(Number(config.WS_PORT))
 
 yUtils.setPersistence({
     bindState: async (docName, ydoc) => {
