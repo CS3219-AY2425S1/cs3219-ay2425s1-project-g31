@@ -9,6 +9,7 @@ interface CustomModalProps {
     showCloseButton?: boolean
     showActionPanel?: boolean
     confirmHandler?: () => void
+    showCancelButton?: boolean
 }
 
 export default function CustomModal({
@@ -19,6 +20,7 @@ export default function CustomModal({
     showCloseButton,
     showActionPanel,
     confirmHandler,
+    showCancelButton = true,
 }: CustomModalProps) {
     return (
         <div className="fixed top-0 left-0 w-full h-screen max-h-screen bg-gray-400/50 flex items-center justify-center z-[999]">
@@ -41,9 +43,11 @@ export default function CustomModal({
                         <Button variant="primary" size="lg" onClick={confirmHandler}>
                             Confirm
                         </Button>
-                        <Button variant="secondary" size="lg" onClick={closeHandler}>
-                            Cancel
-                        </Button>
+                        {showCancelButton && (
+                            <Button variant="secondary" size="lg" onClick={closeHandler}>
+                                Cancel
+                            </Button>
+                        )}
                     </div>
                 )}
             </div>

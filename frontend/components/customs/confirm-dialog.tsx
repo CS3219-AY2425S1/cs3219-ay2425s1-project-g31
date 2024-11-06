@@ -1,6 +1,6 @@
 import CustomModal from './custom-modal'
 
-interface ConfirmDialogProps {
+export interface ConfirmDialogProps {
     dialogData: {
         isOpen: boolean
         title: string
@@ -9,9 +9,16 @@ interface ConfirmDialogProps {
     closeHandler: () => void
     confirmHandler: () => void
     className?: string
+    showCancelButton?: boolean
 }
 
-export default function ConfirmDialog({ dialogData, className, closeHandler, confirmHandler }: ConfirmDialogProps) {
+export default function ConfirmDialog({
+    dialogData,
+    className,
+    closeHandler,
+    confirmHandler,
+    showCancelButton = true,
+}: ConfirmDialogProps) {
     return (
         dialogData.isOpen && (
             <CustomModal
@@ -19,6 +26,7 @@ export default function ConfirmDialog({ dialogData, className, closeHandler, con
                 className={`h-2/5 z-[2000] ${className || ''}`}
                 closeHandler={closeHandler}
                 showCloseButton={true}
+                showCancelButton={showCancelButton}
                 showActionPanel={true}
                 confirmHandler={confirmHandler}
             >
