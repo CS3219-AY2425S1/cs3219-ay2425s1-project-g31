@@ -10,7 +10,7 @@ import {
     ValidationError,
 } from 'class-validator'
 import { Type } from 'class-transformer'
-import { LanguageMode, ChatModel } from '@repo/collaboration-types'
+import { LanguageMode, ChatModel, ICollabCreateSessionDto } from '@repo/collaboration-types'
 import 'reflect-metadata'
 
 export class CollabDto {
@@ -52,7 +52,7 @@ export class CollabDto {
         this.createdAt = new Date()
     }
 
-    static fromCreateRequest({ body: { matchId, language } }: ITypedBodyRequest<Partial<CollabDto>>): CollabDto {
+    static fromCreateRequest({ body: { matchId, language } }: ITypedBodyRequest<ICollabCreateSessionDto>): CollabDto {
         return new CollabDto(matchId, language, '', '', [])
     }
 
