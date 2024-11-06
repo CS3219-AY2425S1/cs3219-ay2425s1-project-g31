@@ -4,10 +4,11 @@ import { ITypedBodyRequest } from '@repo/request-types'
 import { ISubmission } from '@repo/submission-types'
 import { CollabDto, SubmissionRequestDto, SubmissionResponseDto } from '../types'
 import { createSession, getSessionById } from '../models/collab.repository'
+import { ICollabCreateSessionDto } from '@repo/collaboration-types'
 import judgeZero from '../services/judgezero.service'
 
 export async function createSessionRequest(
-    request: ITypedBodyRequest<Partial<CollabDto>>,
+    request: ITypedBodyRequest<ICollabCreateSessionDto>,
     response: Response
 ): Promise<void> {
     const collabDto = CollabDto.fromCreateRequest(request)
