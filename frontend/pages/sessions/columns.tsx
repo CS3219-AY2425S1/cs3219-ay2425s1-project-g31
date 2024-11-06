@@ -1,6 +1,7 @@
 import { TickIcon, ExclamationIcon } from '@/assets/icons'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
-import { IDatatableColumn, QuestionStatus } from '@/types'
+import CustomLabel from '@/components/ui/label'
+import { IDatatableColumn } from '@/types'
 
 const convertTimestamp = (millis: number) => {
     const date = new Date(millis)
@@ -22,11 +23,13 @@ export const columns: IDatatableColumn[] = [
         key: 'question',
     },
     {
-        key: 'isCompleted',
-        label: 'Status',
-        maxWidth: '5%',
+        key: 'category',
         formatter: (value) => {
-            return <div className="flex items-center justify-center">{value ? <TickIcon /> : <ExclamationIcon />}</div>
+            return (
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    <CustomLabel title={value} textColor="text-theme" bgColor="bg-theme-100" margin="1" />
+                </div>
+            )
         },
     },
     {
@@ -43,6 +46,14 @@ export const columns: IDatatableColumn[] = [
             return <span>{convertTimestamp(value)}</span>
         },
         isSortable: true,
+    },
+    {
+        key: 'isCompleted',
+        label: 'Status',
+        maxWidth: '5%',
+        formatter: (value) => {
+            return <div className="flex items-center justify-center">{value ? <TickIcon /> : <ExclamationIcon />}</div>
+        },
     },
 ]
 
