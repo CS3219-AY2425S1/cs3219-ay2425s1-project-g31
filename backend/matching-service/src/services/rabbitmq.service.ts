@@ -310,7 +310,7 @@ class RabbitMQConnection {
                 if (!createdSession) {
                     // Failed to create session, remove from set and ask user to retry
                     // Insert: FE show failed to create session dialog
-                    errors.push('Failed to create sessASJLDBfgkiuahsbfgoiuyawbgop')
+                    errors.push('Failed to create session')
                 }
                 this.removeMatchFromSets(content, matchedUserContent)
                 logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
