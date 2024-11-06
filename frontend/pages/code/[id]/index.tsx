@@ -62,13 +62,15 @@ export default function Code() {
     }, [])
 
     useEffect(() => {
-        socketRef.current = io('ws://localhost:3009', {
+        socketRef.current = io(process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3009', {
+            path: '/collab/chat/ws/socket.io/',
             auth: {
                 token: sessionData?.user.accessToken,
                 name: sessionData?.user.username,
                 roomId: id as string,
             },
         })
+        console.log(process.env.NEXT_PUBLIC_API_URL?.concat('/collab/chat/ws'))
 
         socketRef.current.on('connect', () => {
             if (socketRef.current) {

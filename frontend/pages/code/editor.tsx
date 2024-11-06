@@ -46,9 +46,14 @@ const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; lan
         if (!session) return
         const token = session.user.accessToken
         if (!token) return undefined
-        const wsProvider = new WebsocketProvider('ws://localhost:3008', roomId, ydoc, {
-            protocols: [token],
-        })
+        const wsProvider = new WebsocketProvider(
+            process.env.NEXT_PUBLIC_API_URL?.concat('/collab/y/ws') ?? 'ws://localhost:3008',
+            roomId,
+            ydoc,
+            {
+                protocols: [token],
+            }
+        )
         wsProvider.awareness.setLocalStateField('user', {
             name: session.user.username || 'Anonymous',
             color: userColor.color,
