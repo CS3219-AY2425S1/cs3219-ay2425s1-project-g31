@@ -7,6 +7,7 @@ services:
             - QUESTION_SERVICE_URL=http://question-service:3004
             - MATCHING_SERVICE_URL=http://matching-service:3006
             - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
+            - COLLABORATION_SERVICE_CHAT_URL=http://collaboration-service:3009
             - RMQ_URL=http://rabbitmq:15672
             - DOMAIN_NAME=${DOMAIN_NAME}
         image: nginx:1.27.2-alpine
@@ -31,6 +32,7 @@ services:
         environment:
             - NODE_ENV=development
             - PORT=3008
+            - WS_PORT=3009
             - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@collab-db:27017/collaboration-service?authSource=admin
             - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
