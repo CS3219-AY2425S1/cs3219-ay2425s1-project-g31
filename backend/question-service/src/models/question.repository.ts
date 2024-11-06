@@ -1,11 +1,10 @@
+import { IQuestionCountsDto } from '@repo/question-types'
+import { Category, SortedComplexity } from '@repo/user-types'
 import { FilterQuery, Model, model, SortOrder } from 'mongoose'
-
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
-import { SortedComplexity } from '@repo/user-types'
-import questionSchema from './question.model'
-import { Category } from '@repo/user-types'
 import { QuestionDto } from '../types/QuestionDto'
+import questionSchema from './question.model'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
 
@@ -96,6 +95,34 @@ export async function findQuestionCountWithFilter(filterBy: string[][]): Promise
 
 export async function findQuestionCount(): Promise<number> {
     return questionModel.countDocuments()
+}
+
+export async function findQuestionCountsByComplexity(): Promise<IQuestionCountsDto> {
+    const query = [
+        {
+            $group: {
+                _id: '$complexity',
+                count: { $sum: 1 },
+            },
+        },
+    ]
+    const result = await questionModel.aggregate(query)
+
+    const counts: IQuestionCountsDto = { easy: 0, medium: 0, hard: 0 }
+    for (const { _id, count } of result) {
+        switch (_id) {
+            case '1EASY':
+                counts.easy = count
+                break
+            case '2MEDIUM':
+                counts.medium = count
+                break
+            case '3HARD':
+                counts.hard = count
+                break
+        }
+    }
+    return counts
 }
 
 export async function createQuestion(dto: CreateQuestionDto): Promise<IQuestion> {
