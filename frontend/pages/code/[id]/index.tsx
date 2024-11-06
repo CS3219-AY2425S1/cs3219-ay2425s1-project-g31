@@ -70,7 +70,6 @@ export default function Code() {
                 roomId: id as string,
             },
         })
-        console.log(process.env.NEXT_PUBLIC_API_URL?.concat('/collab/chat/ws'))
 
         socketRef.current.on('connect', () => {
             if (socketRef.current) {
