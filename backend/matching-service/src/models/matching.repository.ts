@@ -65,3 +65,11 @@ export function isValidSort(key: string, order: string): boolean {
 export async function findMatchCount(): Promise<number> {
     return matchModel.countDocuments()
 }
+
+export async function findOngoingMatch(userId: string): Promise<IMatch> {
+    const match = await matchModel.findOne({
+        $or: [{ user1Id: userId }, { user2Id: userId }],
+        $and: [{ isCompleted: false }],
+    })
+    return match
+}

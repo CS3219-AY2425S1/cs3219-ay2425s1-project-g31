@@ -9,6 +9,7 @@ import { MatchDto } from '../types/MatchDto'
 import {
     createMatch,
     findMatchCount,
+    findOngoingMatch,
     findPaginatedMatches,
     findPaginatedMatchesWithSort,
     getMatchByUserIdandMatchId,
@@ -153,7 +154,7 @@ export async function handleIsUserInMatch(request: ITypedBodyRequest<void>, resp
         response.status(400).send('MISSING_USER_ID')
         return
     }
-    const userMatch = await isUserInMatch(request.query.userId.toString())
+    const userMatch = await findOngoingMatch(request.query.userId.toString())
     response.status(200).send({
         data: userMatch,
     })
