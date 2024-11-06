@@ -1,5 +1,6 @@
 'use client'
 
+import ConfirmDialog, { ConfirmDialogProps } from '@/components/customs/confirm-dialog'
 import Loading from '@/components/customs/loading'
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
@@ -37,11 +38,43 @@ export default function Home() {
 
     const { session, loading } = useProtectedRoute()
     const [ongoingMatchData, setOngoingMatchData] = useState<IMatch | null>()
+    const [dialog, setDialog] = useState<ConfirmDialogProps>({
+        dialogData: {
+            isOpen: false,
+            title: 'Session Over',
+            content: 'Uh oh, looks like the collaborator has left the session. Please start a new session!',
+        },
+        closeHandler: () => {
+            handleConfirmSessionOver()
+        },
+        confirmHandler: () => {
+            handleConfirmSessionOver()
+        },
+        showCancelButton: false,
+    })
 
     const checkOngoingSession = async () => {
-        if (!session?.user.id) return
+        if (!session?.user?.id) return
         const matchData = await getOngoingMatch(session.user.id)
         setOngoingMatchData(matchData || null)
+    }
+
+    const handleIsOngoing = async () => {
+        try {
+            if (!session?.user?.id) return false
+            const matchData = await getOngoingMatch(session?.user?.id)
+            if (!matchData) {
+                setDialog((prev) => ({ ...prev, dialogData: { ...prev.dialogData, isOpen: true } }))
+            }
+            return !!matchData
+        } catch (error) {
+            return false
+        }
+    }
+
+    const handleConfirmSessionOver = () => {
+        setDialog((prev) => ({ ...prev, dialogData: { ...prev.dialogData, isOpen: false } }))
+        setOngoingMatchData(null)
     }
 
     useEffect(() => {
@@ -71,9 +104,14 @@ export default function Home() {
                 ))}
             </div>
             <div className="flex flex-row justify-between my-4">
-                {ongoingMatchData ? <ResumeSession match={ongoingMatchData} /> : <NewSession />}
+                {ongoingMatchData ? (
+                    <ResumeSession match={ongoingMatchData} isOngoing={handleIsOngoing} />
+                ) : (
+                    <NewSession />
+                )}
                 <RecentSessions />
             </div>
+            <ConfirmDialog {...dialog} />
         </div>
     )
 }
