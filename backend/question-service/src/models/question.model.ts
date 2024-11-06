@@ -1,4 +1,9 @@
-import { Category, Complexity, SortedComplexity } from '@repo/question-types'
+import {
+    Category,
+    convertComplexityToSortedComplexity,
+    convertSortedComplexityToComplexity,
+    SortedComplexity,
+} from '@repo/question-types'
 import { Schema } from 'mongoose'
 import { IQuestion } from '../types/IQuestion'
 
@@ -20,44 +25,11 @@ const questionSchema = new Schema<IQuestion>(
         },
         complexity: {
             type: String,
-            enum: Object.values(Complexity).map((value: Complexity): string => {
-                switch (value) {
-                    case Complexity.EASY:
-                        return `1${value}`
-                    case Complexity.MEDIUM:
-                        return `2${value}`
-                    case Complexity.HARD:
-                        return `3${value}`
-                    default:
-                        return `1${Complexity.EASY}`
-                }
-            }),
+            enum: SortedComplexity,
             required: true,
             // We need to prepend a number to the enum values so that their lexicographical ordering is the same as their logical ordering when they are sorted by the index
-            set: (value: Complexity): string => {
-                switch (value) {
-                    case Complexity.EASY:
-                        return `1${value}`
-                    case Complexity.MEDIUM:
-                        return `2${value}`
-                    case Complexity.HARD:
-                        return `3${value}`
-                    default:
-                        return `1${Complexity.EASY}`
-                }
-            },
-            get: (value: SortedComplexity): Complexity => {
-                switch (value) {
-                    case SortedComplexity.EASY:
-                        return Complexity.EASY
-                    case SortedComplexity.MEDIUM:
-                        return Complexity.MEDIUM
-                    case SortedComplexity.HARD:
-                        return Complexity.HARD
-                    default:
-                        return Complexity.EASY
-                }
-            },
+            set: convertComplexityToSortedComplexity,
+            get: convertSortedComplexityToComplexity,
         },
         link: {
             type: String,
