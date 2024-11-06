@@ -1,4 +1,6 @@
+import { Category, SortedComplexity } from '@repo/question-types'
 import { IPaginationRequest, ITypedBodyRequest } from '@repo/request-types'
+import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import {
     createQuestion,
@@ -19,10 +21,6 @@ import {
     isValidSort,
     updateQuestion,
 } from '../models/question.repository'
-
-import { SortedComplexity } from '@repo/user-types'
-import { ValidationError } from 'class-validator'
-import { Category } from '../types/Category'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import { QuestionDto } from '../types/QuestionDto'

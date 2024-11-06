@@ -1,4 +1,10 @@
-import { Complexity, SortedComplexity } from '@repo/user-types'
+import { Complexity } from './Complexity'
+
+export enum SortedComplexity {
+    EASY = '1EASY',
+    MEDIUM = '2MEDIUM',
+    HARD = '3HARD',
+}
 
 export function convertComplexityToSortedComplexity(complexity: Complexity): SortedComplexity {
     switch (complexity) {

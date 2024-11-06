@@ -1,5 +1,4 @@
-import { Category, Complexity } from '.'
-import { IQuestionDto } from '@repo/question-types'
+import { Category, Complexity, IQuestionDto } from '@repo/question-types'
 
 export interface IMatch {
     id: string // match token

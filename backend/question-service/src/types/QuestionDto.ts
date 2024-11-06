@@ -1,7 +1,6 @@
+import { Category, Complexity } from '@repo/question-types'
 import { ITypedBodyRequest } from '@repo/request-types'
 import { ArrayNotEmpty, IsArray, IsEnum, IsNotEmpty, IsString, IsUrl, ValidationError, validate } from 'class-validator'
-import { Category } from './Category'
-import { Complexity } from './Complexity'
 import { IQuestion } from './IQuestion'
 
 export class QuestionDto {

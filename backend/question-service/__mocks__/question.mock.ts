@@ -1,5 +1,4 @@
-import { Category } from '../src/types/Category'
-import { Complexity } from '../src/types/Complexity'
+import { Category, Complexity } from '@repo/question-types'
 import { CreateQuestionDto } from '../src/types/CreateQuestionDto'
 
 // Big shoutout to ChatGPT for formatting this for me

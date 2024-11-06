@@ -1,4 +1,5 @@
-import { Category, Complexity, IMatch } from '@repo/user-types'
+import { Category, Complexity } from '@repo/question-types'
+import { IMatch } from '@repo/user-types'
 import { IsEnum, IsNotEmpty, IsObject, IsString, ValidationError, validate } from 'class-validator'
 
 export class MatchDto {

@@ -1,10 +1,11 @@
+import { Category, Complexity } from '@repo/question-types'
 import { IPagination, IQuestion, ISortBy } from '.'
 
 interface ISession {
     isCompleted: string
-    complexity: string
+    complexity: Complexity
     time: number
-    category: string
+    category: Category
     collaboratorName: string
     question: string
     createdAt: string
@@ -12,9 +13,9 @@ interface ISession {
 
 interface ISessionDto {
     isCompleted: string
-    complexity: string
+    complexity: Complexity
     time: number
-    category: string
+    category: Category
     user1Id: string
     user1Name: string
     user2Id: string

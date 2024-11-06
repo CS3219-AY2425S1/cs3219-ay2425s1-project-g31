@@ -1,4 +1,5 @@
-import { Category, Complexity, IMatch } from '@repo/user-types'
+import { Category, Complexity } from '@repo/question-types'
+import { IMatch } from '@repo/user-types'
 import { Schema } from 'mongoose'
 
 const matchSchema = new Schema<IMatch>({

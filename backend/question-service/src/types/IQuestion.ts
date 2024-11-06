@@ -1,5 +1,4 @@
-import { Category } from './Category'
-import { Complexity } from './Complexity'
+import { Category, Complexity } from '@repo/question-types'
 
 export interface IQuestion {
     id: string

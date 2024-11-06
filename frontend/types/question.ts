@@ -1,4 +1,4 @@
-import { Complexity } from '@repo/user-types'
+import { Complexity } from '@repo/question-types'
 import { IPagination } from './datatable'
 
 export enum QuestionStatus {

@@ -1,10 +1,9 @@
-import { FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
 import { ExclamationIcon, TickIcon } from '@/assets/icons'
-
-import { Category, Complexity } from '@repo/user-types'
-import CustomLabel from '@/components/ui/label'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
+import CustomLabel from '@/components/ui/label'
+import { FormType, IDatatableColumn, IFormFields, QuestionStatus } from '@/types'
 import { ITestcase } from '@/types/question'
+import { Category, Complexity } from '@repo/question-types'
 
 const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
     return [
@@ -129,7 +128,7 @@ const formFields: IFormFields[] = [
     },
 ]
 
-export { getColumns, formFields }
+export { formFields, getColumns }
 
 export default function None() {
     return null

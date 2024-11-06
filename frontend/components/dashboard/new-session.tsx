@@ -2,8 +2,12 @@
 
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { createCollabSession } from '@/services/collaboration-service-api'
+import { getCodeMirrorLanguage, LanguageMode } from '@/types'
+import { ICollabSession } from '@/types/collaboration-api'
 import { IPostMatching, MatchingStatus } from '@/types/matching-api'
-import { Category, Complexity, Proficiency } from '@repo/user-types'
+import { Category, Complexity } from '@repo/question-types'
+import { Proficiency } from '@repo/user-types'
 import { WebSocketMessageType } from '@repo/ws-types'
 import { useSession } from 'next-auth/react'
 import Image from 'next/image'
@@ -13,9 +17,6 @@ import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
-import { createCollabSession } from '@/services/collaboration-service-api'
-import { ICollabSession } from '@/types/collaboration-api'
-import { getCodeMirrorLanguage, LanguageMode } from '@/types'
 
 export const NewSession = () => {
     const router = useRouter()

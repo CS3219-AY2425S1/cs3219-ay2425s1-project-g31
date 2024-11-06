@@ -1,7 +1,6 @@
+import { Category, Complexity } from '@repo/question-types'
 import { Model, model } from 'mongoose'
 import questionSchema from '../models/question.model'
-import { Category } from '../types/Category'
-import { Complexity } from '../types/Complexity'
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
 import logger from './logger.util'

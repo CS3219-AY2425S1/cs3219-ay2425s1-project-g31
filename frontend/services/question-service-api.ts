@@ -1,6 +1,6 @@
 import { IGetQuestions, IGetQuestionsDto, IQuestion, IQuestionsApi, SortDirection } from '@/types'
 import { QuestionDto } from '@/types/question'
-import { Complexity } from '@repo/user-types'
+import { Complexity, IQuestionCountsDto } from '@repo/question-types'
 import axios from 'axios'
 import axiosClient from './axios-middleware'
 
@@ -53,6 +53,20 @@ export const getQuestionbyIDRequest = async (id: string): Promise<IQuestion | un
                 default:
                     throw new Error('An error occurred: ' + error.message)
             }
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
+    }
+}
+
+// GET /questions/complexity/count
+export const getQuestionCountsRequest = async (): Promise<IQuestionCountsDto | undefined> => {
+    try {
+        const { data } = await axiosInstance.get<IQuestionCountsDto>(`/questions/complexity/count`)
+        return data
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error('An unexpected error occurred: ' + error.message)
         } else {
             throw new Error('An unexpected error occurred')
         }

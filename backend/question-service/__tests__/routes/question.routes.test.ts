@@ -1,3 +1,4 @@
+import { Category, Complexity } from '@repo/question-types'
 import { IAccessTokenPayload, Proficiency, Role } from '@repo/user-types'
 import { MongoDBContainer, StartedMongoDBContainer } from '@testcontainers/mongodb'
 import express, { Express } from 'express'
@@ -14,8 +15,6 @@ import defaultErrorHandler from '../../src/middlewares/errorHandler.middleware'
 import '../../src/middlewares/passportJwt.middleware'
 import questionSchema from '../../src/models/question.model'
 import questionRouter from '../../src/routes/question.routes'
-import { Category } from '../../src/types/Category'
-import { Complexity } from '../../src/types/Complexity'
 import { IQuestion } from '../../src/types/IQuestion'
 import { QuestionDto } from '../../src/types/QuestionDto'
 

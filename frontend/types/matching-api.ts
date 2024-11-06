@@ -1,4 +1,5 @@
-import { Category, Complexity, Proficiency } from '@repo/user-types'
+import { Category, Complexity } from '@repo/question-types'
+import { Proficiency } from '@repo/user-types'
 
 export interface IPostMatching {
     userId: string

@@ -1,6 +1,5 @@
+import { Category, Complexity, SortedComplexity } from '@repo/question-types'
 import { Schema } from 'mongoose'
-import { Category } from '../types/Category'
-import { Complexity } from '../types/Complexity'
 import { IQuestion } from '../types/IQuestion'
 
 const questionSchema = new Schema<IQuestion>(
@@ -47,13 +46,13 @@ const questionSchema = new Schema<IQuestion>(
                         return `1${Complexity.EASY}`
                 }
             },
-            get: (value: string): Complexity => {
+            get: (value: SortedComplexity): Complexity => {
                 switch (value) {
-                    case '1EASY':
+                    case SortedComplexity.EASY:
                         return Complexity.EASY
-                    case '2MEDIUM':
+                    case SortedComplexity.MEDIUM:
                         return Complexity.MEDIUM
-                    case '3HARD':
+                    case SortedComplexity.HARD:
                         return Complexity.HARD
                     default:
                         return Complexity.EASY

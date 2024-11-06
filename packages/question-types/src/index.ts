@@ -1,3 +1,5 @@
+export * from './Category'
+export * from './Complexity'
 export * from './IQuestionCountsDto'
 export * from './IQuestionDto'
 export * from './SortedComplexity'

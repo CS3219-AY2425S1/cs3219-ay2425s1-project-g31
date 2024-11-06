@@ -8,33 +8,39 @@ import { RecentSessions } from '@/components/dashboard/recent-sessions'
 import ResumeSession from '@/components/dashboard/resume-session'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { getOngoingMatch } from '@/services/matching-service-api'
+import { Complexity } from '@repo/question-types'
 import { IMatch } from '@repo/user-types'
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import { getQuestionCountsRequest } from '../services/question-service-api'
 
 export default function Home() {
-    const progressData = [
+    const [progressData, setProgressData] = useState([
         {
-            complexity: 'Easy',
-            score: '10/20',
-            progress: 50,
+            complexity: Complexity.EASY,
+            completed: 0,
+            total: 0,
+            progress: 0,
             indicatorColor: 'bg-green-700',
             backgroundColor: 'bg-green-500',
         },
         {
-            complexity: 'Medium',
-            score: '15/27',
-            progress: 60,
+            complexity: Complexity.MEDIUM,
+            completed: 0,
+            total: 0,
+            progress: 0,
             indicatorColor: 'bg-amber-500',
             backgroundColor: 'bg-amber-300',
         },
         {
-            complexity: 'Hard',
-            score: '5/19',
-            progress: 20,
+            complexity: Complexity.HARD,
+            completed: 0,
+            total: 0,
+            progress: 0,
             indicatorColor: 'bg-red-500',
             backgroundColor: 'bg-red-400',
         },
-    ]
+    ])
 
     const { session, loading } = useProtectedRoute()
     const [ongoingMatchData, setOngoingMatchData] = useState<IMatch | null>()
@@ -52,6 +58,16 @@ export default function Home() {
         },
         showCancelButton: false,
     })
+
+    const loadProgressData = async () => {
+        try {
+            const data = await getQuestionCountsRequest()
+            if (data) {
+            }
+        } catch (error) {
+            toast.error('Failed to fetch progress: ' + error)
+        }
+    }
 
     const checkOngoingSession = async () => {
         if (!session?.user?.id) return
@@ -92,16 +108,19 @@ export default function Home() {
         <div className="my-4">
             <h2 className="text-xl font-bold my-6">Welcome Back, {session?.user.username}</h2>
             <div className="flex flex-row justify-evenly -mx-2">
-                {progressData.map(({ complexity, score, progress, indicatorColor, backgroundColor }, index) => (
-                    <ProgressCard
-                        key={index}
-                        complexity={complexity}
-                        score={score}
-                        progress={progress}
-                        indicatorColor={indicatorColor}
-                        backgroundColor={backgroundColor}
-                    />
-                ))}
+                {progressData.map(
+                    ({ complexity, completed, total, progress, indicatorColor, backgroundColor }, index) => (
+                        <ProgressCard
+                            key={index}
+                            complexity={complexity}
+                            completed={completed}
+                            total={total}
+                            progress={progress}
+                            indicatorColor={indicatorColor}
+                            backgroundColor={backgroundColor}
+                        />
+                    )
+                )}
             </div>
             <div className="flex flex-row justify-between my-4">
                 {ongoingMatchData ? (
