@@ -286,34 +286,34 @@ class RabbitMQConnection {
                     complexity: content.complexity,
                 }
 
-                // Attempts to create match
-                const createdMatch = await handleCreateMatch(
-                    match as IMatch,
-                    content.websocketId,
-                    matchedUserContent.websocketId
-                )
+                const createMatchAndSession = async () => {
+                    const createdMatch = await handleCreateMatch(
+                        match as IMatch,
+                        content.websocketId,
+                        matchedUserContent.websocketId
+                    )
+                    if (!createdMatch) {
+                        logger.error('[Entry-Queue] Failed to create a match')
+                        return
+                    }
 
-                const errors: string[] = []
-
-                if (!createdMatch) {
-                    // Failed to create match, remove from set and ask user to retry
-                    // INSERT: FE show failed to match dialog
-                    errors.push('Failed to create a match')
+                    const createdSession = await handleCreateSession(
+                        createdMatch,
+                        content.websocketId,
+                        matchedUserContent.websocketId
+                    )
+                    if (!createdSession) {
+                        logger.error('[Entry-Queue] Failed to create a session')
+                        return
+                    }
+                    logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
                 }
 
-                // Attempts to create session
-                const createdSession = await handleCreateSession(
-                    createdMatch,
-                    content.websocketId,
-                    matchedUserContent.websocketId
-                )
-                if (!createdSession) {
-                    // Failed to create session, remove from set and ask user to retry
-                    // Insert: FE show failed to create session dialog
-                    errors.push('Failed to create session')
-                }
+                // Create match and session
+                createMatchAndSession()
+
+                // Remove users from set
                 this.removeMatchFromSets(content, matchedUserContent)
-                logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
             }
         } catch (error) {
             logger.error(`[Entry-Queue] Issue checking with Waiting-Queue: ${error}`)
