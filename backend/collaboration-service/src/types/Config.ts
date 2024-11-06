@@ -8,6 +8,10 @@ export class Config {
     @IsNotEmpty()
     PORT: string
 
+    @IsNumberString()
+    @IsNotEmpty()
+    WS_PORT: string
+
     @IsString()
     @IsNotEmpty()
     DB_URL: string
@@ -30,6 +34,7 @@ export class Config {
     constructor(
         NODE_ENV: string,
         PORT: string,
+        WS_PORT: string,
         DB_URL: string,
         ACCESS_TOKEN_PUBLIC_KEY: string,
         USER_SERVICE_URL: string,
@@ -38,7 +43,8 @@ export class Config {
         JUDGE_ZERO_URL: string
     ) {
         this.NODE_ENV = NODE_ENV ?? 'development'
-        this.PORT = PORT ?? '3006'
+        this.WS_PORT = WS_PORT ?? '3009'
+        this.PORT = PORT ?? '3008'
         this.DB_URL = DB_URL
         this.ACCESS_TOKEN_PUBLIC_KEY = ACCESS_TOKEN_PUBLIC_KEY
         this.USER_SERVICE_URL = USER_SERVICE_URL
@@ -51,6 +57,7 @@ export class Config {
         return new Config(
             env.NODE_ENV!,
             env.PORT!,
+            env.WS_PORT!,
             env.DB_URL!,
             env.ACCESS_TOKEN_PUBLIC_KEY!,
             env.USER_SERVICE_URL!,

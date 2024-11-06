@@ -83,7 +83,7 @@ export const NewSession = () => {
         }
 
         const socket = new WebSocket(
-            `${process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3006'}/matching/ws/?id=${websocketId}`
+            process.env.NEXT_PUBLIC_API_URL?.concat(`/matching/ws/?id=${websocketId}`) ?? 'ws://localhost:3006'
         )
         socketRef.current = socket
         socketRef.current.onclose = () => {
