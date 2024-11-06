@@ -7,8 +7,13 @@ import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { columns } from './columns'
 import { toast } from 'sonner'
 import { getSessionsRequest } from '@/services/session-service-api'
+import { Button } from '@/components/ui/button'
+import ConfirmDialog, { ConfirmDialogProps } from '@/components/customs/confirm-dialog'
+import { getOngoingMatch } from '@/services/matching-service-api'
+import { useRouter } from 'next/router'
 
 export default function Sessions() {
+    const router = useRouter()
     const [data, setData] = useState<ISession[]>([])
     const [pagination, setPagination] = useState<IPagination>({
         totalPages: 10,
@@ -20,9 +25,30 @@ export default function Sessions() {
         sortKey: 'id',
         direction: SortDirection.NONE,
     })
+    const [ongoingSession, setOngoingSession] = useState<string>('')
+    const [dialog, setDialog] = useState<ConfirmDialogProps>({
+        dialogData: {
+            isOpen: false,
+            title: 'Session Over',
+            content: 'Uh oh, looks like the collaborator has left the session. Please start a new session!',
+        },
+        closeHandler: () => {
+            handleConfirmSessionOver()
+        },
+        confirmHandler: () => {
+            handleConfirmSessionOver()
+        },
+        showCancelButton: false,
+    })
+
+    const handleConfirmSessionOver = () => {
+        setDialog((prev) => ({ ...prev, dialogData: { ...prev.dialogData, isOpen: false } }))
+        setOngoingSession('')
+    }
 
     useEffect(() => {
         loadData()
+        checkOngoingSession()
     }, [])
 
     const { session, loading } = useProtectedRoute()
@@ -73,6 +99,24 @@ export default function Sessions() {
         await load(body)
     }
 
+    const checkOngoingSession = async () => {
+        if (!session?.user?.id) return
+        const matchData = await getOngoingMatch(session.user.id)
+        if (matchData) {
+            setOngoingSession(matchData.id)
+        }
+    }
+
+    const handleResume = async () => {
+        if (!session?.user?.id) return
+        const matchData = await getOngoingMatch(session.user.id)
+        if (matchData) {
+            router.push(`/code/${matchData.id}`)
+        } else {
+            setDialog((prev) => ({ ...prev, dialogData: { ...prev.dialogData, isOpen: true } }))
+        }
+    }
+
     if (loading)
         return (
             <div className="flex flex-col h-screen w-screen items-center justify-center">
@@ -82,7 +126,14 @@ export default function Sessions() {
 
     return (
         <div className="m-8">
-            <h2 className="text-xl font-bold mb-4">Sessions</h2>
+            <div className="flex justify-between mb-4 items-center">
+                <h2 className="text-xl font-bold">Sessions</h2>
+                {ongoingSession && (
+                    <Button variant="primary" onClick={handleResume}>
+                        Resume
+                    </Button>
+                )}
+            </div>
             <Datatable
                 data={data}
                 columns={columns}
@@ -93,6 +144,7 @@ export default function Sessions() {
                 sortHandler={sortHandler}
                 actionsHandler={() => {}}
             />
+            <ConfirmDialog {...dialog} />
         </div>
     )
 }

@@ -9,6 +9,7 @@ import { MatchDto } from '../types/MatchDto'
 import {
     createMatch,
     findMatchCount,
+    findOngoingMatch,
     findPaginatedMatches,
     findPaginatedMatchesWithSort,
     getMatchByUserIdandMatchId,
@@ -145,5 +146,16 @@ export async function handleGetPaginatedSessions(request: IPaginationRequest, re
             limit,
         },
         sessions: matches.map(MatchDto.fromModel),
+    })
+}
+
+export async function handleIsUserInMatch(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
+    if (!request.query.userId) {
+        response.status(400).send('MISSING_USER_ID')
+        return
+    }
+    const userMatch = await findOngoingMatch(request.query.userId.toString())
+    response.status(200).send({
+        data: userMatch,
     })
 }

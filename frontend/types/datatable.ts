@@ -3,6 +3,11 @@ interface IRowData {
     [key: string]: any
 }
 
+interface ICustomActionProp {
+    onClick: (elem: IRowData) => () => void
+    customActionIcon: React.ReactNode
+}
+
 interface IDatatableColumn {
     key: string
     label?: string
@@ -14,6 +19,7 @@ interface IDatatableColumn {
     sortingFn?: (value: any) => any
     isEdit?: boolean
     isDelete?: boolean
+    customAction?: ICustomActionProp
     offAutoCapitalize?: boolean
 }
 

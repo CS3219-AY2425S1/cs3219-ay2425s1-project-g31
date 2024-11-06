@@ -1,5 +1,6 @@
 import axios from 'axios'
 import axiosClient from './axios-middleware'
+import { IMatch } from '@repo/user-types'
 
 const axiosInstance = axiosClient.matchingServiceAPI
 
@@ -30,5 +31,20 @@ export const getMatchDetails = async (matchId: string): Promise<any | undefined>
         } else {
             throw { message: 'An unexpected error occurred' }
         }
+    }
+}
+
+export const getOngoingMatch = async (userId: string): Promise<IMatch | null> => {
+    try {
+        const res = await axiosInstance.get(`/matching/current`, {
+            params: {
+                userId,
+            },
+        })
+        res.data.id = res.data._id
+        const match: IMatch = res.data
+        return match || null
+    } catch (error) {
+        return null
     }
 }
