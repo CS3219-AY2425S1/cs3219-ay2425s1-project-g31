@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
 import { getChatHistory } from '@/services/collaboration-service-api'
 import { IChat } from '@/types/collaboration-api'
+import { toast } from 'sonner'
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -26,9 +27,8 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
                 return
             }
             const response = await getChatHistory(matchId).catch((_) => {
-                router.push('/')
+                toast.error('Failed to fetch chat history')
             })
-            console.log('Chat history', response)
             setChatData(response)
         })()
     }, [router])
