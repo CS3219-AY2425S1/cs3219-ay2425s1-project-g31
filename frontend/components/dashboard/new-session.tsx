@@ -116,10 +116,12 @@ export const NewSession = () => {
                             executionResult: '',
                             chatHistory: [],
                         }
-                        await createCollabSession(data)
-                        setTimeout(() => {
-                            router.push(`/code/${newMessage.matchId}`)
-                        }, 1000)
+                        const res = await createCollabSession(data)
+                        if (!res) {
+                            toast.error('Failed to create a new session')
+                            return
+                        }
+                        router.push(`/code/${newMessage.matchId}`)
                         break
                     case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
