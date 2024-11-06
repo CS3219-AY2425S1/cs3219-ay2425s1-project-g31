@@ -62,8 +62,8 @@ export const getQuestionbyIDRequest = async (id: string): Promise<IQuestion | un
 // GET /questions/complexity/count
 export const getQuestionCountsRequest = async (): Promise<IQuestionCountsDto | undefined> => {
     try {
-        const { data } = await axiosInstance.get<IQuestionCountsDto>(`/questions/complexity/count`)
-        return data
+        const response: IQuestionCountsDto = await axiosInstance.get(`/questions/complexity/count`)
+        return response
     } catch (error) {
         if (axios.isAxiosError(error)) {
             throw new Error('An unexpected error occurred: ' + error.message)

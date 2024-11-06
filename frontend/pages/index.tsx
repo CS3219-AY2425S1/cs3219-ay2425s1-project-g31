@@ -61,8 +61,19 @@ export default function Home() {
 
     const loadProgressData = async () => {
         try {
-            const data = await getQuestionCountsRequest()
-            if (data) {
+            const response = await getQuestionCountsRequest()
+            console.log(response)
+            if (response) {
+                const { data } = response
+                setProgressData((oldProgressData) => {
+                    return oldProgressData.map((oldData) => {
+                        const { complexity } = oldData
+                        const completed = 0
+                        const total = data?.find((item) => item.complexity === complexity)?.count || 0
+                        const progress = completed / total
+                        return { ...oldData, completed, total, progress }
+                    })
+                })
             }
         } catch (error) {
             toast.error('Failed to fetch progress: ' + error)
@@ -95,6 +106,7 @@ export default function Home() {
 
     useEffect(() => {
         checkOngoingSession()
+        loadProgressData()
     }, [])
 
     if (loading)
