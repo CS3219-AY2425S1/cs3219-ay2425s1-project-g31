@@ -62,7 +62,6 @@ export default function Home() {
     const loadProgressData = async () => {
         try {
             const response = await getQuestionCountsRequest()
-            console.log(response)
             if (response) {
                 const { data } = response
                 setProgressData((oldProgressData) => {
