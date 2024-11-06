@@ -1,11 +1,14 @@
+import { NextRouter } from 'next/router'
+
 interface IRowData {
     id?: string
     [key: string]: any
 }
 
 interface ICustomActionProp {
-    onClick: (elem: IRowData) => () => void
-    customActionIcon: React.ReactNode
+    onClick?: (elem: IRowData) => void
+    customActionIcon?: React.ReactNode
+    formatter?: (value: IRowData, router: NextRouter) => React.ReactNode
 }
 
 interface IDatatableColumn {

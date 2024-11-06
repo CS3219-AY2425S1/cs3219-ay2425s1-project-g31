@@ -4,6 +4,7 @@ import CustomSelect from './custom-select'
 import { DeleteIcon, EditIcon, LeftIcon, RightIcon } from '@/assets/icons'
 import { Button } from '../ui/button'
 import SortIcon from './sort-icon'
+import { useRouter } from 'next/router'
 
 export default function Datatable({
     data,
@@ -16,6 +17,7 @@ export default function Datatable({
     actionsHandler,
 }: IDatatableProps) {
     const pageOptions = [5, 10, 20, 50]
+    const router = useRouter()
 
     const handleSort = (key: string) => {
         if (sortBy?.sortKey === key) {
@@ -127,17 +129,19 @@ export default function Datatable({
                                                     <DeleteIcon />
                                                 </Button>
                                             )}
-                                            {col.customAction && col.customAction.onClick(elem) && (
+                                            {col.customAction && col.customAction.formatter ? (
+                                                col.customAction.formatter(elem, router)
+                                            ) : (
                                                 <Button
                                                     variant="iconNoBorder"
                                                     size="icon"
                                                     onClick={() => {
-                                                        if (col.customAction) {
+                                                        if (col.customAction && col.customAction.onClick) {
                                                             col.customAction.onClick(elem)
                                                         }
                                                     }}
                                                 >
-                                                    {col.customAction.customActionIcon}
+                                                    {col.customAction?.customActionIcon}
                                                 </Button>
                                             )}
                                         </TableCell>

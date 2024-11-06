@@ -11,6 +11,7 @@ interface ISession {
 }
 
 interface ISessionDto {
+    _id: string
     isCompleted: string
     complexity: string
     time: number
@@ -56,6 +57,7 @@ export class SessionManager {
                 collaboratorName: getCollaborator(session.user1Name, session.user2Name),
                 question: session.question?.title,
                 createdAt: session.createdAt,
+                _id: session._id,
             }
         })
     }
