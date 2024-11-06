@@ -1,4 +1,9 @@
-import { Category, Complexity } from '@repo/question-types'
+import {
+    Category,
+    convertComplexityToSortedComplexity,
+    convertSortedComplexityToComplexity,
+    SortedComplexity,
+} from '@repo/question-types'
 import { IMatch } from '@repo/user-types'
 import { Schema } from 'mongoose'
 
@@ -29,44 +34,11 @@ const matchSchema = new Schema<IMatch>({
     },
     complexity: {
         type: String,
-        enum: Object.values(Complexity).map((value: Complexity): string => {
-            switch (value) {
-                case Complexity.EASY:
-                    return `1${value}`
-                case Complexity.MEDIUM:
-                    return `2${value}`
-                case Complexity.HARD:
-                    return `3${value}`
-                default:
-                    return `1${Complexity.EASY}`
-            }
-        }),
+        enum: SortedComplexity,
         required: true,
         // We need to prepend a number to the enum values so that their lexicographical ordering is the same as their logical ordering when they are sorted by the index
-        set: (value: Complexity): string => {
-            switch (value) {
-                case Complexity.EASY:
-                    return `1${value}`
-                case Complexity.MEDIUM:
-                    return `2${value}`
-                case Complexity.HARD:
-                    return `3${value}`
-                default:
-                    return `1${Complexity.EASY}`
-            }
-        },
-        get: (value: string): Complexity => {
-            switch (value) {
-                case '1EASY':
-                    return Complexity.EASY
-                case '2MEDIUM':
-                    return Complexity.MEDIUM
-                case '3HARD':
-                    return Complexity.HARD
-                default:
-                    return Complexity.EASY
-            }
-        },
+        set: convertComplexityToSortedComplexity,
+        get: convertSortedComplexityToComplexity,
     },
     category: {
         type: String,
