@@ -4,10 +4,10 @@ import { createSessionRequest, getChatHistory, getSession } from '../controllers
 
 const router = Router()
 
+// Temporarily needs to be disabled to use post
 router.use(passport.authenticate('jwt', { session: false }))
 
-// To change this route to enable retrival of sessions with pagination
-router.put('/', createSessionRequest)
+router.post('/', createSessionRequest)
 router.get('/:id', getSession)
 router.get('/chat/:id', getChatHistory)
 

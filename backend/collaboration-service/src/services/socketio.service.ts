@@ -2,10 +2,9 @@ import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
 import { updateChatHistory, updateLanguage } from '../models/collab.repository'
-import { LanguageMode } from '../types/LanguageMode'
-import { ChatModel } from '../types'
+import { LanguageMode, ChatModel } from '@repo/collaboration-types'
+import { SubmissionResponseDto } from '../types'
 import { IResponse, ISubmission } from '@repo/submission-types'
-import { SubmissionResponseDto } from '../types/SubmissionResponseDto'
 import { submitCode } from '../controllers/collab.controller'
 
 export class WebSocketConnection {

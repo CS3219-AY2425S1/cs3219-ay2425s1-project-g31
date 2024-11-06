@@ -1,8 +1,7 @@
 import { Model, model } from 'mongoose'
-import { CollabDto } from '../types/CollabDto'
+import { CollabDto } from '../types'
 import collabSchema from './collab.model'
-import { ChatModel } from '../types'
-import { LanguageMode } from '../types/LanguageMode'
+import { LanguageMode, ChatModel } from '@repo/collaboration-types'
 
 const collabModel: Model<CollabDto> = model('collab', collabSchema)
 

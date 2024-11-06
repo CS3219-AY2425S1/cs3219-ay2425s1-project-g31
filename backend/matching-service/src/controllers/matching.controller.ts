@@ -5,6 +5,7 @@ import { Response } from 'express'
 import { wsConnection } from '../server'
 import mqConnection from '../services/rabbitmq.service'
 import { IMatch } from '@repo/user-types'
+import { ICollabDto, LanguageMode } from '@repo/collaboration-types'
 import { MatchDto } from '../types/MatchDto'
 import {
     createMatch,
@@ -20,7 +21,9 @@ import {
 import { getRandomQuestion } from '../services/matching.service'
 import { convertComplexityToSortedComplexity } from '@repo/question-types'
 import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
-import loggerUtil from '../common/logger.util'
+import axios from 'axios'
+import config from '../common/config.util'
+import logger from '../common/logger.util'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
@@ -60,27 +63,53 @@ export async function removeUserFromMatchingQueue(websocketId: string, userId: s
 
 export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string): Promise<IMatch | undefined> {
     const isAnyUserInMatch = (await isUserInMatch(data.user1Id)) || (await isUserInMatch(data.user2Id))
+
     if (isAnyUserInMatch) {
         wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
-    let question = undefined
-    try {
-        question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
-    } catch (error) {
-        loggerUtil.error('Error while fetching question', error)
+
+    const question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+
+    if (!question) {
+        logger.error('[Matching-Service] Could not get a random question')
         return
     }
 
     const createDto = MatchDto.fromJSON({ ...data, question })
     const errors = await createDto.validate()
+
     if (errors.length) {
+        logger.error('[Matching-Service] Invalid match data')
         return
     }
+
     const dto = await createMatch(createDto)
-    wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
-    wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
+
+    if (!dto) {
+        logger.error('[Matching-Service] Failed to create match')
+        return
+    }
+
     return dto
+}
+
+export async function handleCreateSession(matchDto: IMatch, ws1: string, ws2: string): Promise<ICollabDto> {
+    const session = await axios.post(`${config.COLLABORATION_SERVICE_URL}/collab`, {
+        matchId: matchDto.id,
+        language: LanguageMode.Javascript,
+    })
+
+    if (!session) {
+        logger.error('[Matching Service] Failed to create session on collaboration service')
+        return
+    }
+
+    const message = JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: matchDto.id })
+    wsConnection.sendMessageToUser(ws1, message)
+    wsConnection.sendMessageToUser(ws2, message)
+
+    return session.data
 }
 
 export async function getMatchDetails(request: ITypedBodyRequest<void>, response: Response): Promise<void> {

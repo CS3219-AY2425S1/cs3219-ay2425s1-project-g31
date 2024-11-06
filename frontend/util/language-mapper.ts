@@ -1,4 +1,4 @@
-import { LanguageMode } from '@/types'
+import { LanguageMode } from '@repo/collaboration-types'
 
 export function mapLanguageToJudge0(language: LanguageMode): number {
     switch (language) {

@@ -34,6 +34,7 @@
         "@repo/typescript-config": "*",
         "@repo/user-types": "*",
         "@repo/ws-types": "*",
+        "@repo/collaboration-types": "*",
         "@repo/question-types": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/amqplib": "^0.10.5",

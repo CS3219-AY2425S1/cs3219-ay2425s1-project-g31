@@ -2,14 +2,15 @@ import { ValidationError } from 'class-validator'
 import { Request, Response } from 'express'
 import { ITypedBodyRequest } from '@repo/request-types'
 import { ISubmission } from '@repo/submission-types'
-import { SubmissionRequestDto } from '../types/SubmissionRequestDto'
-import { SubmissionResponseDto } from '../types/SubmissionResponseDto'
-import { CollabDto } from '../types/CollabDto'
+import { CollabDto, SubmissionRequestDto, SubmissionResponseDto } from '../types'
 import { createSession, getSessionById } from '../models/collab.repository'
 import judgeZero from '../services/judgezero.service'
 
-export async function createSessionRequest(request: ITypedBodyRequest<CollabDto>, response: Response): Promise<void> {
-    const collabDto = CollabDto.fromRequest(request)
+export async function createSessionRequest(
+    request: ITypedBodyRequest<Partial<CollabDto>>,
+    response: Response
+): Promise<void> {
+    const collabDto = CollabDto.fromCreateRequest(request)
     const errors = await collabDto.validate()
     if (errors.length) {
         const errorMessages = errors.flatMap((error: ValidationError) => Object.values(error.constraints))
