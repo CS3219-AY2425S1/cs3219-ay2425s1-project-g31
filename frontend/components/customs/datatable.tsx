@@ -127,6 +127,19 @@ export default function Datatable({
                                                     <DeleteIcon />
                                                 </Button>
                                             )}
+                                            {col.customAction && col.customAction.onClick(elem) && (
+                                                <Button
+                                                    variant="iconNoBorder"
+                                                    size="icon"
+                                                    onClick={() => {
+                                                        if (col.customAction) {
+                                                            col.customAction.onClick(elem)
+                                                        }
+                                                    }}
+                                                >
+                                                    {col.customAction.customActionIcon}
+                                                </Button>
+                                            )}
                                         </TableCell>
                                     )
                                 }
