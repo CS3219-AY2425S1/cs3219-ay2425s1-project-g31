@@ -285,12 +285,20 @@ class RabbitMQConnection {
                     category: content.topic,
                     complexity: content.complexity,
                 }
-                await handleCreateMatch(match as IMatch, content.websocketId, matchedUserContent.websocketId)
+                const res = await handleCreateMatch(
+                    match as IMatch,
+                    content.websocketId,
+                    matchedUserContent.websocketId
+                )
                 this.currentUsers.delete(content.userId)
                 this.currentUsers.delete(matchedUserContent.userId)
                 this.cancelledUsers.delete(content.websocketId)
                 this.cancelledUsers.delete(matchedUserContent.websocketId)
-                logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
+                if (!res) {
+                    logger.error(`[Match] Failed to create match: ${JSON.stringify(match)}`)
+                } else {
+                    logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
+                }
             }
         } catch (error) {
             logger.error(`[Entry-Queue] Issue checking with Waiting-Queue: ${error}`)

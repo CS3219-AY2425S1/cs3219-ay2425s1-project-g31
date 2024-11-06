@@ -20,6 +20,7 @@ import {
 import { getRandomQuestion } from '../services/matching.service'
 import { convertComplexityToSortedComplexity } from '@repo/question-types'
 import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
+import loggerUtil from '../common/logger.util'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
@@ -57,23 +58,24 @@ export async function removeUserFromMatchingQueue(websocketId: string, userId: s
     wsConnection.sendMessageToUser(websocketId, JSON.stringify({ type: WebSocketMessageType.CANCEL }))
 }
 
-export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string): Promise<IMatch> {
+export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string): Promise<IMatch | undefined> {
     const isAnyUserInMatch = (await isUserInMatch(data.user1Id)) || (await isUserInMatch(data.user2Id))
     if (isAnyUserInMatch) {
         wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
-
-    const question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
-
-    if (!question) {
-        throw new Error('Question not found')
+    let question = undefined
+    try {
+        question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+    } catch (error) {
+        loggerUtil.error('Error while fetching question', error)
+        return
     }
 
     const createDto = MatchDto.fromJSON({ ...data, question })
     const errors = await createDto.validate()
     if (errors.length) {
-        throw new Error('Invalid match data')
+        return
     }
     const dto = await createMatch(createDto)
     wsConnection.sendMessageToUser(ws1, JSON.stringify({ type: WebSocketMessageType.SUCCESS, matchId: dto.id }))
