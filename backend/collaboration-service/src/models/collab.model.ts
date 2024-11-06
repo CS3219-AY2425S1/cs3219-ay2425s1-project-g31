@@ -1,6 +1,6 @@
 import { Schema } from 'mongoose'
 import { CollabDto } from '../types/CollabDto'
-import { LanguageMode } from '../types/LanguageMode'
+import { LanguageMode } from '@repo/collaboration-types'
 import chatModelSchema from './chat.model'
 
 const collabSchema = new Schema<CollabDto>({

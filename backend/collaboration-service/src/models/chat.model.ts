@@ -1,5 +1,5 @@
 import { Schema } from 'mongoose'
-import { ChatModel } from '../types'
+import { ChatModel } from '@repo/collaboration-types'
 
 const chatModelSchema = new Schema<ChatModel>({
     senderId: {

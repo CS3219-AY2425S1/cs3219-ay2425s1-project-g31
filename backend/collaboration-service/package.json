@@ -41,6 +41,7 @@
         "@repo/request-types": "*",
         "@repo/submission-types": "*",
         "@repo/typescript-config": "*",
+        "@repo/collaboration-types": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/bcrypt": "^5.0.2",
         "@types/cors": "^2.8.17",

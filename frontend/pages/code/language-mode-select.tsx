@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select'
-import { LanguageMode } from '@/types/language-mode'
+import { LanguageMode } from '@repo/collaboration-types'
 import { CsharpIcon, GolangIcon, JavaIcon, JavascriptIcon, PythonIcon, RubyIcon, TypeScriptIcon } from '@/assets/icons'
 
 interface LanguageModeSelectProps {
