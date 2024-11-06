@@ -4,7 +4,8 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import * as socketIO from 'socket.io-client'
 import { getChatHistory } from '@/services/collaboration-service-api'
-import { IChat } from '@/types/collaboration-api'
+import { ChatModel } from '@repo/collaboration-types'
+import { toast } from 'sonner'
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
@@ -12,7 +13,7 @@ const formatTimestamp = (timestamp: string) => {
 }
 
 const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef }) => {
-    const [chatData, setChatData] = useState<IChat[]>()
+    const [chatData, setChatData] = useState<ChatModel[]>()
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
     const router = useRouter()
@@ -25,17 +26,17 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
             if (!matchId) {
                 return
             }
-            const response = await getChatHistory(matchId).catch((_) => {
-                router.push('/')
-            })
-            console.log('Chat history', response)
+            const response = await getChatHistory(matchId)
+            if (!response) {
+                toast.error('Failed to fetch chat history')
+            }
             setChatData(response)
         })()
     }, [router])
 
     useEffect(() => {
         if (socketRef?.current) {
-            socketRef.current.on('receive_message', (data: IChat) => {
+            socketRef.current.on('receive_message', (data: ChatModel) => {
                 console.log('Got a msg', data)
                 setChatData((prev) => {
                     return [...(prev ?? []), data]
@@ -74,7 +75,7 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
         if (!session || !socketRef?.current) return
 
         if (message.trim()) {
-            const msg: IChat = {
+            const msg: ChatModel = {
                 message: message,
                 senderId: session.user.username,
                 createdAt: new Date(),

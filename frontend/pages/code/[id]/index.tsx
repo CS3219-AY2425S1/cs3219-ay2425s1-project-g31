@@ -1,5 +1,5 @@
 import { EndIcon, PlayIcon } from '@/assets/icons'
-import { LanguageMode, getCodeMirrorLanguage } from '@/types'
+import { LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -47,6 +47,7 @@ export default function Code() {
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
         if (!matchId) {
+            router.push('/')
             return
         }
         const response = await getMatchDetails(matchId).catch((_) => {

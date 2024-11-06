@@ -2,7 +2,7 @@ import client, { Channel, Connection, ConsumeMessage, GetMessage } from 'amqplib
 import config from '../common/config.util'
 import logger from '../common/logger.util'
 import { Proficiency, IMatch } from '@repo/user-types'
-import { handleCreateMatch } from '../controllers/matching.controller'
+import { handleCreateMatch, handleCreateSession } from '../controllers/matching.controller'
 import { wsConnection } from '../server'
 import { IUserQueueMessage } from '../types/IUserQueueMessage'
 
@@ -276,7 +276,7 @@ class RabbitMQConnection {
             }
 
             if (matchedUser) {
-                const matchedUserContent = JSON.parse(matchedUser.content.toString())
+                const matchedUserContent: IUserQueueMessage = JSON.parse(matchedUser.content.toString())
                 const match: Partial<IMatch> = {
                     user1Id: content.userId,
                     user1Name: content.userName,
@@ -285,20 +285,35 @@ class RabbitMQConnection {
                     category: content.topic,
                     complexity: content.complexity,
                 }
-                const res = await handleCreateMatch(
-                    match as IMatch,
-                    content.websocketId,
-                    matchedUserContent.websocketId
-                )
-                this.currentUsers.delete(content.userId)
-                this.currentUsers.delete(matchedUserContent.userId)
-                this.cancelledUsers.delete(content.websocketId)
-                this.cancelledUsers.delete(matchedUserContent.websocketId)
-                if (!res) {
-                    logger.error(`[Match] Failed to create match: ${JSON.stringify(match)}`)
-                } else {
+
+                const createMatchAndSession = async () => {
+                    const createdMatch = await handleCreateMatch(
+                        match as IMatch,
+                        content.websocketId,
+                        matchedUserContent.websocketId
+                    )
+                    if (!createdMatch) {
+                        logger.error('[Entry-Queue] Failed to create a match')
+                        return
+                    }
+
+                    const createdSession = await handleCreateSession(
+                        createdMatch,
+                        content.websocketId,
+                        matchedUserContent.websocketId
+                    )
+                    if (!createdSession) {
+                        logger.error('[Entry-Queue] Failed to create a session')
+                        return
+                    }
                     logger.info(`[Match] Match created and stored successfully: ${JSON.stringify(match)}`)
                 }
+
+                // Create match and session
+                createMatchAndSession()
+
+                // Remove users from set
+                this.removeMatchFromSets(content, matchedUserContent)
             }
         } catch (error) {
             logger.error(`[Entry-Queue] Issue checking with Waiting-Queue: ${error}`)
@@ -361,6 +376,13 @@ class RabbitMQConnection {
             'x-dead-letter-exchange': 'dlx',
             'x-dead-letter-routing-key': 'dlx-key',
         }
+    }
+
+    private removeMatchFromSets(content: IUserQueueMessage, matchedUserContent: IUserQueueMessage) {
+        this.currentUsers.delete(content.userId)
+        this.currentUsers.delete(matchedUserContent.userId)
+        this.cancelledUsers.delete(content.websocketId)
+        this.cancelledUsers.delete(matchedUserContent.websocketId)
     }
 }
 

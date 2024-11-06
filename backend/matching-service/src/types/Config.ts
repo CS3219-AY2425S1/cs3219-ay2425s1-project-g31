@@ -21,6 +21,9 @@ export class Config {
     @IsUrl({ require_tld: false })
     QUESTION_SERVICE_URL: string
 
+    @IsUrl({ require_tld: false })
+    COLLABORATION_SERVICE_URL: string
+
     @IsString()
     RMQ_USER: string
 
@@ -37,6 +40,7 @@ export class Config {
         ACCESS_TOKEN_PUBLIC_KEY: string,
         USER_SERVICE_URL: string,
         QUESTION_SERVICE_URL: string,
+        MATCHING_SERVICE_URL: string,
         RMQ_USER: string,
         RMQ_PASSWORD: string,
         RMQ_HOST: string
@@ -47,6 +51,7 @@ export class Config {
         this.ACCESS_TOKEN_PUBLIC_KEY = ACCESS_TOKEN_PUBLIC_KEY
         this.USER_SERVICE_URL = USER_SERVICE_URL
         this.QUESTION_SERVICE_URL = QUESTION_SERVICE_URL
+        this.COLLABORATION_SERVICE_URL = MATCHING_SERVICE_URL
         this.RMQ_USER = RMQ_USER || 'guest'
         this.RMQ_PASSWORD = RMQ_PASSWORD || 'guest'
         this.RMQ_HOST = RMQ_HOST
@@ -60,6 +65,7 @@ export class Config {
             env.ACCESS_TOKEN_PUBLIC_KEY!,
             env.USER_SERVICE_URL!,
             env.QUESTION_SERVICE_URL!,
+            env.COLLABORATION_SERVICE_URL!,
             env.RMQ_USER!,
             env.RMQ_PASSWORD!,
             env.RMQ_HOST!

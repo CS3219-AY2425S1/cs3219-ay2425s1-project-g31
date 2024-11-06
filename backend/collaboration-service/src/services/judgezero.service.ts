@@ -17,7 +17,7 @@ class JudgeZero {
         // Request Interceptor
         this.axiosInstance.interceptors.request.use(
             (config: InternalAxiosRequestConfig) => {
-                console.log(`Requesting [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`)
+                logger.info(`Requesting [${config.method?.toUpperCase()}] ${config.baseURL}${config.url}`)
                 return config
             },
             (error) => {
