@@ -41,6 +41,7 @@ export const getOngoingMatch = async (userId: string): Promise<IMatch | null> =>
                 userId,
             },
         })
+        res.data.id = res.data._id
         const match: IMatch = res.data
         return match || null
     } catch (error) {
