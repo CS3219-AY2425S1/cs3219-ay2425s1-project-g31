@@ -42,8 +42,10 @@
         "tailwindcss-animate": "^1.0.7"
     },
     "devDependencies": {
+        "@netlify/plugin-nextjs": "^5.8.1",
         "@repo/eslint-config": "*",
         "@repo/typescript-config": "*",
+        "@repo/user-types": "*",
         "@testing-library/dom": "^10.4.0",
         "@testing-library/jest-dom": "^6.5.0",
         "@testing-library/react": "^16.0.1",
