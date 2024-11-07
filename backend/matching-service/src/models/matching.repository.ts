@@ -34,6 +34,7 @@ export async function findPaginatedMatches(start: number, limit: number, userId:
         .find({
             $or: [{ user1Id: userId }, { user2Id: userId }],
         })
+        .sort([['createdAt', 'desc']])
         .limit(limit)
         .skip(start)
 }
