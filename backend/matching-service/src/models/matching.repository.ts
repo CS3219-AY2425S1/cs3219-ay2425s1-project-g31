@@ -1,7 +1,8 @@
-import { Model, model, SortOrder } from 'mongoose'
-import matchSchema from './matching.model'
+import { convertSortedComplexityToComplexity, IQuestionCountsDto, SortedComplexity } from '@repo/question-types'
 import { IMatch } from '@repo/user-types'
+import { Model, model, SortOrder } from 'mongoose'
 import { MatchDto } from '../types/MatchDto'
+import matchSchema from './matching.model'
 
 const matchModel: Model<IMatch> = model('Match', matchSchema)
 
@@ -51,6 +52,45 @@ export async function findPaginatedMatchesWithSort(
         .sort(sortBy.map(([key, order]): [string, SortOrder] => [key, order as SortOrder]))
         .limit(limit)
         .skip(start)
+}
+
+export async function findCompletedQuestionCount(userId: string): Promise<IQuestionCountsDto> {
+    const query = [
+        {
+            $match: {
+                $or: [{ user1Id: userId }, { user2Id: userId }],
+                isCompleted: true,
+            },
+        },
+        {
+            $group: {
+                _id: { complexity: '$complexity', question: '$question' },
+                count: { $sum: 1 },
+            },
+        },
+        {
+            $group: {
+                _id: '$_id.complexity',
+                count: { $sum: 1 },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                complexity: '$_id',
+                count: 1,
+            },
+        },
+    ]
+    const result: {
+        complexity: SortedComplexity
+        count: number
+    }[] = await matchModel.aggregate(query)
+    return {
+        data: result.map((row) => {
+            return { ...row, complexity: convertSortedComplexityToComplexity(row.complexity) }
+        }),
+    }
 }
 
 export function getSortKeysAndOrders(): { keys: string[]; orders: string[] } {
