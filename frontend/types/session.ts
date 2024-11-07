@@ -42,6 +42,12 @@ export interface ISessionsApi {
     pagination: IPagination
 }
 
+export interface IPartialSessions {
+    collaboratorName: string
+    questionTitle: string
+    category: string
+}
+
 export class SessionManager {
     static fromDto(dto: ISessionDto[], username?: string): ISession[] {
         const getCollaborator = (user1: string, user2: string) => {

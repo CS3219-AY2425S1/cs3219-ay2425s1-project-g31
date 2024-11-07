@@ -4,31 +4,24 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 
 import Link from 'next/link'
 import { MoveRight } from 'lucide-react'
+import { IPartialSessions } from '@/types'
 
-export const RecentSessions = () => {
-    const data = [
-        {
-            collaborator: 'Olivia Martin',
-            question: 'Reverse a String',
-        },
-        {
-            collaborator: 'Olivia Martin',
-            question: 'Reverse a String',
-        },
-        {
-            collaborator: 'Olivia Martin',
-            question: 'Reverse a String',
-        },
-        {
-            collaborator: 'Olivia Martin',
-            question: 'Reverse a String',
-        },
-        {
-            collaborator: 'Olivia Martin',
-            question: 'Reverse a String',
-        },
-    ]
+const cols: { key: keyof IPartialSessions; label: string }[] = [
+    {
+        key: 'collaboratorName',
+        label: 'Collaborator',
+    },
+    {
+        key: 'questionTitle',
+        label: 'Question',
+    },
+    {
+        key: 'category',
+        label: 'Category',
+    },
+]
 
+export const RecentSessions = ({ data }: { data: IPartialSessions[] }) => {
     return (
         <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
             <div>
@@ -37,23 +30,30 @@ export const RecentSessions = () => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Collaborator</TableHead>
-                            <TableHead className="text-right">Question</TableHead>
+                            {cols.map((col) => (
+                                <TableHead key={col.key} className="font-bold">
+                                    {col.label}
+                                </TableHead>
+                            ))}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {data.map(({ collaborator, question }, index) => (
+                        {data.map((row, index) => (
                             <TableRow key={index}>
-                                <TableCell>
-                                    <p>{collaborator}</p>
-                                </TableCell>
-                                <TableCell className="text-right">
-                                    <p>{question}</p>
-                                </TableCell>
+                                {cols.map((col) => (
+                                    <TableCell key={col.key}>
+                                        <p>{row[col.key]}</p>
+                                    </TableCell>
+                                ))}
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
+                {!data.length && (
+                    <p className="py-10 text-center text-sm text-gray-400 border-2 border-t-0 rounded-xl rounded-t-none border-gray-100">
+                        No recent sessions
+                    </p>
+                )}
             </div>
             <Link className="flex flex-row justify-center underline text-purple-600" href={'/sessions'}>
                 <p className="mr-1">View all sessions</p>
