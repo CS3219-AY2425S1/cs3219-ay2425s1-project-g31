@@ -55,6 +55,10 @@ export const getCompletedQuestionCountsRequest = async (userId: string): Promise
         const response: IQuestionCountsDto = await axiosInstance.get(`/matching/user/${userId}/complexity/count`)
         return response
     } catch (error) {
-        throw new Error('Failed to fetch completed question counts.')
+        if (axios.isAxiosError(error)) {
+            throw new Error('An unexpected error occurred: ' + error.message)
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
     }
 }

@@ -73,13 +73,13 @@ export default function Home() {
                         const completed =
                             completedQuestionCountsData?.find((item) => item.complexity === complexity)?.count || 0
                         const total = questionCountsData?.find((item) => item.complexity === complexity)?.count || 0
-                        const progress = completed / total
+                        const progress = (completed / total) * 100
                         return { ...oldData, completed, total, progress }
                     })
                 })
             }
-        } catch (error) {
-            toast.error('Failed to fetch progress: ' + error)
+        } catch (error: unknown) {
+            toast.error((error as Error).message)
         }
     }
 
