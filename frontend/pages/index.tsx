@@ -21,8 +21,8 @@ export default function Home() {
             completed: 0,
             total: 0,
             progress: 0,
-            indicatorColor: 'bg-green-700',
-            backgroundColor: 'bg-green-500',
+            indicatorColor: 'bg-green-500',
+            backgroundColor: 'bg-green-300',
         },
         {
             complexity: Complexity.MEDIUM,
