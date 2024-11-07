@@ -7,8 +7,8 @@ import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
 import ResumeSession from '@/components/dashboard/resume-session'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
-import { getOngoingMatch } from '@/services/matching-service-api'
-import { Complexity } from '@repo/question-types'
+import { getCompletedQuestionCountsRequest, getOngoingMatch } from '@/services/matching-service-api'
+import { Complexity, IQuestionCountsDto } from '@repo/question-types'
 import { IMatch } from '@repo/user-types'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -60,15 +60,19 @@ export default function Home() {
     })
 
     const loadProgressData = async () => {
+        if (!session?.user?.id) return
         try {
-            const response = await getQuestionCountsRequest()
-            if (response) {
-                const { data } = response
+            const [completedQuestionCountsResponse, questionCountsResponse]: (IQuestionCountsDto | undefined)[] =
+                await Promise.all([getCompletedQuestionCountsRequest(session.user.id), getQuestionCountsRequest()])
+            if (completedQuestionCountsResponse && questionCountsResponse) {
+                const { data: questionCountsData } = questionCountsResponse
+                const { data: completedQuestionCountsData } = completedQuestionCountsResponse
                 setProgressData((oldProgressData) => {
                     return oldProgressData.map((oldData) => {
                         const { complexity } = oldData
-                        const completed = 0
-                        const total = data?.find((item) => item.complexity === complexity)?.count || 0
+                        const completed =
+                            completedQuestionCountsData?.find((item) => item.complexity === complexity)?.count || 0
+                        const total = questionCountsData?.find((item) => item.complexity === complexity)?.count || 0
                         const progress = completed / total
                         return { ...oldData, completed, total, progress }
                     })

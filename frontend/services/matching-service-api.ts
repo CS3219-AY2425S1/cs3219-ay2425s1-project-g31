@@ -1,6 +1,7 @@
 import axios from 'axios'
 import axiosClient from './axios-middleware'
 import { IMatch } from '@repo/user-types'
+import { IQuestionCountsDto } from '@repo/question-types'
 
 const axiosInstance = axiosClient.matchingServiceAPI
 
@@ -46,5 +47,14 @@ export const getOngoingMatch = async (userId: string): Promise<IMatch | null> =>
         return match || null
     } catch (error) {
         return null
+    }
+}
+
+export const getCompletedQuestionCountsRequest = async (userId: string): Promise<IQuestionCountsDto> => {
+    try {
+        const response: IQuestionCountsDto = await axiosInstance.get(`/matching/user/${userId}/complexity/count`)
+        return response
+    } catch (error) {
+        throw new Error('Failed to fetch completed question counts.')
     }
 }
