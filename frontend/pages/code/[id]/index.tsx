@@ -37,12 +37,13 @@ export default function Code() {
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
-    const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
+    const [matchData, setMatchData] = useState<IMatch>()
     const socketRef = useRef<Socket | null>(null)
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
     const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
+    const [isViewOnly, setIsViewOnly] = useState(true)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -54,7 +55,10 @@ export default function Code() {
             toast.error('Match does not exists')
             router.push('/')
         })
-        setMatchData(response)
+        if (response) {
+            setMatchData(response)
+            setIsViewOnly(response.isCompleted)
+        }
     }
 
     const { data: sessionData } = useSession()
@@ -64,6 +68,8 @@ export default function Code() {
     }, [])
 
     useEffect(() => {
+        if (isViewOnly) return
+
         socketRef.current = io(process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3009', {
             path: '/collab/chat/ws/socket.io/',
             auth: {
@@ -111,7 +117,7 @@ export default function Code() {
                 socketRef.current.disconnect()
             }
         }
-    }, [])
+    }, [isViewOnly])
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
@@ -193,7 +199,7 @@ export default function Code() {
                             />
                         </Button>
                     </div>
-                    {isChatOpen && <Chat socketRef={socketRef} />}
+                    {isChatOpen && <Chat socketRef={socketRef} isViewOnly={isViewOnly} />}
                 </div>
             </section>
             <section className="w-2/3 flex flex-col h-fullscreen">
@@ -232,6 +238,7 @@ export default function Code() {
                             displayValue={editorLanguage}
                             setDisplayValue={setEditorLanguage}
                             onSelectChange={handleLanguageModeSelect}
+                            isViewOnly={isViewOnly}
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
@@ -239,6 +246,7 @@ export default function Code() {
                         ref={editorRef}
                         roomId={id as string}
                         language={getCodeMirrorLanguage(editorLanguage)}
+                        isViewOnly={isViewOnly}
                     />
                 </div>
                 <CustomTabs

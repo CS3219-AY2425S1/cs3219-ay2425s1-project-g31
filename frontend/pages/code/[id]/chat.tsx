@@ -12,7 +12,7 @@ const formatTimestamp = (timestamp: string) => {
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()
 }
 
-const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef }) => {
+const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boolean }> = ({ socketRef, isViewOnly }) => {
     const [chatData, setChatData] = useState<ChatModel[]>()
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
@@ -35,15 +35,15 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
     }, [router])
 
     useEffect(() => {
+        if (isViewOnly) return
         if (socketRef?.current) {
             socketRef.current.on('receive_message', (data: ChatModel) => {
-                console.log('Got a msg', data)
                 setChatData((prev) => {
                     return [...(prev ?? []), data]
                 })
             })
         }
-    }, [socketRef])
+    }, [socketRef, isViewOnly])
 
     const getChatBubbleFormat = (currUser: string, type: 'label' | 'text') => {
         let format = ''
@@ -73,7 +73,6 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
 
     const handleSendMessage = (message: string) => {
         if (!session || !socketRef?.current) return
-
         if (message.trim()) {
             const msg: ChatModel = {
                 message: message,
@@ -87,14 +86,16 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
     }
 
     useEffect(() => {
+        if (isViewOnly) return
+
         if (chatEndRef.current) {
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
         }
-    }, [chatData])
+    }, [chatData, isViewOnly])
 
     return (
         <>
-            <div className="overflow-y-auto p-3 pb-0">
+            <div className="overflow-y-auto p-3">
                 {!!chatData?.length &&
                     Object.values(chatData).map((chat, index) => (
                         <div
@@ -114,18 +115,24 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null> }> = ({ socketRef 
                             </div>
                         </div>
                     ))}
+                {(!chatData || !chatData?.length) && (
+                    <p className="w-full text-center text-gray-400 text-sm my-1">No chat history</p>
+                )}
                 <div ref={chatEndRef}></div>
             </div>
-            <div className="m-3 px-3 py-1 border-[1px] rounded-xl text-sm">
-                <input
-                    type="text"
-                    className="w-full bg-transparent border-none focus:outline-none"
-                    placeholder="Send a message..."
-                    onKeyDown={handleKeyDown}
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                />
-            </div>
+            {!isViewOnly && (
+                <div className="m-3 mt-0 px-3 py-1 border-[1px] rounded-xl text-sm">
+                    <input
+                        type="text"
+                        className="w-full bg-transparent border-none focus:outline-none"
+                        placeholder="Send a message..."
+                        onKeyDown={handleKeyDown}
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                        readOnly={isViewOnly}
+                    />
+                </div>
+            )}
         </>
     )
 }
