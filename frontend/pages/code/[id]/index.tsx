@@ -51,6 +51,7 @@ export default function Code() {
             return
         }
         const response = await getMatchDetails(matchId).catch((_) => {
+            toast.error('Match does not exists')
             router.push('/')
         })
         setMatchData(response)
