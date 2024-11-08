@@ -44,7 +44,7 @@ export default function Code() {
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
     const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
-    const [isViewOnly, setIsViewOnly] = useState(true)
+    const [isViewOnly, setIsViewOnly] = useState(false)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -146,7 +146,11 @@ export default function Code() {
     }
 
     const handleEndSession = () => {
-        if (!isViewOnly && socketRef.current) {
+        if (isViewOnly) {
+            router.push('/sessions')
+            return
+        }
+        if (socketRef.current) {
             socketRef.current.disconnect()
         }
         router.push('/')
