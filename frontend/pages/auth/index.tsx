@@ -44,7 +44,7 @@ export default function Auth() {
                 <div className="w-full flex flex-row-reverse">
                     <button
                         onClick={() => {
-                            setIsLoginPage((x) => !x)
+                            setIsLoginPage((isLoggedIn) => !isLoggedIn)
                         }}
                     >
                         {isLoginPage ? 'Sign up' : 'Log in'}
