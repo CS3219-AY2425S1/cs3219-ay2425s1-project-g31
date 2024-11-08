@@ -25,7 +25,7 @@ import { ISubmission, IResponse } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
-import Dialog from '@/components/customs/terminate-dialog'
+import ConfirmDialog from '@/components/customs/confirm-dialog'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -167,6 +167,7 @@ export default function Code() {
             socketRef.current?.emit('end-session')
             router.push('/')
         }
+        setIsDialogOpen(false)
     }
 
     const renderCloseButton = () => {
@@ -265,16 +266,16 @@ export default function Code() {
                         <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
                             {renderCloseButton()}
                         </Button>
-                        <Dialog
-                            dialogOpen={isDialogOpen}
-                            onDialogOpenChange={setIsDialogOpen} // Allow toggling the dialog
-                            className="w-fit bg-btn text-white text-sm py-2 px-4 rounded-md hover:bg-purple-700"
-                            description="Are you sure you want to end the session? This will permanently end the session for both you and the other participant."
-                            onClickConfirm={() => {
-                                setIsDialogOpen(false) // Close the dialog
-                                handleEndSessionConfirmation() // Handle the confirmation
+                        <ConfirmDialog
+                            showCancelButton
+                            dialogData={{
+                                title: 'Warning!',
+                                content:
+                                    'Are you sure you want to end the session? This will permanently end the session for both you and the other participant.',
+                                isOpen: isDialogOpen,
                             }}
-                            variant={undefined}
+                            closeHandler={() => setIsDialogOpen(false)}
+                            confirmHandler={handleEndSessionConfirmation}
                         />
                     </div>
                 </div>
