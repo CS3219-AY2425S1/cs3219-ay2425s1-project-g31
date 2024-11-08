@@ -317,7 +317,7 @@ export default function Code() {
                                 expectedOutput={
                                     isViewOnly
                                         ? (matchData?.question.testOutputs[
-                                              collabData?.executionResult.testIndex ?? 0
+                                              collabData?.executionResult?.testIndex ?? 0
                                           ] ?? '')
                                         : (testResult?.expectedOutput ?? '')
                                 }
