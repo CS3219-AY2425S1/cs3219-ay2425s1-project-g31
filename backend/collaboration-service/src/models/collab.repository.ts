@@ -1,7 +1,7 @@
 import { Model, model } from 'mongoose'
 import { CollabDto } from '../types'
 import collabSchema from './collab.model'
-import { LanguageMode, ChatModel } from '@repo/collaboration-types'
+import { LanguageMode, ChatModel, ResultModel } from '@repo/collaboration-types'
 
 const collabModel: Model<CollabDto> = model('collab', collabSchema)
 
@@ -32,6 +32,6 @@ export async function saveCode(id: string, code: string) {
     return collabModel.updateOne({ _id: id }, { $set: { code: code } })
 }
 
-export async function saveResult(id: string, result: string) {
+export async function saveResult(id: string, result: ResultModel) {
     return collabModel.updateOne({ _id: id }, { $set: { executionResult: result } })
 }

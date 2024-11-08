@@ -1,7 +1,7 @@
 import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
-import { updateChatHistory, updateLanguage } from '../models/collab.repository'
+import { saveResult, updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode, ChatModel } from '@repo/collaboration-types'
 import { SubmissionResponseDto } from '../types'
 import { IResponse, ISubmission } from '@repo/submission-types'
@@ -47,6 +47,7 @@ export class WebSocketConnection {
                     const { stdout, status, time, stderr, compile_output } = dto
                     const response: IResponse = { stdout, status, time, stderr, compile_output }
                     this.io.to(roomId).emit('code-executed', response, data.expected_output)
+                    await saveResult(roomId, response)
                 } catch (err) {
                     this.io.to(roomId).emit('code-executed', { error: err })
                 }
