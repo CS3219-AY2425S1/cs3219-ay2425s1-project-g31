@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -20,12 +21,12 @@ export const NewSession = () => {
 
     const TopicOptions = Object.values(Category).map((category) => ({
         value: category,
-        label: category.charAt(0).toUpperCase() + category.toLocaleLowerCase().slice(1),
+        label: capitalizeFirstLowerRest(category),
     }))
 
     const ComplexityOptions = Object.values(Complexity).map((complexity) => ({
         value: complexity,
-        label: complexity.charAt(0).toUpperCase() + complexity.toLocaleLowerCase().slice(1),
+        label: capitalizeFirstLowerRest(complexity),
     }))
 
     const { data: session } = useSession()
@@ -52,7 +53,7 @@ export const NewSession = () => {
 
     const handleMatchmaking = async () => {
         if (!selectedTopic || !selectedComplexity) {
-            toast.error('Please select a topic and complexity level to start matchmaking.')
+            toast.error('Please select a category and complexity level to start matchmaking.')
             return
         }
         setTimeElapsed(0)
@@ -171,11 +172,11 @@ export const NewSession = () => {
                 <h5 className=" text-xl text-medium font-bold">Start a New Session</h5>
                 <br />
                 <p className="text-medium font-medium mb-1">
-                    Choose a <strong>Topic</strong> and <strong>Complexity</strong> level to start your collaborative
+                    Choose a <strong>Category</strong> and <strong>Complexity</strong> level to start your collaborative
                     coding session!
                 </p>
 
-                <p className="text-medium font-bold mt-6 mb-2">Topic</p>
+                <p className="text-medium font-bold mt-6 mb-2">Category</p>
                 <Select onValueChange={(val: string) => setSelectedTopic(val as Category)}>
                     <SelectTrigger>
                         <SelectValue placeholder="Select one..." />

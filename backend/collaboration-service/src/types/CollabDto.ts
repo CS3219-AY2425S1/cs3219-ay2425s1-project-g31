@@ -10,7 +10,7 @@ import {
     ValidationError,
 } from 'class-validator'
 import { Type } from 'class-transformer'
-import { LanguageMode, ChatModel, ICollabCreateSessionDto } from '@repo/collaboration-types'
+import { LanguageMode, ChatModel, ICollabCreateSessionDto, ResultModel } from '@repo/collaboration-types'
 import 'reflect-metadata'
 
 export class CollabDto {
@@ -25,8 +25,8 @@ export class CollabDto {
     @IsString()
     code: string
 
-    @IsString()
-    executionResult: string
+    @Type(() => ResultModel)
+    executionResult: ResultModel
 
     @IsArray()
     @ValidateNested({ each: true })
@@ -41,7 +41,7 @@ export class CollabDto {
         matchId: string,
         language: LanguageMode,
         code: string,
-        executionResult: string,
+        executionResult: ResultModel,
         chatHistory: ChatModel[]
     ) {
         this.matchId = matchId
@@ -53,7 +53,7 @@ export class CollabDto {
     }
 
     static fromCreateRequest({ body: { matchId, language } }: ITypedBodyRequest<ICollabCreateSessionDto>): CollabDto {
-        return new CollabDto(matchId, language, '', '', [])
+        return new CollabDto(matchId, language, '', {}, [])
     }
 
     static fromModel({ matchId, language, code, executionResult, chatHistory }: CollabDto): CollabDto {

@@ -1,10 +1,11 @@
 import loggerUtil from '../common/logger.util'
 import { Server as IOServer, Socket } from 'socket.io'
 import { completeCollaborationSession } from './collab.service'
-import { updateChatHistory, updateLanguage } from '../models/collab.repository'
+import { saveResult, updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode, ChatModel } from '@repo/collaboration-types'
 import { SubmissionResponseDto } from '../types'
-import { IResponse, ISubmission } from '@repo/submission-types'
+import { ISubmission } from '@repo/submission-types'
+import { ResultModel } from '@repo/collaboration-types'
 import { submitCode } from '../controllers/collab.controller'
 
 export class WebSocketConnection {
@@ -25,17 +26,17 @@ export class WebSocketConnection {
                 socket.join(roomId)
                 this.io.to(roomId).emit('user-connected', name)
                 if (this.languages.has(roomId)) {
-                    socket.emit('update-language', this.languages.get(roomId))
+                    socket.emit('update-language', this.languages.get(roomId), false)
                 }
             })
 
-            socket.on('send_message', (data: ChatModel) => {
+            socket.on('send_message', async (data: ChatModel) => {
+                await updateChatHistory(data.roomId, data)
                 this.io.to(data.roomId).emit('receive_message', data)
-                updateChatHistory(data.roomId, data)
             })
 
             socket.on('change-language', async (language: string) => {
-                this.io.to(roomId).emit('update-language', language)
+                this.io.to(roomId).emit('update-language', language, true)
                 this.languages.set(roomId, language)
                 await updateLanguage(roomId, language as LanguageMode)
             })
@@ -45,8 +46,16 @@ export class WebSocketConnection {
                 try {
                     const dto: SubmissionResponseDto = await submitCode(data)
                     const { stdout, status, time, stderr, compile_output } = dto
-                    const response: IResponse = { stdout, status, time, stderr, compile_output }
+                    const response: ResultModel = {
+                        stdout,
+                        status,
+                        time,
+                        stderr,
+                        compile_output,
+                        testIndex: data.testIndex,
+                    }
                     this.io.to(roomId).emit('code-executed', response, data.expected_output)
+                    await saveResult(roomId, response)
                 } catch (err) {
                     this.io.to(roomId).emit('code-executed', { error: err })
                 }
