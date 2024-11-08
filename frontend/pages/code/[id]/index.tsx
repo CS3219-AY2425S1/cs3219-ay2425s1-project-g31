@@ -89,7 +89,7 @@ export default function Code() {
         if (isViewOnly) return
 
         socketRef.current = io(process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3009', {
-            path: process.env.NEXT_PUBLIC_API_URL ? '/collab/chat/ws/socket.io/' : '/socket.io',
+            path: process.env.NEXT_PUBLIC_API_URL ? '/api/collab/chat/ws/socket.io/' : '/socket.io',
             auth: {
                 token: sessionData?.user.accessToken,
                 name: sessionData?.user.username,
