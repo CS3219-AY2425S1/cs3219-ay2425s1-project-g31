@@ -20,3 +20,6 @@
 
 # Local Netlify folder
 .netlify
+
+# Local shell scripts
+**/*.sh
