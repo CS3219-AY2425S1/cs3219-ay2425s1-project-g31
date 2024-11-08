@@ -134,6 +134,7 @@ services:
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
             - RMQ_HOST=rabbitmq
+            - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
         restart: always
         networks:
             - backend-network
