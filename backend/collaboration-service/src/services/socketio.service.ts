@@ -26,17 +26,17 @@ export class WebSocketConnection {
                 socket.join(roomId)
                 this.io.to(roomId).emit('user-connected', name)
                 if (this.languages.has(roomId)) {
-                    socket.emit('update-language', this.languages.get(roomId))
+                    socket.emit('update-language', this.languages.get(roomId), false)
                 }
             })
 
-            socket.on('send_message', (data: ChatModel) => {
+            socket.on('send_message', async (data: ChatModel) => {
+                await updateChatHistory(data.roomId, data)
                 this.io.to(data.roomId).emit('receive_message', data)
-                updateChatHistory(data.roomId, data)
             })
 
             socket.on('change-language', async (language: string) => {
-                this.io.to(roomId).emit('update-language', language)
+                this.io.to(roomId).emit('update-language', language, true)
                 this.languages.set(roomId, language)
                 await updateLanguage(roomId, language as LanguageMode)
             })

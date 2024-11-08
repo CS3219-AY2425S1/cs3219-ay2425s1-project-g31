@@ -1,5 +1,5 @@
 import { EndIcon, PlayIcon } from '@/assets/icons'
-import { ICollabDto, LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
+import { ChatModel, ICollabDto, LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -25,12 +25,13 @@ import { ISubmission } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
-import { getCollabHistory } from '@/services/collaboration-service-api'
+import { getChatHistory, getCollabHistory } from '@/services/collaboration-service-api'
 import ReadOnlyCodeMirrorEditor from '../read-only-editor'
 import { ResultModel } from '@repo/collaboration-types'
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 
 const formatQuestionCategories = (cat: Category[]) => {
-    return cat.join(', ')
+    return cat.map((c) => capitalizeFirstLowerRest(c)).join(', ')
 }
 
 export default function Code() {
@@ -40,6 +41,7 @@ export default function Code() {
     const editorRef = useRef<{ getText: () => string } | null>(null)
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
+    const [chatData, setChatData] = useState<ChatModel[]>([])
     const [activeTestTab, setActiveTestTab] = useState(0)
     const [matchData, setMatchData] = useState<IMatch>()
     const [collabData, setCollabData] = useState<ICollabDto>()
@@ -47,20 +49,19 @@ export default function Code() {
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
+    const [retry, setRetry] = useState(0)
     const [testResult, setTestResult] = useState<{ data: ResultModel | undefined; expectedOutput: string } | undefined>(
         undefined
     )
     const [isViewOnly, setIsViewOnly] = useState(true)
 
-    const retrieveMatchDetails = async () => {
-        const matchId = router.query.id as string
-        if (!matchId) {
-            router.push('/')
-            return
-        }
-        const response = await getMatchDetails(matchId).catch((_) => {
-            toast.error('Match does not exists')
-            router.push('/')
+    const retrieveMatchDetails = async (matchId: string) => {
+        const response = await getMatchDetails(matchId).catch((err) => {
+            if (retry >= 3) {
+                router.push('/')
+            } else {
+                setRetry(retry + 1)
+            }
         })
         if (response) {
             setMatchData(response)
@@ -76,8 +77,9 @@ export default function Code() {
     const { data: sessionData } = useSession()
 
     useEffect(() => {
-        retrieveMatchDetails()
-    }, [])
+        const matchId = router.query.id as string
+        retrieveMatchDetails(matchId)
+    }, [router.query.id, retry])
 
     useEffect(() => {
         if (isViewOnly) return
@@ -91,15 +93,19 @@ export default function Code() {
             },
         })
 
-        socketRef.current.on('connect', () => {
+        socketRef.current.on('connect', async () => {
+            console.log('hi')
             if (socketRef.current) {
                 socketRef.current.emit('joinRoom', { roomId: id })
+                setChatData((await getChatHistory(id as string)) ?? [])
             }
         })
 
-        socketRef.current.on('update-language', (language: string) => {
+        socketRef.current.on('update-language', (language: string, showToast: boolean) => {
             setEditorLanguage(language as LanguageMode)
-            toast.success('Language mode updated')
+            if (showToast) {
+                toast.success('Language mode updated')
+            }
         })
 
         socketRef.current.on('executing-code', () => {
@@ -124,6 +130,10 @@ export default function Code() {
             }
         })
 
+        socketRef.current.on('receive_message', (data: ChatModel) => {
+            setChatData((prev) => [...prev, data])
+        })
+
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect()
@@ -133,6 +143,18 @@ export default function Code() {
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
+    }
+
+    const handleSendMessage = (message: string) => {
+        if (message.trim()) {
+            const msg: ChatModel = {
+                message: message,
+                senderId: sessionData?.user.username ?? '',
+                createdAt: new Date(),
+                roomId: id as string,
+            }
+            socketRef.current?.emit('send_message', msg)
+        }
     }
 
     const handleLanguageModeSelect = (value: string) => {
@@ -230,7 +252,13 @@ export default function Code() {
                             />
                         </Button>
                     </div>
-                    {isChatOpen && <Chat socketRef={socketRef} isViewOnly={isViewOnly} />}
+                    {isChatOpen && (
+                        <Chat
+                            chatData={isViewOnly ? (collabData?.chatHistory ?? []) : chatData}
+                            isViewOnly={isViewOnly}
+                            handleSendMessage={handleSendMessage}
+                        />
+                    )}
                 </div>
             </section>
             <section className="w-2/3 flex flex-col h-fullscreen">

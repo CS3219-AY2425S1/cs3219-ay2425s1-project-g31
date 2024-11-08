@@ -1,57 +1,20 @@
-import { FC, RefObject, useEffect, useRef, useState } from 'react'
+import { FC, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
-import * as socketIO from 'socket.io-client'
-import { getChatHistory } from '@/services/collaboration-service-api'
 import { ChatModel } from '@repo/collaboration-types'
-import { toast } from 'sonner'
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()
 }
 
-const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boolean }> = ({ socketRef, isViewOnly }) => {
-    const [chatData, setChatData] = useState<ChatModel[]>([])
+const Chat: FC<{ chatData: ChatModel[]; isViewOnly: boolean; handleSendMessage: (msg: string) => void }> = ({
+    chatData,
+    isViewOnly,
+    handleSendMessage,
+}) => {
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
-    const router = useRouter()
     const [value, setValue] = useState('')
-    const { id: roomId } = router.query
-
-    useEffect(() => {
-        const matchId = router.query.id as string
-        if (!matchId) return
-
-        const fetchChatHistory = async () => {
-            const response = await getChatHistory(matchId)
-            if (!response) {
-                toast.error('Failed to fetch chat history')
-            } else {
-                setChatData(response)
-            }
-        }
-
-        fetchChatHistory()
-    }, [router.query.id])
-
-    useEffect(() => {
-        if (isViewOnly || !socketRef?.current) return
-
-        if (chatData.length === 0) return
-
-        const socket = socketRef.current
-
-        const handleReceiveMessage = (data: ChatModel) => {
-            setChatData((prev) => [...prev, data])
-        }
-
-        socket.on('receive_message', handleReceiveMessage)
-
-        return () => {
-            socket.off('receive_message', handleReceiveMessage)
-        }
-    }, [socketRef, chatData, isViewOnly])
 
     const getChatBubbleFormat = (currUser: string, type: 'label' | 'text') => {
         let format = ''
@@ -72,31 +35,16 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boole
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
             handleSendMessage(e.currentTarget.value)
+            setValue('')
             e.currentTarget.value = ''
         }
     }
 
-    const handleSendMessage = (message: string) => {
-        if (!session || !socketRef?.current) return
-        if (message.trim()) {
-            const msg: ChatModel = {
-                message: message,
-                senderId: session.user.username,
-                createdAt: new Date(),
-                roomId: roomId as string,
-            }
-            socketRef.current.emit('send_message', msg)
-        }
-        setValue('')
-    }
-
     useEffect(() => {
-        if (isViewOnly) return
-
         if (chatEndRef.current) {
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
         }
-    }, [chatData, isViewOnly])
+    }, [chatData])
 
     return (
         <>

@@ -5,6 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import Link from 'next/link'
 import { MoveRight } from 'lucide-react'
 import { IPartialSessions } from '@/types'
+import CustomLabel from '../ui/label'
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 
 const cols: { key: keyof IPartialSessions; label: string }[] = [
     {
@@ -40,11 +42,25 @@ export const RecentSessions = ({ data }: { data: IPartialSessions[] }) => {
                     <TableBody>
                         {data.map((row, index) => (
                             <TableRow key={index}>
-                                {cols.map((col) => (
-                                    <TableCell key={col.key}>
-                                        <p>{row[col.key]}</p>
-                                    </TableCell>
-                                ))}
+                                {cols.map((col) => {
+                                    if (col.key === 'category') {
+                                        return (
+                                            <TableCell key={col.key}>
+                                                <CustomLabel
+                                                    title={capitalizeFirstLowerRest(row[col.key])}
+                                                    textColor="text-theme"
+                                                    bgColor="bg-theme-100"
+                                                />
+                                            </TableCell>
+                                        )
+                                    } else {
+                                        return (
+                                            <TableCell key={col.key}>
+                                                <p>{row[col.key]}</p>
+                                            </TableCell>
+                                        )
+                                    }
+                                })}
                             </TableRow>
                         ))}
                     </TableBody>
