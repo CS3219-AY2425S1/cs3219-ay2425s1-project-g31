@@ -25,6 +25,8 @@ import { ISubmission, IResponse } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
+import Dialog from '@/components/customs/terminate-dialog'
+import { wsConnection } from '../server'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -45,6 +47,7 @@ export default function Code() {
     const [activeTest, setActiveTest] = useState(0)
     const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
     const [isViewOnly, setIsViewOnly] = useState(false)
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -150,6 +153,17 @@ export default function Code() {
             router.push('/sessions')
             return
         }
+
+        // if (socketRef.current) {
+        //     socketRef.current.disconnect()
+        // }
+        // router.push('/')
+        if (socketRef.current) {
+            setIsDialogOpen(true)
+        }
+    }
+
+    function handleEndSessionConfirmation() {
         if (socketRef.current) {
             socketRef.current.disconnect()
         }
@@ -252,6 +266,17 @@ export default function Code() {
                         <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
                             {renderCloseButton()}
                         </Button>
+                        <Dialog
+                            dialogOpen={isDialogOpen}
+                            onDialogOpenChange={setIsDialogOpen} // Allow toggling the dialog
+                            className="w-fit bg-btn text-white text-sm py-2 px-4 rounded-md hover:bg-purple-700"
+                            description="Are you sure you want to end the session? This will permanently end the session for both you and the other participant."
+                            onClickConfirm={() => {
+                                setIsDialogOpen(false) // Close the dialog
+                                handleEndSessionConfirmation() // Handle the confirmation
+                            }}
+                            variant={undefined}
+                        />
                     </div>
                 </div>
                 <div id="editor-container" className="mt-4">
