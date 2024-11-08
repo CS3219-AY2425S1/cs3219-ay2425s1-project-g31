@@ -9,7 +9,8 @@
         "test": "jest",
         "lint": "eslint . --fix --no-error-on-unmatched-pattern && prettier --write --ignore-unknown .",
         "start": "npm run build && node dist/server.js",
-        "dev": "nodemon src/server.ts"
+        "dev": "nodemon src/server.ts",
+        "format": "prettier --write ."
     },
     "license": "MIT",
     "dependencies": {

@@ -61,6 +61,19 @@ export class WebSocketConnection {
                 }
             })
 
+            socket.on('end-session', async () => {
+                const socketsInRoom = this.io.sockets.adapter.rooms.get(roomId)
+                if (socketsInRoom) {
+                    socketsInRoom.forEach((socketId) => {
+                        const socket = this.io.sockets.sockets.get(socketId)
+                        if (socket) {
+                            socket.leave(roomId)
+                            socket.disconnect(true)
+                        }
+                    })
+                }
+            })
+
             socket.on('disconnect', async () => {
                 const room = this.io.sockets.adapter.rooms.get(roomId)
                 socket.leave(roomId)

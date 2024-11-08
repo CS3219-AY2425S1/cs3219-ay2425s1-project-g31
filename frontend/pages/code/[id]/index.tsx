@@ -1,3 +1,5 @@
+'use client'
+
 import { EndIcon, PlayIcon } from '@/assets/icons'
 import { ChatModel, ICollabDto, LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
 import { useEffect, useRef, useState } from 'react'
@@ -25,6 +27,7 @@ import { ISubmission } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
+import ConfirmDialog from '@/components/customs/confirm-dialog'
 import { getChatHistory, getCollabHistory } from '@/services/collaboration-service-api'
 import ReadOnlyCodeMirrorEditor from '../read-only-editor'
 import { ResultModel } from '@repo/collaboration-types'
@@ -49,11 +52,12 @@ export default function Code() {
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
+    const [isViewOnly, setIsViewOnly] = useState(true)
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [retry, setRetry] = useState(0)
     const [testResult, setTestResult] = useState<{ data: ResultModel | undefined; expectedOutput: string } | undefined>(
         undefined
     )
-    const [isViewOnly, setIsViewOnly] = useState(true)
 
     const retrieveMatchDetails = async (matchId: string) => {
         const response = await getMatchDetails(matchId).catch((err) => {
@@ -94,7 +98,6 @@ export default function Code() {
         })
 
         socketRef.current.on('connect', async () => {
-            console.log('hi')
             if (socketRef.current) {
                 socketRef.current.emit('joinRoom', { roomId: id })
                 setChatData((await getChatHistory(id as string)) ?? [])
@@ -127,6 +130,12 @@ export default function Code() {
         socketRef.current.on('user-disconnected', (username: string) => {
             if (username !== sessionData?.user.username) {
                 setIsOtherUserOnline(false)
+            }
+        })
+
+        socketRef.current.on('disconnect', () => {
+            if (!isViewOnly) {
+                router.push('/')
             }
         })
 
@@ -184,10 +193,18 @@ export default function Code() {
             router.push('/sessions')
             return
         }
+
         if (socketRef.current) {
-            socketRef.current.disconnect()
+            setIsDialogOpen(true)
         }
-        router.push('/')
+    }
+
+    function handleEndSessionConfirmation() {
+        if (socketRef.current) {
+            socketRef.current?.emit('end-session')
+            router.push('/')
+        }
+        setIsDialogOpen(false)
     }
 
     const renderCloseButton = () => {
@@ -292,6 +309,17 @@ export default function Code() {
                         <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
                             {renderCloseButton()}
                         </Button>
+                        <ConfirmDialog
+                            showCancelButton
+                            dialogData={{
+                                title: 'Warning!',
+                                content:
+                                    'Are you sure you want to end the session? This will permanently end the session for both you and the other participant.',
+                                isOpen: isDialogOpen,
+                            }}
+                            closeHandler={() => setIsDialogOpen(false)}
+                            confirmHandler={handleEndSessionConfirmation}
+                        />
                     </div>
                 </div>
                 <div id="editor-container" className="mt-4">
