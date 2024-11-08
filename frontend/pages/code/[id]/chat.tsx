@@ -25,6 +25,7 @@ const getChatBubbleFormat = (currUser: string, sessionUser: string | undefined, 
 
 const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boolean }> = ({ socketRef, isViewOnly }) => {
     const [chatData, setChatData] = useState<ChatModel[]>([])
+    const [chatData, setChatData] = useState<ChatModel[]>([])
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
     const router = useRouter()
@@ -32,39 +33,56 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boole
     const { id: roomId } = router.query
 
     useEffect(() => {
-        ;(async () => {
-            try {
-                const matchId = roomId as string
-                if (!matchId) return
+        const matchId = router.query.id as string
+        if (!matchId) return
 
-                const response = await getChatHistory(matchId)
-                if (!response) {
-                    toast.error('Failed to fetch chat history')
-                    return
-                }
+        const fetchChatHistory = async () => {
+            const response = await getChatHistory(matchId)
+            if (!response) {
+                toast.error('Failed to fetch chat history')
+            } else {
                 setChatData(response)
-            } catch (error) {
-                toast.error('An error occurred while fetching chat history')
             }
-        })()
-    }, [roomId])
+        }
+
+        fetchChatHistory()
+    }, [router.query.id])
 
     useEffect(() => {
         if (isViewOnly || !socketRef?.current) return
 
-        const socketInstance = socketRef.current
+        if (chatData.length === 0) return
+
+        const socket = socketRef.current
 
         const handleReceiveMessage = (data: ChatModel) => {
             setChatData((prev) => [...prev, data])
         }
 
-        socketInstance.on('receive_message', handleReceiveMessage)
+        socket.on('receive_message', handleReceiveMessage)
 
         return () => {
-            socketInstance.off('receive_message', handleReceiveMessage)
+            socket.off('receive_message', handleReceiveMessage)
         }
-    }, [socketRef, isViewOnly])
+    }, [socketRef, chatData, isViewOnly])
 
+    const getChatBubbleFormat = (currUser: string, type: 'label' | 'text') => {
+        let format = ''
+        if (currUser === session?.user.username) {
+            format = 'items-end ml-5'
+            if (type === 'text') {
+                format += ' bg-theme-600 rounded-xl text-white'
+            }
+        } else {
+            format = 'items-start text-left mr-5'
+            if (type === 'text') {
+                format += ' bg-slate-100 rounded-xl p-2 text-slate-900'
+            }
+        }
+        return format
+    }
+
+>>>>>>> 97d2738 (fix: solve chat issue)
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
             handleSendMessage(e.currentTarget.value)
