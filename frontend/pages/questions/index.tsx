@@ -31,7 +31,7 @@ export default function Questions() {
         totalPages: 1,
         currentPage: 1,
         totalItems: 0,
-        limit: 10,
+        limit: 5,
     })
 
     const [sortBy, setSortBy] = useState({

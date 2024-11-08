@@ -16,10 +16,10 @@ export default function Sessions() {
     const router = useRouter()
     const [data, setData] = useState<ISession[]>([])
     const [pagination, setPagination] = useState<IPagination>({
-        totalPages: 10,
+        totalPages: 1,
         currentPage: 1,
-        totalItems: 96,
-        limit: 10,
+        totalItems: 0,
+        limit: 5,
     })
     const [sortBy, setSortBy] = useState({
         sortKey: 'id',
