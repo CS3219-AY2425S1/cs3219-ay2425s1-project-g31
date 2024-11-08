@@ -2,6 +2,7 @@ import { useRouter } from 'next/router'
 import { Button } from '../ui/button'
 import { IMatch } from '@repo/user-types'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 
 interface IResumeSessionProps {
     match: IMatch
@@ -28,12 +29,12 @@ export default function ResumeSession({ match, isOngoing }: IResumeSessionProps)
                 <p>You have an ongoing session for:</p>
                 <form>
                     <label htmlFor="topic" className="block font-bold mb-2">
-                        Topic
+                        Category
                     </label>
                     <input
                         id="ongoing-topic"
                         type="text"
-                        value={category}
+                        value={capitalizeFirstLowerRest(category)}
                         readOnly
                         className="w-full p-2 text-sm border-solid border-2 border-gray-200 rounded bg-gray-50"
                     />
@@ -43,7 +44,7 @@ export default function ResumeSession({ match, isOngoing }: IResumeSessionProps)
                     <input
                         id="ongoing-complexity"
                         type="text"
-                        value={convertSortedComplexityToComplexity(complexity)}
+                        value={capitalizeFirstLowerRest(convertSortedComplexityToComplexity(complexity))}
                         readOnly
                         className="w-full p-2 text-sm border-solid border-2 border-gray-200 rounded bg-gray-50"
                     />

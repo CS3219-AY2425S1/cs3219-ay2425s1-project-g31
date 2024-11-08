@@ -3,6 +3,7 @@ import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
 import { IDatatableColumn, IRowData } from '@/types'
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 import { EyeIcon } from 'lucide-react'
 import { NextRouter } from 'next/router'
 
@@ -20,17 +21,24 @@ const convertTimestamp = (millis: number) => {
 export const columns: IDatatableColumn[] = [
     {
         key: 'collaboratorName',
-        label: 'Name',
+        label: 'Collaborator',
+        offAutoCapitalize: true,
     },
     {
         key: 'question',
+        offAutoCapitalize: true,
     },
     {
         key: 'category',
         formatter: (value) => {
             return (
                 <div className="flex flex-wrap items-center justify-center gap-3">
-                    <CustomLabel title={value} textColor="text-theme" bgColor="bg-theme-100" margin="1" />
+                    <CustomLabel
+                        title={capitalizeFirstLowerRest(value)}
+                        textColor="text-theme"
+                        bgColor="bg-theme-100"
+                        margin="1"
+                    />
                 </div>
             )
         },

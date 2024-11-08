@@ -69,7 +69,14 @@ export async function handleCreateMatch(data: IMatch, ws1: string, ws2: string):
         wsConnection.sendMessageToUser(ws2, JSON.stringify({ type: WebSocketMessageType.DUPLICATE }))
     }
 
-    const question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+    let question
+
+    try {
+        question = await getRandomQuestion(data.category, convertComplexityToSortedComplexity(data.complexity))
+    } catch (err) {
+        logger.error('[Matching-Service] Failed to get random question' + err)
+        return
+    }
 
     if (!question) {
         logger.error('[Matching-Service] Could not get a random question')
