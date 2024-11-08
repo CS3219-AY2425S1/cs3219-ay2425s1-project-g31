@@ -1,5 +1,5 @@
 import { EndIcon, PlayIcon } from '@/assets/icons'
-import { LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
+import { ICollabDto, LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
 import { useEffect, useRef, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
@@ -25,6 +25,7 @@ import { ISubmission, IResponse } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
+import { getCollabHistory } from '@/services/collaboration-service-api'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -39,6 +40,7 @@ export default function Code() {
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
     const [matchData, setMatchData] = useState<IMatch>()
+    const [collabData, setCollabData] = useState<ICollabDto>()
     const socketRef = useRef<Socket | null>(null)
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
@@ -59,6 +61,11 @@ export default function Code() {
         if (response) {
             setMatchData(response)
             setIsViewOnly(response.isCompleted)
+            if (response.isCompleted) {
+                const collabResponse = await getCollabHistory(matchId)
+                setEditorLanguage(collabResponse?.language ?? LanguageMode.Javascript)
+                setCollabData(collabResponse)
+            }
         }
     }
 
