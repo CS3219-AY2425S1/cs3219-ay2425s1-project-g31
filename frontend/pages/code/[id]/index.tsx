@@ -26,7 +26,6 @@ import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
 import Dialog from '@/components/customs/terminate-dialog'
-import { wsConnection } from '../server'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -116,6 +115,10 @@ export default function Code() {
             }
         })
 
+        socketRef.current.on('disconnect', () => {
+            router.push('/')
+        })
+
         return () => {
             if (socketRef.current) {
                 socketRef.current.disconnect()
@@ -154,10 +157,6 @@ export default function Code() {
             return
         }
 
-        // if (socketRef.current) {
-        //     socketRef.current.disconnect()
-        // }
-        // router.push('/')
         if (socketRef.current) {
             setIsDialogOpen(true)
         }
@@ -165,9 +164,9 @@ export default function Code() {
 
     function handleEndSessionConfirmation() {
         if (socketRef.current) {
-            socketRef.current.disconnect()
+            socketRef.current?.emit('end-session')
+            router.push('/')
         }
-        router.push('/')
     }
 
     const renderCloseButton = () => {

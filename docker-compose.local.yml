@@ -1,66 +1,66 @@
 services:
-    # reverse-proxy:
-    #     container_name: reverse-proxy
-    #     environment:
-    #         - D=$
-    #         - USER_SERVICE_URL=http://user-service:3002
-    #         - QUESTION_SERVICE_URL=http://question-service:3004
-    #         - MATCHING_SERVICE_URL=http://matching-service:3006
-    #         - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
-    #         - COLLABORATION_SERVICE_CHAT_URL=http://collaboration-service:3009
-    #         - RMQ_URL=http://rabbitmq:15672
-    #         - DOMAIN_NAME=${DOMAIN_NAME}
-    #     image: nginx:1.27.2-alpine
-    #     ports:
-    #         - 8080:8080
-    #     restart: always
-    #     volumes:
-    #         - ./nginx/templates/local-nginx.conf.template:/etc/nginx/templates/nginx.conf.template
-    #     networks:
-    #         - backend-network
-    #     depends_on:
-    #         - user-service
-    #         - question-service
-    #         - matching-service
-    #     command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+    reverse-proxy:
+        container_name: reverse-proxy
+        environment:
+            - D=$
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+            - MATCHING_SERVICE_URL=http://matching-service:3006
+            - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
+            - COLLABORATION_SERVICE_CHAT_URL=http://collaboration-service:3009
+            - RMQ_URL=http://rabbitmq:15672
+            - DOMAIN_NAME=${DOMAIN_NAME}
+        image: nginx:1.27.2-alpine
+        ports:
+            - 8080:8080
+        restart: always
+        volumes:
+            - ./nginx/templates/local-nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+        networks:
+            - backend-network
+        depends_on:
+            - user-service
+            - question-service
+            - matching-service
+        command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
 
-    # collaboration-service:
-    #     container_name: collaboration-service
-    #     build:
-    #         context: .
-    #         dockerfile: ./backend/collaboration-service/Dockerfile
-    #     environment:
-    #         - NODE_ENV=development
-    #         - PORT=3008
-    #         - WS_PORT=3009
-    #         - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@collab-db:27017/collaboration-service?authSource=admin
-    #         - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
-    #         - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
-    #         - USER_SERVICE_URL=http://user-service:3002
-    #         - QUESTION_SERVICE_URL=http://question-service:3004
-    #         - MATCHING_SERVICE_URL=http://matching-service:3006
-    #         - JUDGE_ZERO_URL=http://judgezero-server:2358
-    #     restart: always
-    #     networks:
-    #         - backend-network
-    #     depends_on:
-    #         - judgezero-server
-    #         - judgezero-workers
-    #         - collab-db
+    collaboration-service:
+        container_name: collaboration-service
+        build:
+            context: .
+            dockerfile: ./backend/collaboration-service/Dockerfile
+        environment:
+            - NODE_ENV=development
+            - PORT=3008
+            - WS_PORT=3009
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@collab-db:27017/collaboration-service?authSource=admin
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+            - MATCHING_SERVICE_URL=http://matching-service:3006
+            - JUDGE_ZERO_URL=http://judgezero-server:2358
+        restart: always
+        networks:
+            - backend-network
+        depends_on:
+            - judgezero-server
+            - judgezero-workers
+            - collab-db
 
-    # collab-db:
-    #     container_name: collab-db
-    #     image: mongo:8.0.0
-    #     environment:
-    #         - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
-    #         - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
-    #     ports:
-    #         - '27087:27017'
-    #     volumes:
-    #         - 'collab_data:/data/db'
-    #     networks:
-    #         - backend-network
-    #     command: mongod --quiet --logpath /dev/null --auth
+    collab-db:
+        container_name: collab-db
+        image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        ports:
+            - '27087:27017'
+        volumes:
+            - 'collab_data:/data/db'
+        networks:
+            - backend-network
+        command: mongod --quiet --logpath /dev/null --auth
 
     judgezero-server:
         image: judge0/judge0:1.13.1
