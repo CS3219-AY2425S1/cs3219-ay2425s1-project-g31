@@ -172,7 +172,7 @@ export default function Code() {
 
     return (
         <div className="flex gap-3">
-            <section className="w-1/3 flex flex-col">
+            <section className="w-1/3 flex flex-col h-fullscreen">
                 <div className="flex items-center gap-4">
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
                     <h2 className="text-lg font-medium">
