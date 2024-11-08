@@ -26,6 +26,7 @@ import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
 import { getCollabHistory } from '@/services/collaboration-service-api'
+import ReadOnlyCodeMirrorEditor from '../read-only-editor'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -46,7 +47,7 @@ export default function Code() {
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
     const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
-    const [isViewOnly, setIsViewOnly] = useState(false)
+    const [isViewOnly, setIsViewOnly] = useState(true)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -275,12 +276,18 @@ export default function Code() {
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
-                    <CodeMirrorEditor
-                        ref={editorRef}
-                        roomId={id as string}
-                        language={getCodeMirrorLanguage(editorLanguage)}
-                        isViewOnly={isViewOnly}
-                    />
+                    {isViewOnly ? (
+                        <ReadOnlyCodeMirrorEditor
+                            language={getCodeMirrorLanguage(editorLanguage)}
+                            code={collabData?.code ?? ''}
+                        />
+                    ) : (
+                        <CodeMirrorEditor
+                            ref={editorRef}
+                            roomId={id as string}
+                            language={getCodeMirrorLanguage(editorLanguage)}
+                        />
+                    )}
                 </div>
                 <CustomTabs
                     tabs={testTabs}
