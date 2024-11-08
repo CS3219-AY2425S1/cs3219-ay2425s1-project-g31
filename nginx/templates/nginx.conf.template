@@ -1,7 +1,7 @@
 events {}
 
 http {
-    limit_req_zone ${D}binary_remote_addr zone=rate_limit_zone:10m rate=10r/s;
+    limit_req_zone ${D}binary_remote_addr zone=rate_limit_zone:10m rate=20r/s;
     limit_req_status 429;
 
     server {
