@@ -21,12 +21,13 @@ import Chat from './chat'
 import io, { Socket } from 'socket.io-client'
 import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
-import { ISubmission, IResponse } from '@repo/submission-types'
+import { ISubmission } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
 import { Cross1Icon } from '@radix-ui/react-icons'
 import { getCollabHistory } from '@/services/collaboration-service-api'
 import ReadOnlyCodeMirrorEditor from '../read-only-editor'
+import { ResultModel } from '@repo/collaboration-types'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -46,7 +47,9 @@ export default function Code() {
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
-    const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
+    const [testResult, setTestResult] = useState<{ data: ResultModel | undefined; expectedOutput: string } | undefined>(
+        undefined
+    )
     const [isViewOnly, setIsViewOnly] = useState(true)
 
     const retrieveMatchDetails = async () => {
@@ -103,7 +106,7 @@ export default function Code() {
             setIsCodeRunning(true)
         })
 
-        socketRef.current.on('code-executed', (res: IResponse, expected_output: string) => {
+        socketRef.current.on('code-executed', (res: ResultModel, expected_output: string) => {
             setTestResult({ data: res, expectedOutput: expected_output })
             setIsCodeRunning(false)
             setActiveTestTab(1)
@@ -148,6 +151,7 @@ export default function Code() {
                 source_code: code,
                 expected_output: matchData?.question.testOutputs[activeTest] ?? '',
                 stdin: '',
+                testIndex: activeTest,
             }
             socketRef.current?.emit('run-code', data)
         }
@@ -304,7 +308,16 @@ export default function Code() {
                                 testOutputs={matchData?.question.testOutputs ?? []}
                             />
                         ) : (
-                            <TestResult result={testResult?.data} expectedOutput={testResult?.expectedOutput ?? ''} />
+                            <TestResult
+                                result={isViewOnly ? collabData?.executionResult : testResult?.data}
+                                expectedOutput={
+                                    isViewOnly
+                                        ? (matchData?.question.testOutputs[
+                                              collabData?.executionResult.testIndex ?? 0
+                                          ] ?? '')
+                                        : (testResult?.expectedOutput ?? '')
+                                }
+                            />
                         )}
                     </div>
                 </div>

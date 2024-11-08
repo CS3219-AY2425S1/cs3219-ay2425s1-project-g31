@@ -4,7 +4,8 @@ import { completeCollaborationSession } from './collab.service'
 import { saveResult, updateChatHistory, updateLanguage } from '../models/collab.repository'
 import { LanguageMode, ChatModel } from '@repo/collaboration-types'
 import { SubmissionResponseDto } from '../types'
-import { IResponse, ISubmission } from '@repo/submission-types'
+import { ISubmission } from '@repo/submission-types'
+import { ResultModel } from '@repo/collaboration-types'
 import { submitCode } from '../controllers/collab.controller'
 
 export class WebSocketConnection {
@@ -45,7 +46,14 @@ export class WebSocketConnection {
                 try {
                     const dto: SubmissionResponseDto = await submitCode(data)
                     const { stdout, status, time, stderr, compile_output } = dto
-                    const response: IResponse = { stdout, status, time, stderr, compile_output }
+                    const response: ResultModel = {
+                        stdout,
+                        status,
+                        time,
+                        stderr,
+                        compile_output,
+                        testIndex: data.testIndex,
+                    }
                     this.io.to(roomId).emit('code-executed', response, data.expected_output)
                     await saveResult(roomId, response)
                 } catch (err) {
