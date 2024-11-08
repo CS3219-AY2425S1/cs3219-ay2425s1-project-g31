@@ -11,11 +11,14 @@ import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
 import { useRouter } from 'next/router'
 import { useState } from 'react'
+import { Loader2 } from 'lucide-react'
 
 export default function Login() {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [passwordInputType, passwordToggleIcon] = usePasswordToggle()
+    const [isLoading, setIsLoading] = useState(false)
+
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
         const { id, value } = e.target
         setFormValues({ ...formValues, [id]: value })
@@ -38,17 +41,26 @@ export default function Login() {
         setFormErrors(errors)
 
         if (isValid) {
-            const result = await signIn('credentials', {
-                redirect: false,
-                username: formValues.email,
-                password: formValues.loginPassword,
-            })
-            if (result?.error) {
-                toast.error('Login failed. Please try again')
-                return
-            } else {
-                toast.success('Logged in successfully')
-                router.push('/')
+            try {
+                setIsLoading(true)
+                const result = await signIn('credentials', {
+                    redirect: false,
+                    username: formValues.email,
+                    password: formValues.loginPassword,
+                })
+                if (result?.error) {
+                    toast.error('Login failed. Please try again')
+                    return
+                } else {
+                    toast.success('Logged in successfully')
+                    router.push('/')
+                }
+            } catch (error) {
+                if (error instanceof Error) {
+                    toast.error(error.message)
+                }
+            } finally {
+                setIsLoading(false)
             }
         }
     }
@@ -77,9 +89,16 @@ export default function Login() {
                 page="auth"
             />
 
-            <Button onClick={onLogin} variant="primary" className="w-full text-md mt-5 h-[42px]">
-                Login
-            </Button>
+            {isLoading ? (
+                <Button disabled variant="primary" className="w-full text-md mt-5 h-[42px]">
+                    <Loader2 className="mr-2 h-6 w-6 animate-spin" />
+                </Button>
+            ) : (
+                <Button onClick={onLogin} variant="primary" className="w-full text-md mt-5 h-[42px]">
+                    Login
+                </Button>
+            )}
+
             <PasswordReset />
         </>
     )
