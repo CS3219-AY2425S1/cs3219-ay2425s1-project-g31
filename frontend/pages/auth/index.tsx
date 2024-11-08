@@ -41,7 +41,7 @@ export default function Auth() {
                 </div>
             </div>
             <div className="m-16">
-                <div className="flex justify-end mb-12">
+                <div className="w-full flex flex-row-reverse">
                     <button
                         onClick={() => {
                             setIsLoginPage((x) => !x)
