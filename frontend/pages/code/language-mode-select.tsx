@@ -6,6 +6,7 @@ import { CsharpIcon, GolangIcon, JavaIcon, JavascriptIcon, PythonIcon, RubyIcon,
 interface LanguageModeSelectProps {
     className: string
     displayValue: LanguageMode
+    isViewOnly: boolean
     setDisplayValue: (value: LanguageMode) => void
     onSelectChange: (value: LanguageMode) => void
 }
@@ -42,7 +43,12 @@ const LanguageModeSelect = (props: LanguageModeSelectProps) => {
 
     return (
         <div className={props.className}>
-            <Select defaultValue={languageModeOptions[0]} value={props.displayValue} onValueChange={handleValueChange}>
+            <Select
+                disabled={props.isViewOnly}
+                defaultValue={languageModeOptions[0]}
+                value={props.displayValue}
+                onValueChange={handleValueChange}
+            >
                 <SelectTrigger>
                     <SelectValue>
                         <div className="flex items-center gap-2">

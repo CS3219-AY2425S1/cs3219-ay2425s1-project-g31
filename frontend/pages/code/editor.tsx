@@ -12,7 +12,13 @@ import { oneDark } from '@codemirror/theme-one-dark'
 import { javascript } from '@codemirror/lang-javascript'
 import { indentWithTab } from '@codemirror/commands'
 
-const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; language: string }, ref) => {
+interface IProps {
+    roomId: string
+    language: string
+    isViewOnly: boolean
+}
+
+const CodeMirrorEditor = forwardRef(({ roomId, language, isViewOnly }: IProps, ref) => {
     const editorContainerRef = useRef<HTMLDivElement>(null)
     // eslint-disable-next-line no-unused-vars
     const [provider, setProvider] = useState<WebsocketProvider | null>(null)
@@ -72,6 +78,7 @@ const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; lan
                     oneDark,
                     compartment.of(javascript()),
                     yCollab(ytext, wsProvider.awareness),
+                    EditorView.editable.of(!isViewOnly),
                 ],
             })
             const view = new EditorView({
@@ -99,5 +106,7 @@ const CodeMirrorEditor = forwardRef(({ roomId, language }: { roomId: string; lan
         />
     )
 })
+
+CodeMirrorEditor.displayName = 'CodeMirrorEditor'
 
 export default CodeMirrorEditor

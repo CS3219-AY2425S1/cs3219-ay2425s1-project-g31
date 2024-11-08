@@ -176,7 +176,7 @@ export async function handleGetPaginatedSessions(request: IPaginationRequest, re
             totalItems: count,
             limit,
         },
-        sessions: matches.map(MatchDto.fromModel),
+        sessions: matches,
     })
 }
 

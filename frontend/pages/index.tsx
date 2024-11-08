@@ -8,6 +8,8 @@ import { RecentSessions } from '@/components/dashboard/recent-sessions'
 import ResumeSession from '@/components/dashboard/resume-session'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { getOngoingMatch } from '@/services/matching-service-api'
+import { getSessionsRequest } from '@/services/session-service-api'
+import { IGetSessions, IPartialSessions } from '@/types'
 import { IMatch } from '@repo/user-types'
 import { useEffect, useState } from 'react'
 
@@ -52,6 +54,7 @@ export default function Home() {
         },
         showCancelButton: false,
     })
+    const [recentSessions, setRecentSessions] = useState<IPartialSessions[]>([])
 
     const checkOngoingSession = async () => {
         if (!session?.user?.id) return
@@ -77,8 +80,30 @@ export default function Home() {
         setOngoingMatchData(null)
     }
 
+    const getRecentSessions = async () => {
+        if (!session?.user?.id) return
+        try {
+            const params: IGetSessions = {
+                page: 1,
+                limit: 5,
+            }
+            const userId = session?.user?.id
+            const res = await getSessionsRequest(params, userId)
+            const partialSessions: IPartialSessions[] = []
+            res.sessions.forEach((sess) => {
+                partialSessions.push({
+                    collaboratorName: sess.user1Id === userId ? sess.user2Name : sess.user1Name,
+                    questionTitle: sess.question.title,
+                    category: sess.category,
+                })
+            })
+            setRecentSessions(partialSessions)
+        } catch (e) {}
+    }
+
     useEffect(() => {
         checkOngoingSession()
+        getRecentSessions()
     }, [])
 
     if (loading)
@@ -109,7 +134,7 @@ export default function Home() {
                 ) : (
                     <NewSession />
                 )}
-                <RecentSessions />
+                <RecentSessions data={recentSessions} />
             </div>
             <ConfirmDialog {...dialog} />
         </div>

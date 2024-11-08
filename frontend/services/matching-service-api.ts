@@ -22,7 +22,7 @@ export const addUserToMatchmaking = async (): Promise<any | undefined> => {
 }
 
 // GET /matching
-export const getMatchDetails = async (matchId: string): Promise<any | undefined> => {
+export const getMatchDetails = async (matchId: string): Promise<IMatch> => {
     try {
         return await axiosInstance.get(`/matching/${matchId}`)
     } catch (error) {

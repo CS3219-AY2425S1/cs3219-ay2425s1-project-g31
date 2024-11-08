@@ -131,6 +131,7 @@ services:
             - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
             - USER_SERVICE_URL=http://user-service:3002
             - QUESTION_SERVICE_URL=http://question-service:3004
+            - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
             - RMQ_USER=${RMQ_USER}
             - RMQ_PASSWORD=${RMQ_PASSWORD}
             - RMQ_HOST=rabbitmq

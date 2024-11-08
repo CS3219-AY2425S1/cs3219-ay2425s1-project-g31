@@ -1,7 +1,10 @@
-import { TickIcon, ExclamationIcon } from '@/assets/icons'
+import { TickIcon, ExclamationIcon, PlayIcon } from '@/assets/icons'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
+import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
-import { IDatatableColumn } from '@/types'
+import { IDatatableColumn, IRowData } from '@/types'
+import { EyeIcon } from 'lucide-react'
+import { NextRouter } from 'next/router'
 
 const convertTimestamp = (millis: number) => {
     const date = new Date(millis)
@@ -53,6 +56,27 @@ export const columns: IDatatableColumn[] = [
         maxWidth: '5%',
         formatter: (value) => {
             return <div className="flex items-center justify-center">{value ? <TickIcon /> : <ExclamationIcon />}</div>
+        },
+    },
+    {
+        key: 'actions',
+        label: 'Actions',
+        customAction: {
+            formatter: (elem: IRowData, router: NextRouter) => {
+                return (
+                    <div className="flex items-center justify-center gap-3">
+                        <Button
+                            variant="iconNoBorder"
+                            size="icon"
+                            onClick={() => {
+                                router.push(`/code/${elem._id}`)
+                            }}
+                        >
+                            {elem.isCompleted ? <EyeIcon /> : <PlayIcon />}
+                        </Button>
+                    </div>
+                )
+            },
         },
     },
 ]

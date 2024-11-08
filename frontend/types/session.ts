@@ -1,4 +1,6 @@
+import { convertSortedComplexityToComplexity } from '@repo/question-types'
 import { IPagination, IQuestion, ISortBy } from '.'
+import { SortedComplexity } from '@repo/user-types'
 
 interface ISession {
     isCompleted: string
@@ -11,8 +13,9 @@ interface ISession {
 }
 
 interface ISessionDto {
+    _id: string
     isCompleted: string
-    complexity: string
+    complexity: SortedComplexity
     time: number
     category: string
     user1Id: string
@@ -41,6 +44,12 @@ export interface ISessionsApi {
     pagination: IPagination
 }
 
+export interface IPartialSessions {
+    collaboratorName: string
+    questionTitle: string
+    category: string
+}
+
 export class SessionManager {
     static fromDto(dto: ISessionDto[], username?: string): ISession[] {
         const getCollaborator = (user1: string, user2: string) => {
@@ -50,12 +59,13 @@ export class SessionManager {
         return dto.map((session) => {
             return {
                 isCompleted: session.isCompleted,
-                complexity: session.complexity,
+                complexity: convertSortedComplexityToComplexity(session.complexity),
                 time: session.time,
                 category: session.category,
                 collaboratorName: getCollaborator(session.user1Name, session.user2Name),
                 question: session.question?.title,
                 createdAt: session.createdAt,
+                _id: session._id,
             }
         })
     }

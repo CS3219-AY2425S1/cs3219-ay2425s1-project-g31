@@ -24,6 +24,7 @@ import { toast } from 'sonner'
 import { ISubmission, IResponse } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
+import { Cross1Icon } from '@radix-ui/react-icons'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -37,12 +38,13 @@ export default function Code() {
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
     const [activeTestTab, setActiveTestTab] = useState(0)
-    const [matchData, setMatchData] = useState<IMatch | undefined>(undefined)
+    const [matchData, setMatchData] = useState<IMatch>()
     const socketRef = useRef<Socket | null>(null)
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
     const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
+    const [isViewOnly, setIsViewOnly] = useState(false)
 
     const retrieveMatchDetails = async () => {
         const matchId = router.query.id as string
@@ -51,9 +53,13 @@ export default function Code() {
             return
         }
         const response = await getMatchDetails(matchId).catch((_) => {
+            toast.error('Match does not exists')
             router.push('/')
         })
-        setMatchData(response)
+        if (response) {
+            setMatchData(response)
+            setIsViewOnly(response.isCompleted)
+        }
     }
 
     const { data: sessionData } = useSession()
@@ -63,8 +69,10 @@ export default function Code() {
     }, [])
 
     useEffect(() => {
+        if (isViewOnly) return
+
         socketRef.current = io(process.env.NEXT_PUBLIC_API_URL ?? 'ws://localhost:3009', {
-            path: '/collab/chat/ws/socket.io/',
+            path: process.env.NEXT_PUBLIC_API_URL ? '/collab/chat/ws/socket.io/' : '/socket.io',
             auth: {
                 token: sessionData?.user.accessToken,
                 name: sessionData?.user.username,
@@ -110,7 +118,7 @@ export default function Code() {
                 socketRef.current.disconnect()
             }
         }
-    }, [])
+    }, [isViewOnly])
 
     const toggleChat = () => {
         setIsChatOpen(!isChatOpen)
@@ -138,10 +146,28 @@ export default function Code() {
     }
 
     const handleEndSession = () => {
+        if (isViewOnly) {
+            router.push('/sessions')
+            return
+        }
         if (socketRef.current) {
             socketRef.current.disconnect()
         }
         router.push('/')
+    }
+
+    const renderCloseButton = () => {
+        return isViewOnly ? (
+            <>
+                <Cross1Icon className="mr-2" />
+                Close
+            </>
+        ) : (
+            <>
+                <EndIcon fill="white" className="mr-2" />
+                End Session
+            </>
+        )
     }
 
     const { loading } = useProtectedRoute()
@@ -150,7 +176,7 @@ export default function Code() {
 
     return (
         <div className="flex gap-3">
-            <section className="w-1/3 flex flex-col">
+            <section className="w-1/3 flex flex-col h-fullscreen">
                 <div className="flex items-center gap-4">
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
                     <h2 className="text-lg font-medium">
@@ -192,36 +218,39 @@ export default function Code() {
                             />
                         </Button>
                     </div>
-                    {isChatOpen && <Chat socketRef={socketRef} />}
+                    {isChatOpen && <Chat socketRef={socketRef} isViewOnly={isViewOnly} />}
                 </div>
             </section>
             <section className="w-2/3 flex flex-col h-fullscreen">
                 <div id="control-panel" className="flex justify-between">
                     <div className="flex gap-3">
-                        <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
-                            {isCodeRunning ? (
-                                'Executing...'
-                            ) : (
-                                <>
-                                    {' '}
-                                    <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
-                                    Run test
-                                </>
-                            )}
-                        </Button>
+                        {!isViewOnly && (
+                            <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
+                                {isCodeRunning ? (
+                                    'Executing...'
+                                ) : (
+                                    <>
+                                        {' '}
+                                        <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
+                                        Run test
+                                    </>
+                                )}
+                            </Button>
+                        )}
                     </div>
-                    <div className="flex flex-row">
-                        <UserAvatar
-                            username={
-                                matchData?.user1Id === sessionData?.user.id
-                                    ? matchData?.user2Name
-                                    : matchData?.user1Name
-                            }
-                            isOnline={isOtherUserOnline}
-                        />
+                    <div className="flex flex-row items-center">
+                        {!isViewOnly && (
+                            <UserAvatar
+                                username={
+                                    matchData?.user1Id === sessionData?.user.id
+                                        ? matchData?.user2Name
+                                        : matchData?.user1Name
+                                }
+                                isOnline={isOtherUserOnline}
+                            />
+                        )}
                         <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
-                            <EndIcon fill="white" className="mr-2" />
-                            End session
+                            {renderCloseButton()}
                         </Button>
                     </div>
                 </div>
@@ -231,6 +260,7 @@ export default function Code() {
                             displayValue={editorLanguage}
                             setDisplayValue={setEditorLanguage}
                             onSelectChange={handleLanguageModeSelect}
+                            isViewOnly={isViewOnly}
                             className="w-max text-white bg-neutral-800 rounded-tl-lg"
                         />
                     </div>
@@ -238,6 +268,7 @@ export default function Code() {
                         ref={editorRef}
                         roomId={id as string}
                         language={getCodeMirrorLanguage(editorLanguage)}
+                        isViewOnly={isViewOnly}
                     />
                 </div>
                 <CustomTabs
