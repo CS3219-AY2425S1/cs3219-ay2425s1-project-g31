@@ -5,6 +5,7 @@ import { Category, Complexity } from '@repo/user-types'
 import CustomLabel from '@/components/ui/label'
 import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import { ITestcase } from '@/types/question'
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 
 const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
     return [
@@ -22,7 +23,13 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
             width: '40%',
             formatter: (values) => {
                 const c = values.map((v: string) => (
-                    <CustomLabel key={v} title={v} textColor="text-theme" bgColor="bg-theme-100" margin="1" />
+                    <CustomLabel
+                        key={v}
+                        title={capitalizeFirstLowerRest(v)}
+                        textColor="text-theme"
+                        bgColor="bg-theme-100"
+                        margin="1"
+                    />
                 ))
                 return <div className="flex flex-wrap items-center justify-center gap-3">{c}</div>
             },

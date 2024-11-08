@@ -1,97 +1,50 @@
-import { FC, RefObject, useEffect, useRef, useState } from 'react'
-
+import { FC, useEffect, useRef, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
-import * as socketIO from 'socket.io-client'
-import { getChatHistory } from '@/services/collaboration-service-api'
 import { ChatModel } from '@repo/collaboration-types'
-import { toast } from 'sonner'
 
 const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase()
 }
 
-const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boolean }> = ({ socketRef, isViewOnly }) => {
-    const [chatData, setChatData] = useState<ChatModel[]>()
+const Chat: FC<{ chatData: ChatModel[]; isViewOnly: boolean; handleSendMessage: (msg: string) => void }> = ({
+    chatData,
+    isViewOnly,
+    handleSendMessage,
+}) => {
     const chatEndRef = useRef<HTMLDivElement | null>(null)
     const { data: session } = useSession()
-    const router = useRouter()
     const [value, setValue] = useState('')
-    const { id: roomId } = router.query
-
-    useEffect(() => {
-        ;(async () => {
-            const matchId = router.query.id as string
-            if (!matchId) {
-                return
-            }
-            const response = await getChatHistory(matchId)
-            if (!response) {
-                toast.error('Failed to fetch chat history')
-            }
-            setChatData(response)
-        })()
-    }, [router])
-
-    useEffect(() => {
-        if (isViewOnly) return
-        if (socketRef?.current) {
-            socketRef.current.on('receive_message', (data: ChatModel) => {
-                setChatData((prev) => {
-                    return [...(prev ?? []), data]
-                })
-            })
-        }
-    }, [socketRef, isViewOnly])
 
     const getChatBubbleFormat = (currUser: string, type: 'label' | 'text') => {
         let format = ''
         if (currUser === session?.user.username) {
             format = 'items-end ml-5'
-            // Add more format based on the type
             if (type === 'text') {
                 format += ' bg-theme-600 rounded-xl text-white'
             }
         } else {
             format = 'items-start text-left mr-5'
-            // Add more format based on the type
             if (type === 'text') {
                 format += ' bg-slate-100 rounded-xl p-2 text-slate-900'
             }
         }
-
         return format
     }
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && e.currentTarget.value.trim() !== '') {
             handleSendMessage(e.currentTarget.value)
+            setValue('')
             e.currentTarget.value = ''
         }
     }
 
-    const handleSendMessage = (message: string) => {
-        if (!session || !socketRef?.current) return
-        if (message.trim()) {
-            const msg: ChatModel = {
-                message: message,
-                senderId: session.user.username,
-                createdAt: new Date(),
-                roomId: roomId as string,
-            }
-            socketRef.current.emit('send_message', msg)
-        }
-        setValue('')
-    }
-
     useEffect(() => {
-        if (isViewOnly) return
-
         if (chatEndRef.current) {
             chatEndRef.current.scrollIntoView({ behavior: 'smooth' })
         }
-    }, [chatData, isViewOnly])
+    }, [chatData])
 
     return (
         <>

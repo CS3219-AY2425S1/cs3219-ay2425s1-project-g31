@@ -1,5 +1,6 @@
 import { ChatModel } from './ChatModel'
 import { LanguageMode } from './LanguageMode'
+import { ResultModel } from './ResultModel'
 
 export interface ICollabCreateSessionDto {
     matchId: string
@@ -8,6 +9,6 @@ export interface ICollabCreateSessionDto {
 
 export interface ICollabDto extends ICollabCreateSessionDto {
     code: string
-    executionResult: string
+    executionResult: ResultModel
     chatHistory: ChatModel[]
 }

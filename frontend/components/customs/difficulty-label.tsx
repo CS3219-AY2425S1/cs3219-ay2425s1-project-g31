@@ -1,3 +1,4 @@
+import { capitalizeFirstLowerRest } from '@/util/string-modification'
 import CustomLabel from '../ui/label'
 import { Complexity } from '@repo/user-types'
 
@@ -28,5 +29,5 @@ export const DifficultyLabel: FC<DifficultyLabelProps> = ({ complexity }) => {
             bgColor = 'bg-theme-100'
     }
 
-    return <CustomLabel title={complexity} textColor={textColor} bgColor={bgColor} />
+    return <CustomLabel title={capitalizeFirstLowerRest(complexity)} textColor={textColor} bgColor={bgColor} />
 }
