@@ -24,6 +24,7 @@ import { toast } from 'sonner'
 import { ISubmission, IResponse } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
 import TestResult from '../test-result'
+import { Cross1Icon } from '@radix-ui/react-icons'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.join(', ')
@@ -145,10 +146,24 @@ export default function Code() {
     }
 
     const handleEndSession = () => {
-        if (socketRef.current) {
+        if (!isViewOnly && socketRef.current) {
             socketRef.current.disconnect()
         }
         router.push('/')
+    }
+
+    const renderCloseButton = () => {
+        return isViewOnly ? (
+            <>
+                <Cross1Icon className="mr-2" />
+                Close
+            </>
+        ) : (
+            <>
+                <EndIcon fill="white" className="mr-2" />
+                End Session
+            </>
+        )
     }
 
     const { loading } = useProtectedRoute()
@@ -205,30 +220,33 @@ export default function Code() {
             <section className="w-2/3 flex flex-col h-fullscreen">
                 <div id="control-panel" className="flex justify-between">
                     <div className="flex gap-3">
-                        <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
-                            {isCodeRunning ? (
-                                'Executing...'
-                            ) : (
-                                <>
-                                    {' '}
-                                    <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
-                                    Run test
-                                </>
-                            )}
-                        </Button>
+                        {!isViewOnly && (
+                            <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
+                                {isCodeRunning ? (
+                                    'Executing...'
+                                ) : (
+                                    <>
+                                        {' '}
+                                        <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
+                                        Run test
+                                    </>
+                                )}
+                            </Button>
+                        )}
                     </div>
-                    <div className="flex flex-row">
-                        <UserAvatar
-                            username={
-                                matchData?.user1Id === sessionData?.user.id
-                                    ? matchData?.user2Name
-                                    : matchData?.user1Name
-                            }
-                            isOnline={isOtherUserOnline}
-                        />
+                    <div className="flex flex-row items-center">
+                        {!isViewOnly && (
+                            <UserAvatar
+                                username={
+                                    matchData?.user1Id === sessionData?.user.id
+                                        ? matchData?.user2Name
+                                        : matchData?.user1Name
+                                }
+                                isOnline={isOtherUserOnline}
+                            />
+                        )}
                         <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
-                            <EndIcon fill="white" className="mr-2" />
-                            End session
+                            {renderCloseButton()}
                         </Button>
                     </div>
                 </div>
