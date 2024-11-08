@@ -1,3 +1,5 @@
+'use client'
+
 import { EndIcon, PlayIcon } from '@/assets/icons'
 import { ChatModel, ICollabDto, LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
 import { useEffect, useRef, useState } from 'react'
@@ -50,8 +52,7 @@ export default function Code() {
     const [isOtherUserOnline, setIsOtherUserOnline] = useState(true)
     const [isCodeRunning, setIsCodeRunning] = useState(false)
     const [activeTest, setActiveTest] = useState(0)
-    const [testResult, setTestResult] = useState<{ data: IResponse; expectedOutput: string } | undefined>(undefined)
-    const [isViewOnly, setIsViewOnly] = useState(false)
+    const [isViewOnly, setIsViewOnly] = useState(true)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [retry, setRetry] = useState(0)
     const [testResult, setTestResult] = useState<{ data: ResultModel | undefined; expectedOutput: string } | undefined>(
@@ -97,7 +98,6 @@ export default function Code() {
         })
 
         socketRef.current.on('connect', async () => {
-            console.log('hi')
             if (socketRef.current) {
                 socketRef.current.emit('joinRoom', { roomId: id })
                 setChatData((await getChatHistory(id as string)) ?? [])
@@ -134,7 +134,9 @@ export default function Code() {
         })
 
         socketRef.current.on('disconnect', () => {
-            router.push('/')
+            if (!isViewOnly) {
+                router.push('/')
+            }
         })
 
         socketRef.current.on('receive_message', (data: ChatModel) => {
