@@ -1,6 +1,6 @@
 import { deleteAccount, updatePasswordRequest } from '@/services/user-service-api'
 import { tokenState, userState } from '@/atoms/auth'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import validateInput, { initialFormValues } from '@/util/input-validation'
 
 import CustomDialogWithButton from '../customs/custom-dialog'
@@ -8,12 +8,10 @@ import { InputField } from '../customs/custom-input'
 import React from 'react'
 import { toast } from 'sonner'
 import usePasswordToggle from '../../hooks/UsePasswordToggle'
-import { useRouter } from 'next/router'
-import { useSession } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { useSetRecoilState } from 'recoil'
 
 function Setting() {
-    const route = useRouter()
     const { data: session, update } = useSession()
     const setIsAuth = useSetRecoilState(userState)
     const setIsValid = useSetRecoilState(tokenState)
@@ -77,8 +75,8 @@ function Setting() {
         setIsAuth(false)
         setIsValid(false)
         toggleDeleteDialogOpen(false)
-        route.push('/auth')
         toast.success('Successfully Delete Account')
+        await signOut({ callbackUrl: '/auth' })
     }
 
     return (
