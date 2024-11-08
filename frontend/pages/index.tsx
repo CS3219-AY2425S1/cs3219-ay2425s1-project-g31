@@ -98,7 +98,6 @@ export default function Home() {
                 })
             })
             setRecentSessions(partialSessions)
-            console.log(partialSessions)
         } catch (e) {}
     }
 
