@@ -22,6 +22,10 @@ const executionResultSchema = new Schema<ResultModel>({
         type: String,
         required: false,
     },
+    testIndex: {
+        type: Number,
+        required: false,
+    },
 })
 
 export default executionResultSchema

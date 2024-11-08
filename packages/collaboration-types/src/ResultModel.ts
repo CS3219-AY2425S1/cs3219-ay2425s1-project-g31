@@ -4,4 +4,5 @@ export class ResultModel {
     stdout?: string
     stderr?: string
     compile_output?: string
+    testIndex?: number
 }
