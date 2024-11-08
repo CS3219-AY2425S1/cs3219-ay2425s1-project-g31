@@ -82,6 +82,7 @@ const Chat: FC<{ socketRef: RefObject<socketIO.Socket | null>; isViewOnly: boole
                 createdAt: new Date(),
                 roomId: roomId as string,
             }
+            console.log('roomId: ', roomId)
             socketRef.current.emit('send_message', msg)
         }
         setValue('')

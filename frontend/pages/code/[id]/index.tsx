@@ -142,6 +142,9 @@ export default function Code() {
                 expected_output: matchData?.question.testOutputs[activeTest] ?? '',
                 stdin: '',
             }
+            console.log('Trying to run test')
+            console.log(socketRef)
+            console.log(socketRef.current)
             socketRef.current?.emit('run-code', data)
         }
     }
