@@ -78,6 +78,7 @@ export default function Code() {
                 name: sessionData?.user.username,
                 roomId: id as string,
             },
+            transports: ['polling'],
         })
 
         socketRef.current.on('connect', () => {
