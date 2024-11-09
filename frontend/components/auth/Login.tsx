@@ -65,6 +65,12 @@ export default function Login() {
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>): void => {
+        if (e.key === 'Enter') {
+            onLogin()
+        }
+    }
+
     return (
         <>
             <InputField
@@ -87,6 +93,7 @@ export default function Login() {
                 error={formErrors.loginPassword}
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
                 page="auth"
+                handleKeyDown={handleKeyDown}
             />
 
             {isLoading ? (
@@ -94,7 +101,12 @@ export default function Login() {
                     <Loader2 className="mr-2 h-6 w-6 animate-spin" />
                 </Button>
             ) : (
-                <Button onClick={onLogin} variant="primary" className="w-full text-md mt-5 h-[42px]">
+                <Button
+                    onClick={onLogin}
+                    variant="primary"
+                    className="w-full text-md mt-5 h-[42px]"
+                    onKeyDown={handleKeyDown}
+                >
                     Login
                 </Button>
             )}
