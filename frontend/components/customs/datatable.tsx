@@ -65,7 +65,7 @@ export default function Datatable({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>{hideIdx ? null : 'No.'}</TableHead>
+                        <TableHead style={{ width: '5%' }}>{hideIdx ? null : 'No.'}</TableHead>
                         {columns.map((elem) => {
                             if (elem.isHidden) {
                                 return null
