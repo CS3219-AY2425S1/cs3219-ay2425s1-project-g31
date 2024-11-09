@@ -13,7 +13,7 @@ import { Proficiency, Role } from '@repo/user-types'
 import { ICreateUser } from '@/types/axios-user-types'
 import React from 'react'
 
-export default function Signup() {
+export default function Signup({ handleSignUpSuccessful }: { handleSignUpSuccessful: () => void }) {
     const [formValues, setFormValues] = useState({ ...initialFormValues })
     const [formErrors, setFormErrors] = useState({ ...initialFormValues, proficiency: '' })
     const [isLoading, setIsLoading] = useState(false)
@@ -47,6 +47,7 @@ export default function Signup() {
                 setIsLoading(true)
                 await signUpRequest(requestBody)
                 toast.success('Signed up successfully!')
+                handleSignUpSuccessful()
             } catch (error) {
                 if (error instanceof Error) {
                     toast.error(error.message)

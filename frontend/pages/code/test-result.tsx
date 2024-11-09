@@ -8,6 +8,18 @@ export default function TestResult({
     expectedOutput: string
 }) {
     if (!result) return <div className="text-sm text-slate-400">No test results yet</div>
+
+    if (!result.status) {
+        return (
+            <div className="space-y-2">
+                <p className="text-lg font-semibold text-red-500">Unexpected server error</p>
+                <p className="text-sm">We are very sorry. Please try again later</p>
+            </div>
+        )
+    }
+
+    const { id, description } = result.status
+
     return (
         <div className="w-full">
             <div className="w-full">
@@ -16,7 +28,7 @@ export default function TestResult({
                 ) : (
                     <span className="text-lg font-semibold text-red-500">{result?.status?.description}</span>
                 )}
-                <p className="text-sm text-gray-600 mt-1">Runtime: {result.time} ms</p>
+                <p className="text-sm text-gray-600 mt-1">Runtime: {result.time || '-'} ms</p>
             </div>
             {result?.status?.id === 6 && result?.compile_output && (
                 <div className="mt-2 w-full">

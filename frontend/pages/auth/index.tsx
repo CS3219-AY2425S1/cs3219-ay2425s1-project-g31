@@ -25,6 +25,10 @@ export default function Auth() {
         router.push('/')
     }
 
+    const handleSignUpSuccessful = () => {
+        setIsLoginPage(true)
+    }
+
     return (
         <div className="grid grid-cols-2 h-screen">
             <div className="w-full h-full bg-gradient-to-b from-[#FCF7FC] via-[#FCF7FC] to-[#E8E1F6] flex flex-col justify-center">
@@ -37,10 +41,10 @@ export default function Auth() {
                 </div>
             </div>
             <div className="m-16">
-                <div className="flex justify-end mb-12">
+                <div className="w-full flex flex-row-reverse">
                     <button
                         onClick={() => {
-                            setIsLoginPage((x) => !x)
+                            setIsLoginPage((isLoggedIn) => !isLoggedIn)
                         }}
                     >
                         {isLoginPage ? 'Sign up' : 'Log in'}
@@ -52,7 +56,7 @@ export default function Auth() {
                         <h2 className="text-2xl font-bold mb-4">Start your journey with us!</h2>
                     </div>
                     <div className="flex flex-col items-center gap-3 mt-3 w-full">
-                        {isLoginPage ? <Login /> : <Signup />}
+                        {isLoginPage ? <Login /> : <Signup handleSignUpSuccessful={handleSignUpSuccessful} />}
                     </div>
                 </div>
             </div>

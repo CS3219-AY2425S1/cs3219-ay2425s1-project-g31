@@ -14,6 +14,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { LogOutIcon } from 'lucide-react'
 import { signOut } from 'next-auth/react'
+import { Button } from '../ui/button'
 
 export function NavBar({ className }: Readonly<{ className?: string }>) {
     return (
@@ -47,14 +48,15 @@ export function NavBar({ className }: Readonly<{ className?: string }>) {
                     </NavigationMenuItem>
                 </NavigationMenuList>
             </NavigationMenu>
-            <div
+            <Button
+                variant="iconNoBorder"
                 className={navigationMenuTriggerStyle()}
                 onClick={async () => {
                     await signOut({ callbackUrl: '/auth' })
                 }}
             >
                 <LogOutIcon />
-            </div>
+            </Button>
         </div>
     )
 }
