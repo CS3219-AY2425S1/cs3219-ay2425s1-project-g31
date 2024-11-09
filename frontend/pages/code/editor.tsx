@@ -52,7 +52,7 @@ const CodeMirrorEditor = forwardRef(({ roomId, language }: IProps, ref) => {
         const token = session.user.accessToken
         if (!token) return undefined
         const wsProvider = new WebsocketProvider(
-            process.env.NEXT_PUBLIC_API_URL?.concat('/collab/y/ws') ?? 'ws://localhost:3008',
+            process.env.NEXT_PUBLIC_API_URL?.concat('/api/collab/y/ws') ?? 'ws://localhost:3008',
             roomId,
             ydoc,
             {
