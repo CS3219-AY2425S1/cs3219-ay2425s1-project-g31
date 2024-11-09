@@ -82,7 +82,7 @@ export const NewSession = () => {
 
         // Refactor this
         const wsUrl = (process.env.NEXT_PUBLIC_API_URL || 'ws://localhost:3006')?.concat(
-            `/matching/ws/?id=${websocketId}`
+            `/api/matching/ws/?id=${websocketId}`
         )
         const socket = new WebSocket(wsUrl)
         setTimeout(() => {

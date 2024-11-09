@@ -38,9 +38,11 @@ const createServiceAPI = (baseURL: string) => {
     return api
 }
 
-const userServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3002')
-const questionServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3004')
-const matchingServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3006')
-const collaborationServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3008')
+const userServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL?.concat('/api') ?? 'http://localhost:3002')
+const questionServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL?.concat('/api') ?? 'http://localhost:3004')
+const matchingServiceAPI = createServiceAPI(process.env.NEXT_PUBLIC_API_URL?.concat('/api') ?? 'http://localhost:3006')
+const collaborationServiceAPI = createServiceAPI(
+    process.env.NEXT_PUBLIC_API_URL?.concat('/api') ?? 'http://localhost:3008'
+)
 
 export default { userServiceAPI, questionServiceAPI, matchingServiceAPI, collaborationServiceAPI }
