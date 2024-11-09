@@ -18,6 +18,10 @@ http {
         proxy_set_header Upgrade ${D}http_upgrade;
         proxy_set_header Connection "upgrade";
 
+        location /api/ {
+            rewrite ^/api(/.*)$ $1 last;
+        }
+
         location /auth {
             proxy_pass ${USER_SERVICE_URL};
         }
