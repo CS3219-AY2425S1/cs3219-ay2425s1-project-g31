@@ -58,6 +58,12 @@ export default function Signup({ handleSignUpSuccessful }: { handleSignUpSuccess
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLElement>): void => {
+        if (e.key === 'Enter') {
+            onSignup()
+        }
+    }
+
     return (
         <>
             <InputField
@@ -102,6 +108,7 @@ export default function Signup({ handleSignUpSuccessful }: { handleSignUpSuccess
                 error={formErrors.confirmPassword}
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
                 page="auth"
+                handleKeyDown={handleKeyDown}
             />
 
             {isLoading ? (
@@ -109,7 +116,12 @@ export default function Signup({ handleSignUpSuccessful }: { handleSignUpSuccess
                     <Loader2 className="mr-2 h-6 w-6 animate-spin" />
                 </Button>
             ) : (
-                <Button onClick={onSignup} variant="primary" className="w-full text-md mt-5 h-[42px]">
+                <Button
+                    onClick={onSignup}
+                    variant="primary"
+                    className="w-full text-md mt-5 h-[42px]"
+                    onKeyDown={handleKeyDown}
+                >
                     Sign Up
                 </Button>
             )}
