@@ -203,6 +203,7 @@ export default function Code() {
         if (socketRef.current) {
             socketRef.current?.emit('end-session')
             router.push('/')
+            toast.info('The session has ended')
         }
         setIsDialogOpen(false)
     }
