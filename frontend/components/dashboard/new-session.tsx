@@ -14,6 +14,7 @@ import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
+import { encodeStr } from '@/util/encryption'
 
 export const NewSession = () => {
     const router = useRouter()
@@ -109,7 +110,8 @@ export const NewSession = () => {
                 switch (newMessage.type) {
                     case WebSocketMessageType.SUCCESS:
                         updateMatchmakingStatus(MatchingStatus.MATCH_FOUND, newMessage.matchId)
-                        router.push(`/code/${newMessage.matchId}`)
+                        const encodedId = encodeStr(newMessage.matchId)
+                        router.push(`/code/${encodedId}`)
                         break
                     case WebSocketMessageType.FAILURE:
                         socketRef.current?.close()
@@ -267,7 +269,7 @@ export const NewSession = () => {
                                 <Button
                                     variant={'ghostTabLabel'}
                                     size={'lg'}
-                                    onClick={() => void router.push(`/code/${modalData.matchId}`)}
+                                    onClick={() => void router.push(`/code/${encodeStr(modalData.matchId)}`)}
                                 >
                                     Proceed to coding session
                                 </Button>
