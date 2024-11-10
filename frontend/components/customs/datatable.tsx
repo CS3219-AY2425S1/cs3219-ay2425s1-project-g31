@@ -129,21 +129,22 @@ export default function Datatable({
                                                     <DeleteIcon />
                                                 </Button>
                                             )}
-                                            {col.customAction && col.customAction.formatter ? (
-                                                col.customAction.formatter(elem, router)
-                                            ) : (
-                                                <Button
-                                                    variant="iconNoBorder"
-                                                    size="icon"
-                                                    onClick={() => {
-                                                        if (col.customAction && col.customAction.onClick) {
-                                                            col.customAction.onClick(elem)
-                                                        }
-                                                    }}
-                                                >
-                                                    {col.customAction?.customActionIcon}
-                                                </Button>
-                                            )}
+                                            {col.customAction &&
+                                                (col.customAction.formatter ? (
+                                                    col.customAction.formatter(elem, router)
+                                                ) : (
+                                                    <Button
+                                                        variant="iconNoBorder"
+                                                        size="icon"
+                                                        onClick={() => {
+                                                            if (col.customAction && col.customAction.onClick) {
+                                                                col.customAction.onClick(elem)
+                                                            }
+                                                        }}
+                                                    >
+                                                        {col.customAction?.customActionIcon}
+                                                    </Button>
+                                                ))}
                                         </TableCell>
                                     )
                                 }
