@@ -7,6 +7,7 @@ import { languages } from '@codemirror/language-data'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { javascript } from '@codemirror/lang-javascript'
 import { indentWithTab } from '@codemirror/commands'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 interface IProps {
     language: string
@@ -60,15 +61,11 @@ const ReadOnlyCodeMirrorEditor = ({ language, code }: IProps) => {
     }, [editorContainerRef, code])
 
     return (
-        <div
-            ref={editorContainerRef}
-            style={{
-                height: '400px',
-                overflow: 'scroll',
-                border: '1px solid lightgray',
-                backgroundColor: '#282c34',
-            }}
-        />
+        <ScrollArea className="h-80 rounded-b-xl bg-[#282c34]">
+            <div ref={editorContainerRef} />
+            <ScrollBar orientation="vertical" />
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
     )
 }
 

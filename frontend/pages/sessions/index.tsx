@@ -2,7 +2,6 @@ import { IGetSessions, IPagination, ISession, ISortBy, SessionManager, SortDirec
 import { useEffect, useState } from 'react'
 
 import Datatable from '@/components/customs/datatable'
-import Loading from '@/components/customs/loading'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { columns } from './columns'
 import { toast } from 'sonner'
@@ -11,9 +10,11 @@ import { Button } from '@/components/ui/button'
 import ConfirmDialog, { ConfirmDialogProps } from '@/components/customs/confirm-dialog'
 import { getOngoingMatch } from '@/services/matching-service-api'
 import { useRouter } from 'next/router'
+import { TableSkeleton } from '@/components/customs/custom-loader'
 
 export default function Sessions() {
     const router = useRouter()
+    const [loading, setLoading] = useState(true)
     const [data, setData] = useState<ISession[]>([])
     const [pagination, setPagination] = useState<IPagination>({
         totalPages: 1,
@@ -51,7 +52,7 @@ export default function Sessions() {
         checkOngoingSession()
     }, [])
 
-    const { session, loading } = useProtectedRoute()
+    const { session } = useProtectedRoute()
 
     const paginationHandler = (page: number, limit: number) => {
         const body = {
@@ -91,12 +92,13 @@ export default function Sessions() {
     }
 
     const loadData = async () => {
+        setLoading(true)
         const body: IGetSessions = {
             page: pagination.currentPage,
             limit: pagination.limit,
             sortBy: sortBy,
         }
-        await load(body)
+        await load(body).then(() => setLoading(false))
     }
 
     const checkOngoingSession = async () => {
@@ -117,12 +119,7 @@ export default function Sessions() {
         }
     }
 
-    if (loading)
-        return (
-            <div className="flex flex-col h-screen w-screen items-center justify-center">
-                <Loading />
-            </div>
-        )
+    if (loading) return <TableSkeleton />
 
     return (
         <div className="m-8">

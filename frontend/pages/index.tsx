@@ -1,7 +1,6 @@
 'use client'
 
 import ConfirmDialog, { ConfirmDialogProps } from '@/components/customs/confirm-dialog'
-import Loading from '@/components/customs/loading'
 import { NewSession } from '@/components/dashboard/new-session'
 import { ProgressCard } from '@/components/dashboard/progress-card'
 import { RecentSessions } from '@/components/dashboard/recent-sessions'
@@ -38,7 +37,7 @@ export default function Home() {
         },
     ]
 
-    const { session, loading } = useProtectedRoute()
+    const { session } = useProtectedRoute()
     const [ongoingMatchData, setOngoingMatchData] = useState<IMatch | null>()
     const [dialog, setDialog] = useState<ConfirmDialogProps>({
         dialogData: {
@@ -55,6 +54,8 @@ export default function Home() {
         showCancelButton: false,
     })
     const [recentSessions, setRecentSessions] = useState<IPartialSessions[]>([])
+    const [loadingNewSession, setLoadingNewSession] = useState(true)
+    const [loadingRecentSessions, setLoadingRecentSessions] = useState(true)
 
     const checkOngoingSession = async () => {
         if (!session?.user?.id) return
@@ -102,16 +103,11 @@ export default function Home() {
     }
 
     useEffect(() => {
-        checkOngoingSession()
-        getRecentSessions()
+        setLoadingNewSession(true)
+        setLoadingRecentSessions(true)
+        checkOngoingSession().then(() => setLoadingNewSession(false))
+        getRecentSessions().then(() => setLoadingRecentSessions(false))
     }, [])
-
-    if (loading)
-        return (
-            <div className="flex flex-col h-screen w-screen items-center justify-center">
-                <Loading />
-            </div>
-        )
 
     return (
         <div className="my-4">
@@ -130,11 +126,11 @@ export default function Home() {
             </div>
             <div className="flex flex-row justify-between my-4">
                 {ongoingMatchData ? (
-                    <ResumeSession match={ongoingMatchData} isOngoing={handleIsOngoing} />
+                    <ResumeSession match={ongoingMatchData} isOngoing={handleIsOngoing} isLoading={loadingNewSession} />
                 ) : (
-                    <NewSession />
+                    <NewSession isLoading={loadingNewSession} />
                 )}
-                <RecentSessions data={recentSessions} />
+                <RecentSessions data={recentSessions} isLoading={loadingRecentSessions} />
             </div>
             <ConfirmDialog {...dialog} />
         </div>

@@ -1,47 +1,38 @@
 'use client'
 
-import { EndIcon, PlayIcon } from '@/assets/icons'
 import { ChatModel, ICollabDto, LanguageMode, getCodeMirrorLanguage } from '@repo/collaboration-types'
 import { useEffect, useRef, useState } from 'react'
 
-import { Button } from '@/components/ui/button'
-import CustomLabel from '@/components/ui/label'
 import CustomTabs from '@/components/customs/custom-tabs'
-import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import Image from 'next/image'
-import LanguageModeSelect from '../language-mode-select'
+import LanguageModeSelect from '../../../components/code/language-mode-select'
 import React from 'react'
-import TestcasesTab from '../testcase-tab'
+import TestcasesTab from '../../../components/code/testcase-tab'
 import useProtectedRoute from '@/hooks/UseProtectedRoute'
 import { useRouter } from 'next/router'
-import CodeMirrorEditor from '../editor'
-import { Category, IMatch, SortedComplexity } from '@repo/user-types'
+import CodeMirrorEditor from '../../../components/code/editor'
+import { Complexity, IMatch } from '@repo/user-types'
 import { useSession } from 'next-auth/react'
 import { getMatchDetails } from '@/services/matching-service-api'
-import { convertSortedComplexityToComplexity } from '@repo/question-types'
-import Chat from './chat'
+import Chat from '../../../components/code/chat'
 import io, { Socket } from 'socket.io-client'
-import UserAvatar from '@/components/customs/custom-avatar'
 import { toast } from 'sonner'
 import { ISubmission } from '@repo/submission-types'
 import { mapLanguageToJudge0 } from '@/util/language-mapper'
-import TestResult from '../test-result'
-import { Cross1Icon } from '@radix-ui/react-icons'
-import ConfirmDialog from '@/components/customs/confirm-dialog'
+import TestResult from '../../../components/code/test-result'
 import { getChatHistory, getCollabHistory } from '@/services/collaboration-service-api'
-import ReadOnlyCodeMirrorEditor from '../read-only-editor'
+import ReadOnlyCodeMirrorEditor from '../../../components/code/read-only-editor'
 import { ResultModel } from '@repo/collaboration-types'
-import { capitalizeFirstLowerRest } from '@/util/string-modification'
-
-const formatQuestionCategories = (cat: Category[]) => {
-    return cat.map((c) => capitalizeFirstLowerRest(c)).join(', ')
-}
+import { TextSkeleton } from '@/components/customs/custom-loader'
+import { CodeQuestion } from '../../../components/code/question'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { CodeActions } from '@/components/code/actions'
 
 export default function Code() {
     const router = useRouter()
-    const [isChatOpen, setIsChatOpen] = useState(true)
     const { id } = router.query
     const editorRef = useRef<{ getText: () => string } | null>(null)
+    const [loading, setLoading] = useState(true)
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
     const [chatData, setChatData] = useState<ChatModel[]>([])
@@ -59,6 +50,8 @@ export default function Code() {
         undefined
     )
 
+    useProtectedRoute()
+
     const retrieveMatchDetails = async (matchId: string) => {
         const response = await getMatchDetails(matchId).catch((err) => {
             if (retry >= 3) {
@@ -75,6 +68,7 @@ export default function Code() {
                 setEditorLanguage(collabResponse?.language ?? LanguageMode.Javascript)
                 setCollabData(collabResponse)
             }
+            setLoading(false)
         }
     }
 
@@ -150,10 +144,6 @@ export default function Code() {
         }
     }, [isViewOnly])
 
-    const toggleChat = () => {
-        setIsChatOpen(!isChatOpen)
-    }
-
     const handleSendMessage = (message: string) => {
         if (message.trim()) {
             const msg: ChatModel = {
@@ -207,24 +197,6 @@ export default function Code() {
         setIsDialogOpen(false)
     }
 
-    const renderCloseButton = () => {
-        return isViewOnly ? (
-            <>
-                <Cross1Icon className="mr-2" />
-                Close
-            </>
-        ) : (
-            <>
-                <EndIcon fill="white" className="mr-2" />
-                End Session
-            </>
-        )
-    }
-
-    const { loading } = useProtectedRoute()
-
-    if (loading) return null
-
     return (
         <div className="flex gap-3">
             <section className="w-1/3 flex flex-col h-fullscreen">
@@ -232,98 +204,43 @@ export default function Code() {
                     <Image src="/logo.svg" alt="Logo" width={28} height={28} className="my-2" />
                     <h2 className="text-lg font-medium">
                         Session with:{' '}
-                        {sessionData?.user.username !== matchData?.user1Name
-                            ? matchData?.user1Name
-                            : matchData?.user2Name}
+                        {loading ? (
+                            <TextSkeleton />
+                        ) : sessionData?.user.username !== matchData?.user1Name ? (
+                            matchData?.user1Name
+                        ) : (
+                            matchData?.user2Name
+                        )}
                     </h2>
                 </div>
-                <div
-                    id="question-data"
-                    className="flex-grow border-2 rounded-lg border-slate-100 mt-2 py-2 px-3 overflow-y-auto"
-                >
-                    <h3 className="text-lg font-medium">{matchData?.question.title}</h3>
-                    <div className="flex gap-3 my-2 text-sm">
-                        <DifficultyLabel
-                            complexity={convertSortedComplexityToComplexity(
-                                matchData?.question.complexity ?? SortedComplexity.EASY
-                            )}
-                        />
-                        <CustomLabel
-                            title={formatQuestionCategories(matchData?.question.categories ?? [])}
-                            textColor="text-theme"
-                            bgColor="bg-theme-100"
-                        />
-                    </div>
-                    <div className="mt-6 whitespace-pre-wrap">{matchData?.question.description}</div>
-                </div>
-
-                <div className="border-2 rounded-lg border-slate-100 mt-4 max-h-twoFifthScreen flex flex-col">
-                    <div className="flex items-center justify-between border-b-[1px] pl-3 ">
-                        <h3 className="text-lg font-medium">Chat</h3>
-                        <Button variant="iconNoBorder" size="icon" onClick={toggleChat}>
-                            <Image
-                                src={`/icons/${isChatOpen ? 'minimise' : 'maximise'}.svg`}
-                                alt="Minimise chat"
-                                width={20}
-                                height={20}
-                            />
-                        </Button>
-                    </div>
-                    {isChatOpen && (
-                        <Chat
-                            chatData={isViewOnly ? (collabData?.chatHistory ?? []) : chatData}
-                            isViewOnly={isViewOnly}
-                            handleSendMessage={handleSendMessage}
-                        />
-                    )}
-                </div>
+                <CodeQuestion
+                    complexity={matchData?.question.complexity ?? Complexity.EASY}
+                    loading={loading}
+                    title={matchData?.question.title ?? ''}
+                    description={matchData?.question.description ?? ''}
+                    categories={matchData?.question.categories ?? []}
+                />
+                <Chat
+                    isViewOnly={isViewOnly}
+                    chatData={isViewOnly ? (collabData?.chatHistory ?? []) : chatData}
+                    handleSendMessage={handleSendMessage}
+                />
             </section>
             <section className="w-2/3 flex flex-col h-fullscreen">
-                <div id="control-panel" className="flex justify-between">
-                    <div className="flex gap-3">
-                        {!isViewOnly && (
-                            <Button variant={'primary'} onClick={handleRunTests} disabled={isCodeRunning}>
-                                {isCodeRunning ? (
-                                    'Executing...'
-                                ) : (
-                                    <>
-                                        {' '}
-                                        <PlayIcon fill="white" height="18px" width="18px" className="mr-2" />
-                                        Run test
-                                    </>
-                                )}
-                            </Button>
-                        )}
-                    </div>
-                    <div className="flex flex-row items-center">
-                        {!isViewOnly && (
-                            <UserAvatar
-                                username={
-                                    matchData?.user1Id === sessionData?.user.id
-                                        ? matchData?.user2Name
-                                        : matchData?.user1Name
-                                }
-                                isOnline={isOtherUserOnline}
-                            />
-                        )}
-                        <Button className="bg-red hover:bg-red-dark" onClick={handleEndSession}>
-                            {renderCloseButton()}
-                        </Button>
-                        <ConfirmDialog
-                            showCancelButton
-                            dialogData={{
-                                title: 'Warning!',
-                                content:
-                                    'Are you sure you want to end the session? This will permanently end the session for both you and the other participant.',
-                                isOpen: isDialogOpen,
-                            }}
-                            closeHandler={() => setIsDialogOpen(false)}
-                            confirmHandler={handleEndSessionConfirmation}
-                        />
-                    </div>
-                </div>
+                <CodeActions
+                    isLoading={loading}
+                    isViewOnly={isViewOnly}
+                    username={matchData?.user1Id === sessionData?.user.id ? matchData?.user2Name : matchData?.user1Name}
+                    isCodeRunning={isCodeRunning}
+                    handleRunTests={handleRunTests}
+                    isOtherUserOnline={isOtherUserOnline}
+                    handleEndSession={handleEndSession}
+                    isDialogOpen={isDialogOpen}
+                    setIsDialogOpen={setIsDialogOpen}
+                    handleEndSessionConfirmation={handleEndSessionConfirmation}
+                />
                 <div id="editor-container" className="mt-4">
-                    <div id="language-mode-select" className="rounded-t-xl bg-black">
+                    <div id="language-mode-select" className="rounded-t-xl bg-neutral-800">
                         <LanguageModeSelect
                             displayValue={editorLanguage}
                             setDisplayValue={setEditorLanguage}
@@ -351,13 +268,14 @@ export default function Code() {
                     setActiveTab={setActiveTestTab}
                     className="mt-4 border-2 rounded-t-lg border-slate-100"
                 />
-                <div
+                <ScrollArea
                     id="test-results-container"
-                    className="border-2 rounded-lg border-t-0 rounded-t-none border-slate-100 flex-grow overflow-y-auto"
+                    className="border-2 rounded-lg border-t-0 rounded-t-none border-slate-100 flex-grow"
                 >
                     <div className="m-4 flex overflow-x-auto">
                         {activeTestTab === 0 ? (
                             <TestcasesTab
+                                isLoading={loading}
                                 activeTestcaseIdx={activeTest}
                                 setActiveTestcaseIdx={setActiveTest}
                                 testInputs={matchData?.question.testInputs ?? []}
@@ -365,6 +283,7 @@ export default function Code() {
                             />
                         ) : (
                             <TestResult
+                                isLoading={isCodeRunning}
                                 result={isViewOnly ? collabData?.executionResult : testResult?.data}
                                 expectedOutput={
                                     isViewOnly
@@ -376,7 +295,7 @@ export default function Code() {
                             />
                         )}
                     </div>
-                </div>
+                </ScrollArea>
             </section>
         </div>
     )
