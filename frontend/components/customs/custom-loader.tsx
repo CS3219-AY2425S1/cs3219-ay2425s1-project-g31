@@ -17,31 +17,6 @@ function LargeTextSkeleton() {
     return <Skeleton className="inline-block align-baseline h-40 w-full" />
 }
 
-const NewSessionSkeleton = () => {
-    return (
-        <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
-            <div>
-                <Skeleton className="w-1/3 h-10 mb-4" />
-                <LargeTextSkeleton />
-                <LargeTextSkeleton />
-            </div>
-            <LongTextSkeleton />
-        </div>
-    )
-}
-
-const RecentSessionSkeleton = () => {
-    return (
-        <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
-            <div>
-                <Skeleton className="w-1/3 h-10 mb-4" />
-                <Skeleton className="inline-block align-baseline h-80 w-full" />
-            </div>
-            <LongTextSkeleton />
-        </div>
-    )
-}
-
 function LongTextSkeleton() {
     return <Skeleton className="inline-block align-baseline h-6 w-full" />
 }
@@ -58,12 +33,4 @@ function DataSkeleton() {
     )
 }
 
-export {
-    TableSkeleton,
-    DataSkeleton,
-    TextSkeleton,
-    LargeTextSkeleton,
-    LongTextSkeleton,
-    NewSessionSkeleton,
-    RecentSessionSkeleton,
-}
+export { TableSkeleton, DataSkeleton, TextSkeleton, LargeTextSkeleton, LongTextSkeleton }

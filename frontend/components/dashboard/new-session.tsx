@@ -14,9 +14,8 @@ import { addUserToMatchmaking } from '../../services/matching-service-api'
 import CustomModal from '../customs/custom-modal'
 import Loading from '../customs/loading'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
-import { LargeTextSkeleton, NewSessionSkeleton } from '../customs/custom-loader'
 
-export const NewSession = ({ isLoading }: { isLoading: boolean }) => {
+export const NewSession = () => {
     const router = useRouter()
     const socketRef = useRef<WebSocket | undefined>(undefined)
 
@@ -165,10 +164,6 @@ export const NewSession = ({ isLoading }: { isLoading: boolean }) => {
             isOpen: false,
             matchStatus: MatchingStatus.NOT_IN_QUEUE,
         }))
-    }
-
-    if (isLoading) {
-        return <NewSessionSkeleton />
     }
 
     return (

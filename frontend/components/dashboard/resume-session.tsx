@@ -3,15 +3,13 @@ import { Button } from '../ui/button'
 import { IMatch } from '@repo/user-types'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
-import { LargeTextSkeleton } from '../customs/custom-loader'
 
 interface IResumeSessionProps {
     match: IMatch
     isOngoing: () => Promise<boolean>
-    isLoading: boolean
 }
 
-export default function ResumeSession({ match, isOngoing, isLoading }: IResumeSessionProps) {
+export default function ResumeSession({ match, isOngoing }: IResumeSessionProps) {
     const router = useRouter()
 
     const { category, complexity } = match
@@ -22,10 +20,6 @@ export default function ResumeSession({ match, isOngoing, isLoading }: IResumeSe
             if (!ongoing) return
             router.push(`/code/${match.id}`)
         } catch (error) {}
-    }
-
-    if (isLoading) {
-        return <LargeTextSkeleton />
     }
 
     return (

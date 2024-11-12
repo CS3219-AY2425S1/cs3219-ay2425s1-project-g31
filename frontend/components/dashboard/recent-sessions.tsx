@@ -7,7 +7,6 @@ import { MoveRight } from 'lucide-react'
 import { IPartialSessions } from '@/types'
 import CustomLabel from '../ui/label'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
-import { RecentSessionSkeleton } from '../customs/custom-loader'
 
 const cols: { key: keyof IPartialSessions; label: string }[] = [
     {
@@ -24,11 +23,7 @@ const cols: { key: keyof IPartialSessions; label: string }[] = [
     },
 ]
 
-export const RecentSessions = ({ data, isLoading }: { data: IPartialSessions[]; isLoading: boolean }) => {
-    if (isLoading) {
-        return <RecentSessionSkeleton />
-    }
-
+export const RecentSessions = ({ data }: { data: IPartialSessions[] }) => {
     return (
         <div className="border-solid border-2 border-gray-200 rounded flex flex-col w-dashboard p-6 min-h-[60vh] max-h-[90vh] overflow-auto justify-between">
             <div>
