@@ -4,6 +4,7 @@ import url from 'url'
 import WebSocket, { Server as WebSocketServer } from 'ws'
 import loggerUtil from '../common/logger.util'
 import { addUserToMatchmaking, removeUserFromMatchingQueue } from '../controllers/matching.controller'
+import mqConnection from './rabbitmq.service'
 
 export class WebSocketConnection {
     private wss: WebSocketServer
@@ -14,6 +15,7 @@ export class WebSocketConnection {
         this.wss.on('connection', (ws: WebSocket, req: IncomingMessage) => {
             const query = url.parse(req.url, true).query
             const websocketId = query.id as string
+            const userId = query.userId as string
 
             if (!websocketId) {
                 ws.close(1008, 'Missing userId')
@@ -22,15 +24,9 @@ export class WebSocketConnection {
 
             this.clients.set(websocketId, ws)
 
-            // // Close connection after 2 minutes automatically
-            // const closeAfterTimeout = setTimeout(() => {
-            //     ws.close(1000, 'Connection closed by server after 2 minutes')
-            // }, 120000)
-
             ws.on('message', (message: string) => this.handleMessage(message, websocketId))
             ws.on('close', () => {
-                // clearTimeout(closeAfterTimeout)
-                this.handleClose(websocketId)
+                this.handleClose(websocketId, userId)
             })
         })
     }
@@ -61,9 +57,10 @@ export class WebSocketConnection {
     }
 
     // Handle WebSocket close event
-    private handleClose(websocketId: string): void {
+    private handleClose(websocketId: string, userId: string): void {
         loggerUtil.info(`User ${websocketId} disconnected`)
         this.clients.delete(websocketId)
+        mqConnection.cancelUser(websocketId, userId)
     }
 
     // Send a message to a specific user by websocketId

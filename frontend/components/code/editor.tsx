@@ -11,6 +11,7 @@ import { userColor } from '@/util/cursor-colors'
 import { oneDark } from '@codemirror/theme-one-dark'
 import { javascript } from '@codemirror/lang-javascript'
 import { indentWithTab } from '@codemirror/commands'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 
 interface IProps {
     roomId: string
@@ -93,15 +94,11 @@ const CodeMirrorEditor = forwardRef(({ roomId, language }: IProps, ref) => {
     }, [editorContainerRef, ydoc, ytext, session])
 
     return (
-        <div
-            ref={editorContainerRef}
-            style={{
-                height: '400px',
-                overflow: 'scroll',
-                border: '1px solid lightgray',
-                backgroundColor: '#282c34',
-            }}
-        />
+        <ScrollArea className="h-80 rounded-b-xl bg-[#282c34]">
+            <div ref={editorContainerRef} />
+            <ScrollBar orientation="vertical" />
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
     )
 })
 

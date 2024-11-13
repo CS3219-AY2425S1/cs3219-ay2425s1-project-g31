@@ -1,17 +1,22 @@
 import CustomTabs from '@/components/customs/custom-tabs'
+import { LargeTextSkeleton } from '../customs/custom-loader'
 
 export default function TestcasesTab({
+    isLoading,
     activeTestcaseIdx,
     setActiveTestcaseIdx,
     testInputs,
     testOutputs,
 }: {
+    isLoading: boolean
     activeTestcaseIdx: number
     setActiveTestcaseIdx: (tab: number) => void
     testInputs: string[]
     testOutputs: string[]
 }) {
     const testcaseTabs = testInputs?.map((_, idx) => `Case ${idx + 1}`)
+
+    if (isLoading) return <LargeTextSkeleton />
 
     if (!testInputs || testInputs.length === 0) return null
     return (

@@ -1,12 +1,17 @@
 import { ResultModel } from '@repo/collaboration-types'
+import { LargeTextSkeleton } from '../customs/custom-loader'
 
 export default function TestResult({
     result,
     expectedOutput,
+    isLoading,
 }: {
     result?: ResultModel | undefined
     expectedOutput: string
+    isLoading: boolean
 }) {
+    if (isLoading) return <LargeTextSkeleton />
+
     if (!result) return <div className="text-sm text-slate-400">No test results yet</div>
 
     if (!result.status) {
@@ -17,8 +22,6 @@ export default function TestResult({
             </div>
         )
     }
-
-    const { id, description } = result.status
 
     return (
         <div className="w-full">

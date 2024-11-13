@@ -21,8 +21,10 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { formFields, getColumns } from './props'
+import { TableSkeleton } from '@/components/customs/custom-loader'
 
 export default function Questions() {
+    const [loading, setLoading] = useState(true)
     const { data: session } = useSession()
     const isAdmin = session?.user.role === Role.ADMIN
 
@@ -223,19 +225,15 @@ export default function Questions() {
         loadData()
     }
 
-    const { loading } = useProtectedRoute()
+    useProtectedRoute()
 
     useEffect(() => {
         if (!session) return
-        loadData()
+        setLoading(true)
+        loadData().then(() => setLoading(false))
     }, [])
 
-    if (loading)
-        return (
-            <div className="flex flex-col h-screen w-screen items-center justify-center">
-                <Loading />
-            </div>
-        )
+    if (loading) return <TableSkeleton />
 
     return (
         <div className="m-8">
