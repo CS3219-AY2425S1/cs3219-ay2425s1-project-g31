@@ -10,6 +10,7 @@ import {
     findPaginatedQuestionsWithSort,
     findPaginatedQuestionsWithSortAndFilter,
     findQuestionCount,
+    findQuestionCountsByComplexity,
     findQuestionCountWithFilter,
     findRandomQuestionByTopicAndComplexity,
     getFilterKeys,
@@ -197,4 +198,9 @@ export async function handleGetRandomQuestion(request: Request, response: Respon
     }
 
     response.status(200).json(question).send()
+}
+
+export async function handleGetQuestionCounts(_: Request, response: Response): Promise<void> {
+    const counts = await findQuestionCountsByComplexity()
+    response.status(200).json(counts).send()
 }

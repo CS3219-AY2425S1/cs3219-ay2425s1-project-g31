@@ -29,6 +29,7 @@
         "@repo/eslint-config": "*",
         "@repo/request-types": "*",
         "@repo/typescript-config": "*",
+        "@repo/question-types": "*",
         "@repo/user-types": "*",
         "@testcontainers/mongodb": "^10.13.1",
         "@types/cors": "^2.8.17",

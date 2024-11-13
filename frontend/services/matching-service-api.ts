@@ -1,6 +1,7 @@
+import { IQuestionCountsDto } from '@repo/question-types'
+import { IMatch } from '@repo/user-types'
 import axios from 'axios'
 import axiosClient from './axios-middleware'
-import { IMatch } from '@repo/user-types'
 
 const axiosInstance = axiosClient.matchingServiceAPI
 
@@ -46,5 +47,19 @@ export const getOngoingMatch = async (userId: string): Promise<IMatch | null> =>
         return match || null
     } catch (error) {
         return null
+    }
+}
+
+// GET /matching/user/{userId}/complexity/count
+export const getCompletedQuestionCountsRequest = async (userId: string): Promise<IQuestionCountsDto> => {
+    try {
+        const response: IQuestionCountsDto = await axiosInstance.get(`/matching/user/${userId}/complexity/count`)
+        return response
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            throw new Error('An unexpected error occurred: ' + error.message)
+        } else {
+            throw new Error('An unexpected error occurred')
+        }
     }
 }
