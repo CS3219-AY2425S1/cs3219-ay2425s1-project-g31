@@ -3,6 +3,7 @@ import { DifficultyLabel } from '@/components/customs/difficulty-label'
 import { Button } from '@/components/ui/button'
 import CustomLabel from '@/components/ui/label'
 import { IDatatableColumn, IRowData } from '@/types'
+import { encodeStr } from '@/util/encryption'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
 import { EyeIcon } from 'lucide-react'
 import { NextRouter } from 'next/router'
@@ -77,7 +78,8 @@ export const columns: IDatatableColumn[] = [
                             variant="iconNoBorder"
                             size="icon"
                             onClick={() => {
-                                router.push(`/code/${elem._id}`)
+                                const encoded = encodeStr(elem._id)
+                                router.push(`/code/${encoded}`)
                             }}
                         >
                             {elem.isCompleted ? <EyeIcon /> : <PlayIcon />}

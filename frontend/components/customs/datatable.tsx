@@ -65,7 +65,7 @@ export default function Datatable({
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>{hideIdx ? null : 'No.'}</TableHead>
+                        <TableHead style={{ width: '5%' }}>{hideIdx ? null : 'No.'}</TableHead>
                         {columns.map((elem) => {
                             if (elem.isHidden) {
                                 return null
@@ -129,21 +129,22 @@ export default function Datatable({
                                                     <DeleteIcon />
                                                 </Button>
                                             )}
-                                            {col.customAction && col.customAction.formatter ? (
-                                                col.customAction.formatter(elem, router)
-                                            ) : (
-                                                <Button
-                                                    variant="iconNoBorder"
-                                                    size="icon"
-                                                    onClick={() => {
-                                                        if (col.customAction && col.customAction.onClick) {
-                                                            col.customAction.onClick(elem)
-                                                        }
-                                                    }}
-                                                >
-                                                    {col.customAction?.customActionIcon}
-                                                </Button>
-                                            )}
+                                            {col.customAction &&
+                                                (col.customAction.formatter ? (
+                                                    col.customAction.formatter(elem, router)
+                                                ) : (
+                                                    <Button
+                                                        variant="iconNoBorder"
+                                                        size="icon"
+                                                        onClick={() => {
+                                                            if (col.customAction && col.customAction.onClick) {
+                                                                col.customAction.onClick(elem)
+                                                            }
+                                                        }}
+                                                    >
+                                                        {col.customAction?.customActionIcon}
+                                                    </Button>
+                                                ))}
                                         </TableCell>
                                     )
                                 }

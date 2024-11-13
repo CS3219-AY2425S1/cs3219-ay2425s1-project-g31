@@ -32,6 +32,7 @@ import { getChatHistory, getCollabHistory } from '@/services/collaboration-servi
 import ReadOnlyCodeMirrorEditor from '../read-only-editor'
 import { ResultModel } from '@repo/collaboration-types'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
+import { decodeStr } from '@/util/encryption'
 
 const formatQuestionCategories = (cat: Category[]) => {
     return cat.map((c) => capitalizeFirstLowerRest(c)).join(', ')
@@ -40,7 +41,7 @@ const formatQuestionCategories = (cat: Category[]) => {
 export default function Code() {
     const router = useRouter()
     const [isChatOpen, setIsChatOpen] = useState(true)
-    const { id } = router.query
+    const [id, setId] = useState(router.query.id as string)
     const editorRef = useRef<{ getText: () => string } | null>(null)
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
     const testTabs = ['Testcases', 'Test Results']
@@ -81,8 +82,10 @@ export default function Code() {
     const { data: sessionData } = useSession()
 
     useEffect(() => {
-        const matchId = router.query.id as string
+        const encodedId = router.query.id as string
+        const matchId = decodeStr(encodedId)
         retrieveMatchDetails(matchId)
+        setId(matchId)
     }, [router.query.id, retry])
 
     useEffect(() => {
@@ -136,6 +139,7 @@ export default function Code() {
         socketRef.current.on('disconnect', () => {
             if (!isViewOnly) {
                 router.push('/')
+                toast.info('The session has ended')
             }
         })
 
@@ -201,7 +205,7 @@ export default function Code() {
 
     function handleEndSessionConfirmation() {
         if (socketRef.current) {
-            socketRef.current?.emit('end-session')
+            socketRef.current.emit('end-session')
             router.push('/')
         }
         setIsDialogOpen(false)

@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import ConfirmDialog, { ConfirmDialogProps } from '@/components/customs/confirm-dialog'
 import { getOngoingMatch } from '@/services/matching-service-api'
 import { useRouter } from 'next/router'
+import { encodeStr } from '@/util/encryption'
 
 export default function Sessions() {
     const router = useRouter()
@@ -111,7 +112,8 @@ export default function Sessions() {
         if (!session?.user?.id) return
         const matchData = await getOngoingMatch(session.user.id)
         if (matchData) {
-            router.push(`/code/${matchData.id}`)
+            const encodedId = encodeStr(matchData.id)
+            router.push(`/code/${encodedId}`)
         } else {
             setDialog((prev) => ({ ...prev, dialogData: { ...prev.dialogData, isOpen: true } }))
         }

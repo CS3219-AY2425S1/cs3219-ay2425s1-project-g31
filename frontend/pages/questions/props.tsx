@@ -15,12 +15,10 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
         },
         {
             key: 'title',
-            width: '30%',
             offAutoCapitalize: true,
         },
         {
             key: 'categories',
-            width: '40%',
             formatter: (values) => {
                 const c = values.map((v: string) => (
                     <CustomLabel
@@ -72,7 +70,6 @@ const getColumns = (isAdmin: boolean): IDatatableColumn[] => {
         },
         {
             key: 'complexity',
-            width: '10%',
             isSortable: true,
             formatter: (value) => {
                 return <DifficultyLabel complexity={value} />
