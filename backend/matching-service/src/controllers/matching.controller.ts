@@ -1,14 +1,16 @@
-import { IPaginationRequest, ITypedBodyRequest } from '@repo/request-types'
-import { WebSocketMessageType } from '@repo/ws-types'
-import { randomUUID } from 'crypto'
-import { Response } from 'express'
-import { wsConnection } from '../server'
-import mqConnection from '../services/rabbitmq.service'
-import { IMatch } from '@repo/user-types'
 import { ICollabDto, LanguageMode } from '@repo/collaboration-types'
-import { MatchDto } from '../types/MatchDto'
+import { convertComplexityToSortedComplexity } from '@repo/question-types'
+import { IPaginationRequest, ITypedBodyRequest } from '@repo/request-types'
+import { IMatch } from '@repo/user-types'
+import { WebSocketMessageType } from '@repo/ws-types'
+import axios from 'axios'
+import { randomUUID } from 'crypto'
+import { Request, Response } from 'express'
+import config from '../common/config.util'
+import logger from '../common/logger.util'
 import {
     createMatch,
+    findCompletedQuestionCount,
     findMatchCount,
     findOngoingMatch,
     findPaginatedMatches,
@@ -18,12 +20,11 @@ import {
     isValidSort,
     updateMatchCompletion,
 } from '../models/matching.repository'
+import { wsConnection } from '../server'
 import { getRandomQuestion } from '../services/matching.service'
-import { convertComplexityToSortedComplexity } from '@repo/question-types'
+import mqConnection from '../services/rabbitmq.service'
+import { MatchDto } from '../types/MatchDto'
 import { UserQueueRequest, UserQueueRequestDto } from '../types/UserQueueRequestDto'
-import axios from 'axios'
-import config from '../common/config.util'
-import logger from '../common/logger.util'
 
 export async function generateWS(request: ITypedBodyRequest<void>, response: Response): Promise<void> {
     const userHasMatch = await isUserInMatch(request.user.id)
@@ -196,4 +197,10 @@ export async function handleIsUserInMatch(request: ITypedBodyRequest<void>, resp
     response.status(200).send({
         data: userMatch,
     })
+}
+
+export async function handleGetCompletedQuestionCounts(request: Request, response: Response): Promise<void> {
+    const userId = request.params.id
+    const counts = await findCompletedQuestionCount(userId)
+    response.status(200).json(counts).send()
 }
