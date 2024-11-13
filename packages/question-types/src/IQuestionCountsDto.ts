@@ -1,4 +1,4 @@
-import { Complexity } from '@repo/user-types'
+import { Complexity } from './Complexity'
 
 export interface IQuestionCountsDto {
     data: {
