@@ -1,11 +1,10 @@
+import { convertSortedComplexityToComplexity, IQuestionCountsDto } from '@repo/question-types'
+import { Category, SortedComplexity } from '@repo/user-types'
 import { FilterQuery, Model, model, SortOrder } from 'mongoose'
-
 import { CreateQuestionDto } from '../types/CreateQuestionDto'
 import { IQuestion } from '../types/IQuestion'
-import { SortedComplexity } from '@repo/user-types'
-import questionSchema from './question.model'
-import { Category } from '@repo/user-types'
 import { QuestionDto } from '../types/QuestionDto'
+import questionSchema from './question.model'
 
 const questionModel: Model<IQuestion> = model('Question', questionSchema)
 
@@ -108,6 +107,23 @@ export async function updateQuestion(id: string, dto: CreateQuestionDto): Promis
 
 export async function deleteQuestion(id: string): Promise<void> {
     await questionModel.findByIdAndDelete(id)
+}
+
+export async function findQuestionCountsByComplexity(): Promise<IQuestionCountsDto> {
+    const query = [
+        {
+            $group: {
+                _id: '$complexity',
+                count: { $sum: 1 },
+            },
+        },
+    ]
+    const counts: IQuestionCountsDto = { data: [] }
+    const result = await questionModel.aggregate(query)
+    for (const { _id, count } of result) {
+        counts.data.push({ complexity: convertSortedComplexityToComplexity(_id), count })
+    }
+    return counts
 }
 
 function getFilterQueryOptions(filterBy: string[][]): FilterQuery<IQuestion>[] {
