@@ -206,7 +206,7 @@ export const NewSession = () => {
                     </SelectContent>
                 </Select>
             </div>
-            <Button className="mt-4 bg-purple-600 hover:bg-[#A78BFA]" onClick={handleMatchmaking}>
+            <Button variant="primary" onClick={handleMatchmaking}>
                 Start matchmaking
             </Button>
 
