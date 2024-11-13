@@ -8,6 +8,7 @@
     "main": "./dist/index.js",
     "types": "./src/index.ts",
     "devDependencies": {
-        "@repo/typescript-config": "*"
+        "@repo/typescript-config": "*",
+        "@repo/user-types": "*"
     }
 }
