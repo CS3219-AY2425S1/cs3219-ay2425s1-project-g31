@@ -64,8 +64,10 @@ export function isValidSort(key: string, order: string): boolean {
     return orders.includes(order) && keys.includes(key)
 }
 
-export async function findMatchCount(): Promise<number> {
-    return matchModel.countDocuments()
+export async function findMatchCountByUserId(userId: string): Promise<number> {
+    return matchModel.countDocuments({
+        $or: [{ user1Id: userId }, { user2Id: userId }],
+    })
 }
 
 export async function findOngoingMatch(userId: string): Promise<IMatch> {
