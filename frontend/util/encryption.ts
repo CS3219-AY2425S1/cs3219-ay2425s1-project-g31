@@ -3,5 +3,6 @@ export const encodeStr = (str: string) => {
 }
 
 export const decodeStr = (encoded: string) => {
+    if (!encoded) return ''
     return atob(encoded)
 }
