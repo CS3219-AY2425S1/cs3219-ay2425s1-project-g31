@@ -205,7 +205,7 @@ export default function Code() {
 
     function handleEndSessionConfirmation() {
         if (socketRef.current) {
-            socketRef.current?.emit('end-session')
+            socketRef.current.emit('end-session')
             router.push('/')
         }
         setIsDialogOpen(false)
