@@ -144,7 +144,7 @@ export function PasswordReset() {
                 className="w-full py-3 px-3 border bg-[#EFEFEF] rounded-[5px]"
             />
             <DialogFooter>
-                <Button type="submit" className="bg-purple-600 hover:bg-[#A78BFA]" onClick={onEnterEmail}>
+                <Button type="submit" variant="primary" onClick={onEnterEmail}>
                     Send Email
                 </Button>
             </DialogFooter>
