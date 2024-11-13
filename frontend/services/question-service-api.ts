@@ -23,7 +23,8 @@ export const getQuestionsRequest = async (data: IGetQuestions): Promise<IQuestio
         return response
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            throw new Error('An unexpected error occurred: ' + error.message)
+            const errMsg = error?.response?.data || 'INTERNAL SERVER ERROR'
+            throw new Error('An unexpected error occurred: ' + errMsg)
         } else {
             throw new Error('An unexpected error occurred')
         }
@@ -47,12 +48,13 @@ export const getQuestionbyIDRequest = async (id: string): Promise<IQuestion | un
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
+            const errMsg = error?.response?.data || 'INTERNAL SERVER ERROR'
 
             switch (statusCode) {
                 case 404:
                     throw new Error('Error getting questions: No such user!')
                 default:
-                    throw new Error('An error occurred: ' + error.message)
+                    throw new Error('An error occurred: ' + errMsg)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -77,6 +79,7 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
+            const errMsg = error?.response?.data || 'INTERNAL SERVER ERROR'
 
             switch (statusCode) {
                 case 404:
@@ -89,7 +92,7 @@ export const createQuestionRequest = async (data: IQuestion): Promise<IQuestion 
                             error.response?.data.map((err: string) => `(${err})`).join(', ')
                     )
                 default:
-                    throw new Error('An unexpected error occurred: ' + error.message)
+                    throw new Error('An unexpected error occurred: ' + errMsg)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -111,6 +114,7 @@ export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion 
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
+            const errMsg = error?.response?.data || 'INTERNAL SERVER ERROR'
 
             switch (statusCode) {
                 case 401:
@@ -123,7 +127,7 @@ export const updateQuestionRequest = async (data: IQuestion): Promise<IQuestion 
                             error.response?.data.map((err: string) => `(${err})`).join(', ')
                     )
                 default:
-                    throw new Error('An unexpected error occurred: ' + error.message)
+                    throw new Error('An unexpected error occurred: ' + errMsg)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -139,6 +143,7 @@ export const deleteQuestionById = async (id: string): Promise<IQuestion | undefi
     } catch (error) {
         if (axios.isAxiosError(error)) {
             const statusCode = error.response?.status
+            const errMsg = error?.response?.data || 'INTERNAL SERVER ERROR'
 
             switch (statusCode) {
                 case 401:
@@ -146,7 +151,7 @@ export const deleteQuestionById = async (id: string): Promise<IQuestion | undefi
                 case 404:
                     throw new Error('Error deleting the question: No such user!')
                 default:
-                    throw new Error('An unexpected error occurred: ' + error.message)
+                    throw new Error('An unexpected error occurred: ' + errMsg)
             }
         } else {
             throw new Error('An unexpected error occurred')
@@ -161,7 +166,8 @@ export const getQuestionCountsRequest = async (): Promise<IQuestionCountsDto | u
         return response
     } catch (error) {
         if (axios.isAxiosError(error)) {
-            throw new Error('An unexpected error occurred: ' + error.message)
+            const errMsg = error?.response?.data || 'INTERNAL SERVER ERROR'
+            throw new Error('An unexpected error occurred: ' + errMsg)
         } else {
             throw new Error('An unexpected error occurred')
         }

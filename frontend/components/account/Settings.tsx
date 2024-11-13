@@ -38,8 +38,11 @@ function Setting() {
             setIsFormSubmit(true)
             toggleUpdateDialogOpen(false)
             update({ ...session, user: response })
-            toast.success('Profile has been updated successfully.')
+            toast.success('Profile has been updated successfully. You will be signed out.')
             setFormValues({ ...initialFormValues, email: defaultEmail })
+            setTimeout(async () => {
+                await signOut({ callbackUrl: '/auth' })
+            }, 1000)
         } catch (error) {
             if (error instanceof Error) {
                 toast.error(error.message)
@@ -92,6 +95,7 @@ function Setting() {
                             value={formValues.email}
                             onChange={handleFormChange}
                             error={formErrors.email}
+                            isDisabled={true}
                         />
 
                         <InputField

@@ -44,6 +44,7 @@ export default function Sessions() {
     })
 
     const handleConfirmSessionOver = () => {
+        loadData()
         setDialog((prev) => ({ ...prev, dialogData: { ...prev.dialogData, isOpen: false } }))
         setOngoingSession('')
     }

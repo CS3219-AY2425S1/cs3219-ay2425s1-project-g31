@@ -63,6 +63,7 @@ export class WebSocketConnection {
 
             socket.on('end-session', async () => {
                 const socketsInRoom = this.io.sockets.adapter.rooms.get(roomId)
+                this.io.to(roomId).emit('session-ended')
                 if (socketsInRoom) {
                     socketsInRoom.forEach((socketId) => {
                         const socket = this.io.sockets.sockets.get(socketId)

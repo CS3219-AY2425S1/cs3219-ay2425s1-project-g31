@@ -11,7 +11,7 @@ import logger from '../common/logger.util'
 import {
     createMatch,
     findCompletedQuestionCount,
-    findMatchCount,
+    findMatchCountByUserId,
     findOngoingMatch,
     findPaginatedMatches,
     findPaginatedMatchesWithSort,
@@ -165,7 +165,7 @@ export async function handleGetPaginatedSessions(request: IPaginationRequest, re
         response.status(400).json('INVALID_SORT').send()
         return
     }
-    const count = await findMatchCount()
+    const count = await findMatchCountByUserId(userId)
     let matches: IMatch[]
 
     if (sortBy.length) {
