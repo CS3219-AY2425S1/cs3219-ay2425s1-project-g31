@@ -1,0 +1,17 @@
+{
+    "extends": "@repo/typescript-config/tsconfig-next.json",
+    "compilerOptions": {
+        "plugins": [
+            {
+                "name": "next"
+            }
+        ],
+        "paths": {
+            "@/*": ["./*"],
+            "@/fonts": ["./styles/fonts"]
+        },
+        "strictNullChecks": true
+    },
+    "include": ["next-env.d.ts", "next.config.js", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "exclude": ["node_modules", "**/*.test.ts", "**/*.html"]
+}

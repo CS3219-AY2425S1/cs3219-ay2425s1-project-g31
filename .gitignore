@@ -1,0 +1,25 @@
+.git
+.vscode
+
+/node_modules
+**/node_modules
+
+**/.env
+**/.env.*
+
+**/dist
+**/coverage
+
+**/*.log
+
+**/.turbo
+
+**/*.tsbuildinfo
+
+/nginx/ssl
+
+# Local Netlify folder
+.netlify
+
+# Local shell scripts
+**/*.sh

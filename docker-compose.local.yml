@@ -1,0 +1,249 @@
+services:
+    reverse-proxy:
+        container_name: reverse-proxy
+        environment:
+            - D=$
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+            - MATCHING_SERVICE_URL=http://matching-service:3006
+            - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
+            - COLLABORATION_SERVICE_CHAT_URL=http://collaboration-service:3009
+            - RMQ_URL=http://rabbitmq:15672
+            - DOMAIN_NAME=${DOMAIN_NAME}
+        image: nginx:1.27.2-alpine
+        ports:
+            - 8080:8080
+        restart: always
+        volumes:
+            - ./nginx/templates/local-nginx.conf.template:/etc/nginx/templates/nginx.conf.template
+        networks:
+            - backend-network
+        depends_on:
+            - user-service
+            - question-service
+            - matching-service
+        command: sh -c "envsubst < /etc/nginx/templates/nginx.conf.template > /etc/nginx/nginx.conf && nginx -g 'daemon off;'"
+
+    collaboration-service:
+        container_name: collaboration-service
+        build:
+            context: .
+            dockerfile: ./backend/collaboration-service/Dockerfile
+        environment:
+            - NODE_ENV=development
+            - PORT=3008
+            - WS_PORT=3009
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@collab-db:27017/collaboration-service?authSource=admin
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+            - MATCHING_SERVICE_URL=http://matching-service:3006
+            - JUDGE_ZERO_URL=http://judgezero-server:2358
+        restart: always
+        networks:
+            - backend-network
+        depends_on:
+            - judgezero-server
+            - judgezero-workers
+            - collab-db
+
+    collab-db:
+        container_name: collab-db
+        image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        ports:
+            - '27087:27017'
+        volumes:
+            - 'collab_data:/data/db'
+        networks:
+            - backend-network
+        command: mongod --quiet --logpath /dev/null --auth
+
+    judgezero-server:
+        image: judge0/judge0:1.13.1
+        volumes:
+            - ./judge0.conf:/judge0.conf:ro
+        networks:
+            - backend-network
+        privileged: true
+        restart: always
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    judgezero-workers:
+        image: judge0/judge0:1.13.1
+        command: ['./scripts/workers']
+        volumes:
+            - ./judge0.conf:/judge0.conf:ro
+        networks:
+            - backend-network
+        privileged: true
+        restart: always
+        depends_on:
+            db:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    db:
+        image: postgres:16.2
+        env_file: judge0.conf
+        volumes:
+            - judgezero_data:/var/lib/postgresql/data/
+        networks:
+            - backend-network
+        restart: always
+        healthcheck:
+            test: ['CMD-SHELL', 'pg_isready -U judge0']
+            interval: 10s
+            retries: 5
+            start_period: 10s
+
+    redis:
+        image: redis:7.2.4
+        command: ['bash', '-c', 'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"']
+        env_file: judge0.conf
+        networks:
+            - backend-network
+        restart: always
+        healthcheck:
+            test: ['CMD', 'redis-cli', 'ping']
+            interval: 10s
+            retries: 5
+            start_period: 10s
+
+    matching-service:
+        container_name: matching-service
+        build:
+            context: .
+            dockerfile: ./backend/matching-service/Dockerfile
+        environment:
+            - NODE_ENV=development
+            - PORT=3006
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@matching-db:27017/matching-service?authSource=admin
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - USER_SERVICE_URL=http://user-service:3002
+            - QUESTION_SERVICE_URL=http://question-service:3004
+            - COLLABORATION_SERVICE_URL=http://collaboration-service:3008
+            - RMQ_USER=${RMQ_USER}
+            - RMQ_PASSWORD=${RMQ_PASSWORD}
+            - RMQ_HOST=rabbitmq
+        restart: always
+        networks:
+            - backend-network
+        depends_on:
+            - rabbitmq
+            - matching-db
+
+    rabbitmq:
+        image: rabbitmq:4-management-alpine
+        container_name: rabbitmq
+        environment:
+            - RABBITMQ_DEFAULT_USER=${RMQ_USER}
+            - RABBITMQ_DEFAULT_PASS=${RMQ_PASSWORD}
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq/
+            - rabbitmq_log:/var/log/rabbitmq/
+        networks:
+            - backend-network
+
+    matching-db:
+        container_name: matching-db
+        image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        ports:
+            - '27067:27017'
+        volumes:
+            - 'matching_data:/data/db'
+        networks:
+            - backend-network
+        command: mongod --quiet --logpath /dev/null --auth
+
+    user-service:
+        container_name: user-service
+        build:
+            context: .
+            dockerfile: ./backend/user-service/Dockerfile
+        environment:
+            - NODE_ENV=development
+            - PORT=3002
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@user-db:27017/user-service?authSource=admin
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - NODEMAILER_EMAIL=${NODEMAILER_EMAIL}
+            - NODEMAILER_PASSWORD=${NODEMAILER_PASSWORD}
+        restart: always
+        networks:
+            - backend-network
+        depends_on:
+            - user-db
+
+    user-db:
+        container_name: user-db
+        image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        ports:
+            - '27027:27017'
+        volumes:
+            - 'user_data:/data/db'
+        networks:
+            - backend-network
+        command: mongod --quiet --logpath /dev/null --auth
+
+    question-service:
+        container_name: question-service
+        build:
+            context: .
+            dockerfile: ./backend/question-service/Dockerfile
+        environment:
+            - NODE_ENV=development
+            - PORT=3004
+            - DB_URL=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@question-db:27017/question-service?authSource=admin
+            - ACCESS_TOKEN_PUBLIC_KEY=${ACCESS_TOKEN_PUBLIC_KEY}
+            - ACCESS_TOKEN_PRIVATE_KEY=${ACCESS_TOKEN_PRIVATE_KEY}
+            - USER_SERVICE_URL=http://user-service:3002
+        restart: always
+        networks:
+            - backend-network
+        depends_on:
+            - question-db
+
+    question-db:
+        container_name: question-db
+        image: mongo:8.0.0
+        environment:
+            - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
+        ports:
+            - '27047:27017'
+        volumes:
+            - 'question_data:/data/db'
+        networks:
+            - backend-network
+        command: mongod --quiet --logpath /dev/null --auth
+
+volumes:
+    user_data:
+    question_data:
+    matching_data:
+    rabbitmq_data:
+    rabbitmq_log:
+    collab_data:
+    judgezero_data:
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+# without having to go through mapped ports
+networks:
+    backend-network:

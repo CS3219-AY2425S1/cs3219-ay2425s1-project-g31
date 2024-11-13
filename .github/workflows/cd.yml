@@ -1,0 +1,75 @@
+name: CD
+
+on:
+    push:
+        branches: ['main']
+
+jobs:
+    push:
+        name: Build and Push
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                include:
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-user-service
+                      dockerfile: ./backend/user-service/Dockerfile
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-question-service
+                      dockerfile: ./backend/question-service/Dockerfile
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-matching-service
+                      dockerfile: ./backend/matching-service/Dockerfile
+                    - image: glemenneo/cs3219-ay2425s1-project-g31-collaboration-service
+                      dockerfile: ./backend/collaboration-service/Dockerfile
+        steps:
+            - name: Check out code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 2
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3
+            - name: Login to Docker Hub
+              uses: docker/login-action@v3
+              with:
+                  username: ${{ secrets.DOCKERHUB_USERNAME }}
+                  password: ${{ secrets.DOCKERHUB_TOKEN }}
+            - name: Build and push
+              uses: docker/build-push-action@v6
+              with:
+                  context: .
+                  file: ${{ matrix.dockerfile }}
+                  push: true
+                  tags: ${{ matrix.image }}:latest
+                  cache-from: type=gha
+                  cache-to: type=gha,mode=max
+    deploy:
+        name: Deploy to VPS
+        needs: push
+        timeout-minutes: 15
+        runs-on: ubuntu-latest
+        steps:
+            - name: Deploy
+              uses: appleboy/ssh-action@v1.1.0
+              env:
+                  VPS_HOST: ${{ secrets.VPS_HOST }}
+                  VPS_SSL_KEY_FILE: ${{ secrets.VPS_SSL_KEY_FILE }}
+                  VPS_SSL_CERT_FILE: ${{ secrets.VPS_SSL_CERT_FILE }}
+                  ACCESS_TOKEN_PUBLIC_KEY: ${{ secrets.ACCESS_TOKEN_PUBLIC_KEY }}
+                  ACCESS_TOKEN_PRIVATE_KEY: ${{ secrets.ACCESS_TOKEN_PRIVATE_KEY }}
+                  NODEMAILER_EMAIL: ${{ secrets.NODEMAILER_EMAIL }}
+                  NODEMAILER_PASSWORD: ${{ secrets.NODEMAILER_PASSWORD }}
+                  RMQ_USER: ${{ secrets.RMQ_USER }}
+                  RMQ_PASSWORD: ${{ secrets.RMQ_PASSWORD }}
+                  MONGO_USER: ${{ secrets.MONGO_USER }}
+                  MONGO_PASSWORD: ${{ secrets.MONGO_PASSWORD }}
+              with:
+                  host: ${{ secrets.VPS_HOST }}
+                  username: ${{ secrets.VPS_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  envs: VPS_HOST,VPS_SSL_KEY_FILE,VPS_SSL_CERT_FILE,ACCESS_TOKEN_PUBLIC_KEY,ACCESS_TOKEN_PRIVATE_KEY,NODEMAILER_EMAIL,NODEMAILER_PASSWORD,RMQ_USER,RMQ_PASSWORD,MONGO_USER,MONGO_PASSWORD
+                  script: |
+                      cd cs3219-ay2425s1-project-g31
+                      git switch main
+                      git pull
+                      docker compose down
+                      docker compose pull
+                      docker compose up -d

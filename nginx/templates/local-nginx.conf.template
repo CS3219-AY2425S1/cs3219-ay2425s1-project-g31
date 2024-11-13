@@ -1,0 +1,76 @@
+events {}
+
+http {
+    limit_req_zone ${D}binary_remote_addr zone=rate_limit_zone:10m rate=20r/s;
+    limit_req_status 429;
+
+    server {
+        listen 8080;
+        listen [::]:8080;
+
+        server_name ${DOMAIN_NAME};
+
+        limit_req zone=rate_limit_zone burst=20 nodelay;
+
+        proxy_set_header X-Forwarded-For ${D}proxy_add_x_forwarded_for;
+        proxy_set_header Host ${D}host;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade ${D}http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        location /api/ {
+            rewrite ^/api(/.*)$ $1 last;
+        }
+
+        location /auth {
+            proxy_pass ${USER_SERVICE_URL};
+        }
+
+        location /users {
+            proxy_pass ${USER_SERVICE_URL};
+        }
+
+        location /questions {
+            proxy_pass ${QUESTION_SERVICE_URL};
+        }
+
+        location /matching {
+            proxy_pass ${MATCHING_SERVICE_URL};
+        }
+
+        location /matching/ws/ {
+            proxy_pass ${MATCHING_SERVICE_URL}/;
+        }
+
+        location /rabbitmq/ {
+            proxy_pass ${RMQ_URL}/;
+        }
+
+        location /collab {
+            proxy_pass ${COLLABORATION_SERVICE_URL};
+        }
+
+        location /collab/y/ws/ {
+            proxy_pass ${COLLABORATION_SERVICE_URL}/;
+        }
+
+        location /collab/chat/ws/ {
+            proxy_pass ${COLLABORATION_SERVICE_CHAT_URL}/;
+        }
+
+        error_page 404 /404.json;
+        location /404.json {
+            return 404 '{"error":{"code":404,"message":"Not Found"}}';
+        }
+
+        error_page 429 /429.json;
+        location /429.json {
+            return 429 '{"error":{"code":429,"message":"Too Many Requests"}}';
+        }
+
+        error_page 502 /502.json;
+        location /502.json {
+            return 502 '{"error":{"code":502,"message":"Bad Gateway"}}';
+        }
+    }
+}

@@ -1,0 +1,9 @@
+**/node_modules
+**/.next
+**/dist
+**/coverage
+.git
+.gitignore
+.vscode
+.github
+.husky
