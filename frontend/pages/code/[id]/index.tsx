@@ -23,6 +23,7 @@ import TestResult from '../../../components/code/test-result'
 import { getChatHistory, getCollabHistory } from '@/services/collaboration-service-api'
 import ReadOnlyCodeMirrorEditor from '../../../components/code/read-only-editor'
 import { ResultModel } from '@repo/collaboration-types'
+import { decodeStr } from '@/util/encryption'
 import { TextSkeleton } from '@/components/customs/custom-loader'
 import { CodeQuestion } from '../../../components/code/question'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -30,7 +31,8 @@ import { CodeActions } from '@/components/code/actions'
 
 export default function Code() {
     const router = useRouter()
-    const { id } = router.query
+    const [isChatOpen, setIsChatOpen] = useState(true)
+    const [id, setId] = useState(router.query.id as string)
     const editorRef = useRef<{ getText: () => string } | null>(null)
     const [loading, setLoading] = useState(true)
     const [editorLanguage, setEditorLanguage] = useState<LanguageMode>(LanguageMode.Javascript)
@@ -75,8 +77,10 @@ export default function Code() {
     const { data: sessionData } = useSession()
 
     useEffect(() => {
-        const matchId = router.query.id as string
+        const encodedId = router.query.id as string
+        const matchId = decodeStr(encodedId)
         retrieveMatchDetails(matchId)
+        setId(matchId)
     }, [router.query.id, retry])
 
     useEffect(() => {
@@ -130,6 +134,7 @@ export default function Code() {
         socketRef.current.on('disconnect', () => {
             if (!isViewOnly) {
                 router.push('/')
+                toast.info('The session has ended')
             }
         })
 
@@ -191,7 +196,7 @@ export default function Code() {
 
     function handleEndSessionConfirmation() {
         if (socketRef.current) {
-            socketRef.current?.emit('end-session')
+            socketRef.current.emit('end-session')
             router.push('/')
         }
         setIsDialogOpen(false)

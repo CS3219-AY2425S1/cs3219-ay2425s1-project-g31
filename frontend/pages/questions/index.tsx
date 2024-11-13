@@ -158,10 +158,8 @@ export default function Questions() {
         } else if (modificationType === Modification.DELETE) {
             if (!questionData.id) return
             try {
-                const res = await deleteQuestionById(questionData.id)
-                if (res) {
-                    toast.success('Question deleted successfully')
-                }
+                await deleteQuestionById(questionData.id)
+                toast.success('Question deleted successfully')
             } catch (error) {
                 toast.error('Failed to delete question' + error)
                 return

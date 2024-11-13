@@ -56,7 +56,7 @@ function CustomDialogWithButton(props: CustomDialogProps) {
                         <DialogTitle>
                             <div className="flex flex-row gap-5">
                                 <ErrorIconDialog />
-                                Warning
+                                {props.text || 'Warning'}
                             </div>
                             <span className="h-0.5 w-full bg-slate-200 mt-5"></span>
                         </DialogTitle>

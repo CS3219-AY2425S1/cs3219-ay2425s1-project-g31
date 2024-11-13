@@ -3,6 +3,8 @@ import { Button } from '../ui/button'
 import { IMatch } from '@repo/user-types'
 import { convertSortedComplexityToComplexity } from '@repo/question-types'
 import { capitalizeFirstLowerRest } from '@/util/string-modification'
+import { encodeStr } from '@/util/encryption'
+import { toast } from 'sonner'
 
 interface IResumeSessionProps {
     match: IMatch
@@ -18,8 +20,11 @@ export default function ResumeSession({ match, isOngoing }: IResumeSessionProps)
         try {
             const ongoing = await isOngoing()
             if (!ongoing) return
-            router.push(`/code/${match.id}`)
-        } catch (error) {}
+            const encodedId = encodeStr(match.id)
+            router.push(`/code/${encodedId}`)
+        } catch (error) {
+            toast.error('Unable to resume session due to a server error')
+        }
     }
 
     return (
