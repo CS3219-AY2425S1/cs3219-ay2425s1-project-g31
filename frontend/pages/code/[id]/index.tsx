@@ -134,6 +134,12 @@ export default function Code() {
         socketRef.current.on('disconnect', () => {
             if (!isViewOnly) {
                 router.push('/')
+            }
+        })
+
+        socketRef.current.on('session-ended', () => {
+            if (!isViewOnly) {
+                router.push('/')
                 toast.info('The session has ended')
             }
         })
@@ -197,7 +203,6 @@ export default function Code() {
     function handleEndSessionConfirmation() {
         if (socketRef.current) {
             socketRef.current.emit('end-session')
-            router.push('/')
         }
         setIsDialogOpen(false)
     }
