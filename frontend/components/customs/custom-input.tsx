@@ -14,6 +14,7 @@ interface InputFieldProps {
     className?: string
     page?: string
     handleKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+    isDisabled?: boolean
 }
 
 interface OptionsFieldProps {
@@ -39,6 +40,7 @@ export const InputField = (props: InputFieldProps): JSX.Element => {
                     placeholder={props.placeholder}
                     value={props.value}
                     onChange={props.onChange}
+                    disabled={props.isDisabled}
                     className={
                         props.className
                             ? props.className
